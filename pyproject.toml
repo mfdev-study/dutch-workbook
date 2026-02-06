@@ -37,6 +37,8 @@ select = [
 ]
 ignore = [
     "E501",  # Line too long (handled by formatter)
+    "F403",  # Wildcard imports (standard in Django settings)
+    "E402",  # Imports not at top (necessary for path manipulation)
 ]
 
 [tool.ruff.format]

@@ -57,10 +57,7 @@ def progress_dashboard(request):
     # Calculate quiz percentages for template
     quizzes_with_percentages = []
     for quiz in recent_quizzes:
-        if quiz.total > 0:
-            percentage = int((quiz.score / quiz.total) * 100)
-        else:
-            percentage = 0
+        percentage = int(quiz.score / quiz.total * 100) if quiz.total > 0 else 0
         quizzes_with_percentages.append({"quiz": quiz, "percentage": percentage})
 
     context = {

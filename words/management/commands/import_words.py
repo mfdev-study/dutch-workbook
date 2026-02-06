@@ -72,10 +72,7 @@ class Command(BaseCommand):
         line = line.strip()
         line = re.sub(r"^Les \d+\s*", "", line)
 
-        if source == "RU":
-            pairs = self.parse_russian_line(line)
-        else:
-            pairs = self.parse_english_line(line)
+        pairs = self.parse_russian_line(line) if source == "RU" else self.parse_english_line(line)
 
         return pairs[:5]
 
@@ -146,7 +143,4 @@ class Command(BaseCommand):
             return False
         if dutch.startswith("=") or translation.startswith("="):
             return False
-        if " " not in dutch and len(dutch) < 3:
-            return False
-
-        return True
+        return not (" " not in dutch and len(dutch) < 3)
