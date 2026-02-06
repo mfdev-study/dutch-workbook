@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Quiz Question - Dutch Learning Workbook{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <div class="flex justify-between items-center mb-6">
+            <span class="text-gray-500">Question {{ question_num }} of {{ total }}</span>
+            <span class="text-gray-500">Score: {{ score }}</span>
+        </div>
+
+        <div class="w-full bg-gray-200 rounded-full h-2 mb-8">
+            <div class="bg-dutch-orange h-2 rounded-full" style="width: {% widthratio question_num total 100 %}%"></div>
+        </div>
+
+        <h1 class="text-3xl font-bold text-center text-gray-900 mb-8">{{ word.translation }}</h1>
+        <p class="text-center text-gray-600 mb-8">What is the Dutch translation?</p>
+
+        <form method="post" action="{% url 'submit_answer' %}">
+            {% csrf_token %}
+            <input type="hidden" name="word_id" value="{{ word.id }}">
+
+            <div class="space-y-3">
+                {% for option in options %}
+                <label class="block cursor-pointer">
+                    <input type="radio" name="answer_id" value="{{ option.id }}" required class="sr-only peer">
+                    <div class="p-4 border border-gray-200 rounded-lg peer-checked:border-dutch-orange peer-checked:bg-orange-50 hover:bg-gray-50 transition">
+                        <span class="text-lg font-medium text-gray-900">{{ option.dutch }}</span>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="w-full mt-6 bg-dutch-orange text-white py-3 px-4 rounded-md hover:bg-orange-600 transition font-medium">
+                Submit Answer
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

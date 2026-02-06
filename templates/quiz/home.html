@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Quiz - Dutch Learning Workbook{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">Choose a Quiz Type</h1>
+
+        {% if word_count > 0 %}
+        <div class="space-y-4">
+            <a href="{% url 'start_quiz' 'MC' %}" class="block p-6 border border-gray-200 rounded-lg hover:border-dutch-orange hover:shadow-md transition">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">Multiple Choice</h3>
+                        <p class="text-gray-600">Test your knowledge by selecting the correct translation from 4 options.</p>
+                    </div>
+                </div>
+            </a>
+
+            <div class="p-6 border border-gray-200 rounded-lg opacity-50 cursor-not-allowed">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">Fill in the Blank</h3>
+                        <p class="text-gray-600">Type the correct translation. (Coming soon)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+            <p class="text-sm text-gray-600">
+                <strong>{{ word_count }}</strong> words in your flashcard deck. Add more words to unlock all quiz types.
+            </p>
+        </div>
+        {% else %}
+        <div class="text-center py-8">
+            <div class="text-6xl mb-4">📚</div>
+            <h2 class="text-xl font-semibold text-gray-900 mb-2">No flashcards yet</h2>
+            <p class="text-gray-600 mb-6">Add words to your flashcards first to take a quiz.</p>
+            <a href="{% url 'browse' %}" class="inline-block bg-dutch-orange text-white px-6 py-2 rounded-md hover:bg-orange-600 transition font-medium">
+                Browse Words
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

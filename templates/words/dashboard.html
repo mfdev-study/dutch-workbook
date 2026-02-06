@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Dutch Learning Workbook{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">Welcome back, {{ user.username }}!</h1>
+        <p class="text-gray-600">Continue your Dutch learning journey.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <a href="{% url 'flashcards' %}" class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
+            <div class="text-4xl font-bold text-dutch-orange mb-2">{{ due_cards_count }}</div>
+            <div class="text-gray-600">Cards Due Today</div>
+        </a>
+
+        <a href="{% url 'progress' %}" class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
+            <div class="text-4xl font-bold text-green-600 mb-2">{{ progress.words_learned }}</div>
+            <div class="text-gray-600">Words Learned</div>
+        </a>
+
+        <a href="{% url 'favorites' %}" class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
+            <div class="text-4xl font-bold text-yellow-600 mb-2">{{ favorite_count }}</div>
+            <div class="text-gray-600">Favorites</div>
+        </a>
+
+        <a href="{% url 'streak' %}" class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
+            <div class="text-4xl font-bold text-blue-600 mb-2">{{ progress.current_streak }}</div>
+            <div class="text-gray-600">Day Streak</div>
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+            <div class="space-y-3">
+                <a href="{% url 'add_word' %}" class="flex items-center p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition">
+                    <svg class="w-6 h-6 text-purple-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <span class="font-medium">Add New Word</span>
+                </a>
+                <a href="{% url 'flashcards' %}" class="flex items-center p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition">
+                    <svg class="w-6 h-6 text-dutch-orange mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                    <span class="font-medium">Review Flashcards</span>
+                </a>
+                <a href="{% url 'quiz_home' %}" class="flex items-center p-3 bg-green-50 rounded-lg hover:bg-green-100 transition">
+                    <svg class="w-6 h-6 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="font-medium">Take a Quiz</span>
+                </a>
+                <a href="{% url 'browse' %}" class="flex items-center p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition">
+                    <svg class="w-6 h-6 text-blue-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <span class="font-medium">Browse Word Bank</span>
+                </a>
+            </div>
+        </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Today's Activity</h2>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Words Reviewed</span>
+                    <span class="text-2xl font-bold text-gray-900">{{ daily.words_reviewed }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Quizzes Completed</span>
+                    <span class="text-2xl font-bold text-gray-900">{{ daily.quizzes_completed }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">New Words Added</span>
+                    <span class="text-2xl font-bold text-gray-900">{{ daily.new_words }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Getting Started</h2>
+        <div class="space-y-3 text-gray-600">
+            <p>1. Browse the word bank and add words to your flashcards</p>
+            <p>2. Review your flashcards daily using spaced repetition</p>
+            <p>3. Take quizzes to test your knowledge</p>
+            <p>4. Track your progress and maintain your streak!</p>
+        </div>
+        <div class="mt-4">
+            <a href="{% url 'browse' %}" class="inline-block bg-dutch-orange text-white px-6 py-2 rounded-md hover:bg-orange-600 transition font-medium">Start Learning</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

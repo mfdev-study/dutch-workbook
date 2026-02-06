@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Delete {{ category.name }} - Dutch Workbook{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+    <div class="mb-6">
+        <a href="{% url 'category_detail' category.id %}" class="text-blue-600 hover:text-blue-800 mb-4 inline-block">
+            <i class="fas fa-arrow-left mr-2"></i>Back to {{ category.name }}
+        </a>
+        <h1 class="text-3xl font-bold text-gray-800">Delete Category</h1>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <!-- Warning Alert -->
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-red-400 text-xl"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-red-800 font-semibold">Warning: This action cannot be undone!</h3>
+                    <p class="text-red-700 text-sm mt-1">Deleting this category will remove all word associations, but the words themselves will not be deleted.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Info -->
+        <div class="border-l-4 pl-4 py-3 bg-gray-50 rounded mb-6" style="border-left-color: {{ category.color }};">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="font-semibold text-gray-800 text-lg">{{ category.name }}</h4>
+                    {% if category.description %}
+                        <p class="text-sm text-gray-600 mt-1">{{ category.description }}</p>
+                    {% endif %}
+                </div>
+                <div class="w-4 h-4 rounded-full" style="background-color: {{ category.color }};"></div>
+            </div>
+        </div>
+
+        <!-- Impact Information -->
+        <div class="bg-gray-50 rounded-lg p-4 mb-6">
+            <h3 class="font-semibold text-gray-700 mb-3">Impact of Deletion</h3>
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600">Words in this category:</span>
+                    <span class="font-semibold {{ word_count|yesno:'text-red-600,text-gray-800' }}">
+                        {{ word_count }} word{{ word_count|pluralize }}
+                    </span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-600">Category created:</span>
+                    <span class="font-semibold">{{ category.created_at|date:"M d, Y" }}</span>
+                </div>
+            </div>
+            
+            {% if word_count > 0 %}
+                <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+                    <p class="text-sm text-yellow-800">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        <strong>{{ word_count }}</strong> word{{ word_count|pluralize }} will be removed from this category but will remain in your vocabulary.
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Confirmation Form -->
+        <form method="post" id="deleteForm">
+            {% csrf_token %}
+            
+            <!-- Confirmation Checkbox -->
+            <div class="mb-6">
+                <label class="flex items-center">
+                    <input type="checkbox" 
+                           id="confirm" 
+                           name="confirm" 
+                           value="yes"
+                           class="mr-2 h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+                           required>
+                    <span class="text-gray-700">
+                        I understand that this action cannot be undone and I want to delete the category "{{ category.name }}"
+                    </span>
+                </label>
+            </div>
+
+            <!-- Type Confirmation -->
+            <div class="mb-6">
+                <label for="categoryName" class="block text-gray-700 font-semibold mb-2">
+                    Type the category name to confirm deletion:
+                </label>
+                <input type="text" 
+                       id="categoryName" 
+                       name="categoryName"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                       placeholder="{{ category.name }}"
+                       required>
+                <p class="text-sm text-gray-500 mt-1">This helps prevent accidental deletions.</p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'category_detail' category.id %}" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors">
+                    <i class="fas fa-times mr-2"></i>Cancel
+                </a>
+                <button type="submit" 
+                        id="deleteButton"
+                        class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                        disabled>
+                    <i class="fas fa-trash mr-2"></i>Delete Category
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmCheckbox = document.getElementById('confirm');
+    const categoryNameInput = document.getElementById('categoryName');
+    const deleteButton = document.getElementById('deleteButton');
+    const deleteForm = document.getElementById('deleteForm');
+    const categoryName = "{{ category.name|escapejs }}";
+    
+    function validateForm() {
+        const isConfirmed = confirmCheckbox.checked;
+        const nameMatches = categoryNameInput.value.trim().toLowerCase() === categoryName.toLowerCase();
+        
+        deleteButton.disabled = !(isConfirmed && nameMatches);
+    }
+    
+    confirmCheckbox.addEventListener('change', validateForm);
+    categoryNameInput.addEventListener('input', validateForm);
+    
+    // Prevent form submission if validation fails
+    deleteForm.addEventListener('submit', function(e) {
+        if (deleteButton.disabled) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Quiz Results - Dutch Learning Workbook{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-8 text-center">
+        <div class="text-6xl mb-4">
+            {% if percentage >= 80 %}🎉
+            {% elif percentage >= 60 %}👍
+            {% elif percentage >= 40 %}💪
+            {% else %}📚{% endif %}
+        </div>
+
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">Quiz Complete!</h1>
+
+        <div class="my-8">
+            <div class="text-5xl font-bold {% if percentage >= 80 %}text-green-600{% elif percentage >= 60 %}text-blue-600{% elif percentage >= 40 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                {{ score }}/{{ total }}
+            </div>
+            <p class="text-gray-600 mt-2">{{ percentage }}% correct</p>
+        </div>
+
+        <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+            <div class="h-4 rounded-full {% if percentage >= 80 %}bg-green-500{% elif percentage >= 60 %}bg-blue-500{% elif percentage >= 40 %}bg-yellow-500{% else %}bg-red-500{% endif %}" style="width: {{ percentage }}%"></div>
+        </div>
+
+        <div class="space-y-3">
+            <a href="{% url 'quiz_home' %}" class="block w-full bg-dutch-orange text-white py-3 px-4 rounded-md hover:bg-orange-600 transition font-medium">
+                Take Another Quiz
+            </a>
+            <a href="{% url 'dashboard' %}" class="block w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-md hover:bg-gray-200 transition font-medium">
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

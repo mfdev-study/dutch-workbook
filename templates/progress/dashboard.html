@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Progress - Dutch Learning Workbook{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">Your Progress</h1>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="text-center p-4 bg-orange-50 rounded-lg">
+                <div class="text-3xl font-bold text-dutch-orange">{{ progress.words_learned }}</div>
+                <div class="text-sm text-gray-600 mt-1">Words Learned</div>
+            </div>
+            <div class="text-center p-4 bg-green-50 rounded-lg">
+                <div class="text-3xl font-bold text-green-600">{{ progress.current_streak }}</div>
+                <div class="text-sm text-gray-600 mt-1">Day Streak</div>
+            </div>
+            <div class="text-center p-4 bg-blue-50 rounded-lg">
+                <div class="text-3xl font-bold text-blue-600">{{ progress.total_quizzes }}</div>
+                <div class="text-sm text-gray-600 mt-1">Quizzes Taken</div>
+            </div>
+            <div class="text-center p-4 bg-purple-50 rounded-lg">
+                <div class="text-3xl font-bold text-purple-600">{{ progress.average_score|floatformat:0 }}%</div>
+                <div class="text-sm text-gray-600 mt-1">Avg Score</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Last 7 Days</h2>
+                <div class="space-y-2">
+                    {% for day in chart_data %}
+                    <div class="flex items-center">
+                        <span class="w-12 text-sm text-gray-500">{{ day.date }}</span>
+                        <div class="flex-1 mx-2">
+                            <div class="h-6 bg-gray-100 rounded flex items-center">
+                                <div class="h-full bg-green-500 rounded" style="width: {% widthratio day.reviews 10 100 %}%"></div>
+                            </div>
+                        </div>
+                        <span class="w-8 text-sm text-gray-500 text-right">{{ day.reviews }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Flashcard Boxes</h2>
+                <div class="space-y-3">
+                    {% for count in box_distribution %}
+                    <div class="flex items-center">
+                        <span class="w-12 text-sm text-gray-500">Box {{ forloop.counter }}</span>
+                        <div class="flex-1 mx-2">
+                            <div class="h-6 bg-gray-100 rounded flex items-center">
+                                <div class="h-full bg-blue-500 rounded" style="width: {% widthratio count total_words 100 %}%"></div>
+                            </div>
+                        </div>
+                        <span class="w-8 text-sm text-gray-500 text-right">{{ count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                <p class="text-sm text-gray-500 mt-4">Total cards: {{ total_words }}</p>
+            </div>
+        </div>
+
+        <div class="mt-8">
+            <a href="{% url 'streak' %}" class="text-dutch-orange hover:text-orange-600 font-medium">
+                View Streak Calendar →
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Recent Quizzes</h2>
+        {% if recent_quizzes %}
+        <div class="space-y-3">
+            {% for quiz_data in recent_quizzes %}
+            {% with quiz=quiz_data.quiz percentage=quiz_data.percentage %}
+            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                <div>
+                    <span class="font-medium text-gray-900">{{ quiz.get_quiz_type_display }}</span>
+                    <span class="text-sm text-gray-500 ml-2">{{ quiz.started_at|date:"M d, H:i" }}</span>
+                </div>
+                <span class="px-3 py-1 text-sm rounded {% if percentage >= 80 %}bg-green-100 text-green-800{% elif percentage >= 60 %}bg-blue-100 text-blue-800{% else %}bg-red-100 text-red-800{% endif %}">
+                    {{ quiz.score }}/{{ quiz.total }}
+                </span>
+            </div>
+            {% endwith %}
+            {% endfor %}
+        </div>
+        <div class="mt-4">
+            <a href="{% url 'quiz_history' %}" class="text-dutch-orange hover:text-orange-600 font-medium">
+                View All Quizzes →
+            </a>
+        </div>
+        {% else %}
+        <p class="text-gray-600">No quizzes taken yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

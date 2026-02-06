@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}Quiz History - Dutch Learning Workbook{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-4">Quiz History</h1>
+
+        {% if sessions %}
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gray-200">
+                        <th class="text-left py-3 px-4 font-semibold text-gray-600">Date</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-600">Type</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-600">Score</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-600">Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for session in sessions %}
+                    <tr class="border-b border-gray-100">
+                        <td class="py-3 px-4 text-gray-700">{{ session.started_at|date:"M d, Y H:i" }}</td>
+                        <td class="py-3 px-4 text-gray-700">{{ session.get_quiz_type_display }}</td>
+                        <td class="py-3 px-4 text-gray-700">{{ session.score }}/{{ session.total }}</td>
+                        <td class="py-3 px-4">
+                            {% with percentage=session.score|multiply:100|divide:session.total %}
+                            <span class="px-2 py-1 text-sm rounded {% if percentage >= 80 %}bg-green-100 text-green-800{% elif percentage >= 60 %}bg-blue-100 text-blue-800{% elif percentage >= 40 %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ percentage|floatformat:0 }}%
+                            </span>
+                            {% endwith %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <div class="text-6xl mb-4">📊</div>
+            <h2 class="text-xl font-semibold text-gray-900 mb-2">No quizzes yet</h2>
+            <p class="text-gray-600 mb-6">Complete your first quiz to see your history.</p>
+            <a href="{% url 'quiz_home' %}" class="inline-block bg-dutch-orange text-white px-6 py-2 rounded-md hover:bg-orange-600 transition font-medium">
+                Take a Quiz
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

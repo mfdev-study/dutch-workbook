@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Streak - Dutch Learning Workbook{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">Your Streak</h1>
+            <div class="text-center">
+                <div class="text-4xl font-bold text-dutch-orange">{{ progress.current_streak }}</div>
+                <div class="text-sm text-gray-500">Current Streak</div>
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm text-gray-600">Longest Streak</span>
+                <span class="font-semibold text-gray-900">{{ progress.longest_streak }} days</span>
+            </div>
+            <p class="text-sm text-gray-500">Keep learning every day to maintain your streak!</p>
+        </div>
+
+        <div class="grid grid-cols-7 gap-2 mb-4">
+            {% for day in streak_data %}
+            <div class="text-center">
+                <div class="text-xs text-gray-500 mb-1">{{ day.month }}</div>
+                <div class="w-full aspect-square rounded {% if day.active %}bg-green-500{% else %}bg-gray-100{% endif %} flex items-center justify-center">
+                    {% if day.active %}
+                    <span class="text-white font-bold text-sm">{{ day.day }}</span>
+                    {% else %}
+                    <span class="text-gray-400 text-sm">{{ day.day }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="flex items-center justify-center gap-4 text-sm text-gray-600 mb-6">
+            <div class="flex items-center">
+                <div class="w-4 h-4 bg-green-500 rounded mr-2"></div>
+                <span>Active day</span>
+            </div>
+            <div class="flex items-center">
+                <div class="w-4 h-4 bg-gray-100 rounded mr-2"></div>
+                <span>No activity</span>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <a href="{% url 'progress' %}" class="text-dutch-orange hover:text-orange-600 font-medium">
+                Back to Progress
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

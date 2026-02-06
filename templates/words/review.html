@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Flashcard Review - Dutch Learning Workbook{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">Flashcard Review</h1>
+            <span class="text-gray-500">{{ remaining_count }} cards remaining</span>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 rounded-full h-2 mb-8">
+            <div class="bg-dutch-orange h-2 rounded-full" style="width: {% widthratio remaining_count total_due 100 %}%"></div>
+        </div>
+
+        {% if card %}
+        <div class="border border-gray-200 rounded-lg p-8 hover:shadow-md transition text-center">
+            <!-- Card Content -->
+            <div class="mb-8">
+                <h3 class="text-4xl font-bold text-gray-900 mb-4">{{ card.word.dutch }}</h3>
+                <p class="text-xl text-gray-600 mb-4">{{ card.word.translation }}</p>
+
+                {% if card.word.example %}
+                <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                    <p class="text-gray-700 italic">{{ card.word.example }}</p>
+                </div>
+                {% endif %}
+
+                <div class="flex items-center justify-center gap-4 text-sm text-gray-500">
+                    <span>Box {{ card.box }}</span>
+                    {% if card.last_reviewed %}
+                    <span>Last reviewed: {{ card.last_reviewed|date:"M d, H:i" }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Rating Buttons -->
+            <div class="flex flex-wrap justify-center gap-3">
+                <a href="{% url 'rate_card' card.id 'again' %}"
+                   class="px-6 py-3 text-lg bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-medium">
+                    Again (1 day)
+                </a>
+                <a href="{% url 'rate_card' card.id 'hard' %}"
+                   class="px-6 py-3 text-lg bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition font-medium">
+                    Hard ({{ card.box|add:1 }} days)
+                </a>
+                <a href="{% url 'rate_card' card.id 'good' %}"
+                   class="px-6 py-3 text-lg bg-green-500 text-white rounded-lg hover:bg-green-600 transition font-medium">
+                    Good ({{ card.box|add:1 }} days)
+                </a>
+                <a href="{% url 'rate_card' card.id 'easy' %}"
+                   class="px-6 py-3 text-lg bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition font-medium">
+                    Easy ({{ card.box|add:2 }} days)
+                </a>
+            </div>
+
+            <!-- Instructions -->
+            <div class="mt-6 text-sm text-gray-500">
+                <p><strong>Again:</strong> Reset to Box 1, review in 1 day</p>
+                <p><strong>Hard:</strong> Stay in current box or move up 1</p>
+                <p><strong>Good:</strong> Move up 1 box level</p>
+                <p><strong>Easy:</strong> Move up 2 box levels</p>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <div class="text-6xl mb-4">🎉</div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">All caught up!</h2>
+            <p class="text-gray-600 mb-6">You've reviewed all your due flashcards.</p>
+            <a href="{% url 'dashboard' %}" class="inline-block bg-dutch-orange text-white px-6 py-2 rounded-md hover:bg-orange-600 transition font-medium">
+                Back to Dashboard
+            </a>
+        </div>
+        {% endif %}
+
+        <div class="mt-6 text-center">
+            <a href="{% url 'dashboard' %}" class="text-gray-600 hover:text-gray-900">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

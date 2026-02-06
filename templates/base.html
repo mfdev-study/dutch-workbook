@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dutch Learning Workbook{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'dutch-orange': '#FF6600',
+                        'dutch-red': '#AE0F0F',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'dashboard' %}" class="flex items-center">
+                        <span class="text-2xl font-bold text-dutch-orange">NL</span>
+                        <span class="ml-2 text-xl font-semibold text-gray-900">Dutch Workbook</span>
+                    </a>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Dashboard</a>
+                        <a href="{% url 'add_word' %}" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Add Word</a>
+                        <a href="{% url 'browse' %}" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Browse</a>
+                        <a href="{% url 'categories_list' %}" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Categories</a>
+                        <a href="{% url 'flashcards' %}" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Flashcards</a>
+                        <a href="{% url 'quiz_home' %}" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Quiz</a>
+                        <a href="{% url 'progress' %}" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Progress</a>
+                        <div class="ml-4 flex items-center border-l border-gray-200 pl-4">
+                            <span class="text-sm text-gray-500 mr-2">{{ user.username }}</span>
+                            <form action="{% url 'logout' %}" method="post" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="text-gray-600 hover:text-gray-900 text-sm font-medium">Logout</button>
+                            </form>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">Login</a>
+                        <a href="{% url 'signup' %}" class="bg-dutch-orange text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-orange-600">Sign Up</a>
+                    {% endif %}
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="flex items-center md:hidden">
+                    <button id="mobile-menu-btn" class="text-gray-600 hover:text-gray-900 p-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-gray-200">
+            <div class="px-4 py-3 space-y-2">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Dashboard</a>
+                    <a href="{% url 'add_word' %}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Add Word</a>
+                    <a href="{% url 'browse' %}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Browse</a>
+                    <a href="{% url 'categories_list' %}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Categories</a>
+                    <a href="{% url 'flashcards' %}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Flashcards</a>
+                    <a href="{% url 'quiz_home' %}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Quiz</a>
+                    <a href="{% url 'progress' %}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Progress</a>
+                    <div class="border-t border-gray-200 pt-2 mt-2">
+                        <span class="block px-3 py-2 text-sm text-gray-500">{{ user.username }}</span>
+                        <form action="{% url 'logout' %}" method="post" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="block w-full text-left px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Logout</button>
+                        </form>
+                    </div>
+                {% else %}
+                    <a href="{% url 'login' %}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">Login</a>
+                    <a href="{% url 'signup' %}" class="block px-3 py-2 text-dutch-orange font-medium">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <script>
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!menuBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+    </script>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 py-6">
+            <p class="text-center text-sm text-gray-500">Dutch Learning Workbook - Learn Dutch with flashcards and quizzes</p>
+        </div>
+    </footer>
+</body>
+</html>

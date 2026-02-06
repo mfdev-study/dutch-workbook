@@ -1,0 +1,15 @@
+[project]
+name = "nederlandse-workbook"
+version = "0.1.0"
+description = "A Dutch learning web app with PDF-based word banks"
+requires-python = ">=3.11"
+dependencies = [
+    "django>=5.0",
+    "pdfplumber>=0.10",
+    "python-dateutil>=2.8",
+    "gunicorn>=21.0.0",
+    "textual>=7.3.0",
+    "beautifulsoup4>=4.14.3",
+]
+
+[tool.uv]

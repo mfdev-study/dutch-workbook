@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Words - Dutch Learning Workbook{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-4">Browse Word Bank</h1>
+
+        <form method="get" class="flex flex-wrap gap-4">
+            <div class="flex-1 min-w-[200px]">
+                <input type="text" name="q" value="{{ query }}" placeholder="Search words..."
+                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dutch-orange focus:border-transparent">
+            </div>
+            <select name="source" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dutch-orange">
+                <option value="">All Sources</option>
+                <option value="UK" {% if source == 'UK' %}selected{% endif %}>Ukrainian-Dutch</option>
+                <option value="EN" {% if source == 'EN' %}selected{% endif %}>English-Dutch</option>
+                <option value="RU" {% if source == 'RU' %}selected{% endif %}>Russian-Dutch</option>
+            </select>
+            <button type="submit" class="bg-dutch-orange text-white px-6 py-2 rounded-md hover:bg-orange-600 transition font-medium">
+                Search
+            </button>
+        </form>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gray-200">
+                        <th class="text-left py-3 px-4 font-semibold text-gray-600">Dutch</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-600">Translation</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-600">Source</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-600">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for word in words %}
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4">
+                            <a href="{% url 'word_detail' word.id %}" class="text-dutch-orange hover:text-orange-600 font-medium">
+                                {{ word.dutch }}
+                            </a>
+                        </td>
+                        <td class="py-3 px-4 text-gray-700">{{ word.translation }}</td>
+                        <td class="py-3 px-4">
+                            <span class="inline-block px-2 py-1 text-xs rounded {% if word.source == 'EN' %}bg-blue-100 text-blue-800{% else %}bg-purple-100 text-purple-800{% endif %}">
+                                {{ word.get_source_display }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4">
+                            <a href="{% url 'word_detail' word.id %}" class="text-blue-600 hover:text-blue-800 text-sm">View</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="py-8 text-center text-gray-500">
+                            No words found. Try a different search or import words from PDF.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if words %}
+        <div class="mt-4 text-sm text-gray-500 text-center">
+            Showing first 100 results
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
