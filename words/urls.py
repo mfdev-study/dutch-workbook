@@ -52,4 +52,6 @@ urlpatterns = [
         category_views.remove_from_category,
         name="remove_from_category",
     ),
+    # AI Generation
+    path("generate-words/", views.generate_words_view, name="generate_words"),
 ]

@@ -1,13 +1,13 @@
-import os
+"""
+OpenRouter client for AI integration with Django.
+"""
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
+from django.conf import settings
 from openai import OpenAI
 
 
 def load_models_from_file(models_file: str = "free_models.txt"):
+    """Load models from a local file."""
     try:
         with open(models_file) as f:
             lines = f.readlines()
@@ -28,13 +28,22 @@ def load_models_from_file(models_file: str = "free_models.txt"):
 
 
 class OpenRouterClient:
-    def __init__(self, api_key: str = None, base_url: str = "https://openrouter.ai/api/v1"):
-        self.api_key = api_key or os.getenv("OPENROUTER_API_KEY")
-        self.base_url = base_url
+    """Client for interacting with OpenRouter API."""
+
+    def __init__(
+        self,
+        api_key: str | None = None,
+        base_url: str = "https://openrouter.ai/api/v1",
+    ):
+        self.api_key = api_key or getattr(settings, "OPENROUTER_API_KEY", None)
+        self.base_url = base_url or getattr(
+            settings, "OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1"
+        )
         self.client = OpenAI(api_key=self.api_key, base_url=self.base_url)
 
-    def chat(self, prompt: str, model: str = None) -> tuple[str, str]:
-        model = model or os.getenv("OPENROUTER_MODEL", "anthropic/claude-3-5-sonnet")
+    def chat(self, prompt: str, model: str | None = None) -> tuple[str, str]:
+        """Send a chat prompt to OpenRouter and return the model used and response content."""
+        model = model or getattr(settings, "OPENROUTER_MODEL", "anthropic/claude-3.5-sonnet")
         response = self.client.chat.completions.create(
             model=model,
             messages=[{"role": "user", "content": prompt}],
@@ -42,13 +51,20 @@ class OpenRouterClient:
         content = response.choices[0].message.content
         return model, content
 
-    def list_models(self, page: int = 0, per_page: int = 20, models_file: str = "free_models.txt"):
+    def list_models(
+        self,
+        page: int = 0,
+        per_page: int = 20,
+        models_file: str = "free_models.txt",
+    ):
+        """List available models from local file."""
         models, total = load_models_from_file(models_file)
         start = page * per_page
         end = start + per_page
         return models[start:end], total
 
     def fetch_and_save_free_models(self, models_file: str = "free_models.txt"):
+        """Fetch free models from OpenRouter API and save to file."""
         response = self.client.models.list()
         free_models = []
 
@@ -78,15 +94,18 @@ class OpenRouterClient:
         return free_models
 
 
-def chat(prompt: str, model: str = None, api_key: str = None) -> tuple[str, str]:
+def chat(prompt: str, model: str | None = None, api_key: str | None = None) -> tuple[str, str]:
+    """Convenience function for one-off chat requests."""
     client = OpenRouterClient(api_key=api_key)
     return client.chat(prompt, model)
 
 
 def list_models(page: int = 0, per_page: int = 20, models_file: str = "free_models.txt"):
+    """Convenience function to list models from file."""
     return load_models_from_file(models_file)
 
 
-def list_free_models(api_key: str = None) -> list:
+def list_free_models(api_key: str | None = None) -> list:
+    """Fetch and save free models from OpenRouter."""
     client = OpenRouterClient(api_key=api_key)
     return client.fetch_and_save_free_models()
