@@ -1,10 +1,10 @@
-from django.core.management.base import BaseCommand, CommandError
-from django.core.management import call_command
+from django.core.management.base import BaseCommand
 from django.db import transaction
-from words.models import Word, Flashcard, WordList, Example
-from quiz.models import QuizSession, QuizAnswer
-from progress.models import UserProgress, DailyActivity
+
 from accounts.models import CustomUser
+from progress.models import DailyActivity, UserProgress
+from quiz.models import QuizAnswer, QuizSession
+from words.models import Example, Flashcard, Word, WordList
 
 
 class Command(BaseCommand):
@@ -74,8 +74,7 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                "\nDatabase reset complete!\n"
-                "You can now create a new user account and start fresh."
+                "\nDatabase reset complete!\nYou can now create a new user account and start fresh."
             )
         )
 

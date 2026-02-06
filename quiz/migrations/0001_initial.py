@@ -6,36 +6,68 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('words', '0001_initial'),
+        ("words", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='QuizSession',
+            name="QuizSession",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('quiz_type', models.CharField(choices=[('MC', 'Multiple Choice'), ('FL', 'Fill-in-the-blank'), ('SP', 'Speed Round')], max_length=2)),
-                ('score', models.IntegerField(default=0)),
-                ('total', models.IntegerField(default=0)),
-                ('started_at', models.DateTimeField(auto_now_add=True)),
-                ('completed_at', models.DateTimeField(blank=True, null=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "quiz_type",
+                    models.CharField(
+                        choices=[
+                            ("MC", "Multiple Choice"),
+                            ("FL", "Fill-in-the-blank"),
+                            ("SP", "Speed Round"),
+                        ],
+                        max_length=2,
+                    ),
+                ),
+                ("score", models.IntegerField(default=0)),
+                ("total", models.IntegerField(default=0)),
+                ("started_at", models.DateTimeField(auto_now_add=True)),
+                ("completed_at", models.DateTimeField(blank=True, null=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='QuizAnswer',
+            name="QuizAnswer",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('user_answer', models.CharField(max_length=200)),
-                ('is_correct', models.BooleanField()),
-                ('answered_at', models.DateTimeField(auto_now_add=True)),
-                ('word', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='words.word')),
-                ('session', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='quiz.quizsession')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("user_answer", models.CharField(max_length=200)),
+                ("is_correct", models.BooleanField()),
+                ("answered_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "word",
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="words.word"),
+                ),
+                (
+                    "session",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="quiz.quizsession"
+                    ),
+                ),
             ],
         ),
     ]

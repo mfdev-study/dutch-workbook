@@ -1,15 +1,13 @@
 from django.urls import path
-from . import views
-from . import category_views
+
+from . import category_views, views
 
 urlpatterns = [
     path("", views.dashboard, name="dashboard"),
     path("browse/", views.browse_words, name="browse"),
     path("add/", views.add_word, name="add_word"),
     path("word/<int:word_id>/", views.word_detail, name="word_detail"),
-    path(
-        "word/<int:word_id>/add-flashcard/", views.add_flashcard, name="add_flashcard"
-    ),
+    path("word/<int:word_id>/add-flashcard/", views.add_flashcard, name="add_flashcard"),
     path(
         "word/<int:word_id>/remove-flashcard/",
         views.remove_flashcard,
@@ -21,15 +19,11 @@ urlpatterns = [
         name="toggle_favorite",
     ),
     path("flashcards/", views.flashcards_review, name="flashcards"),
-    path(
-        "flashcards/rate/<int:card_id>/<str:rating>/", views.rate_card, name="rate_card"
-    ),
+    path("flashcards/rate/<int:card_id>/<str:rating>/", views.rate_card, name="rate_card"),
     path("favorites/", views.favorites_list, name="favorites"),
     path("word/<int:word_id>/add-example/", views.add_example, name="add_example"),
     path("example/<int:example_id>/edit/", views.edit_example, name="edit_example"),
-    path(
-        "example/<int:example_id>/delete/", views.delete_example, name="delete_example"
-    ),
+    path("example/<int:example_id>/delete/", views.delete_example, name="delete_example"),
     # Category URLs
     path("categories/", category_views.categories_list, name="categories_list"),
     path("categories/create/", category_views.create_category, name="create_category"),

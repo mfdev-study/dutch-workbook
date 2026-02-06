@@ -5,37 +5,63 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('words', '0004_example'),
+        ("words", "0004_example"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Category',
+            name="Category",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100, unique=True)),
-                ('description', models.TextField(blank=True)),
-                ('color', models.CharField(default='#007bff', help_text='Hex color code', max_length=7)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=100, unique=True)),
+                ("description", models.TextField(blank=True)),
+                (
+                    "color",
+                    models.CharField(default="#007bff", help_text="Hex color code", max_length=7),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
             options={
-                'verbose_name_plural': 'Categories',
-                'ordering': ['name'],
+                "verbose_name_plural": "Categories",
+                "ordering": ["name"],
             },
         ),
         migrations.CreateModel(
-            name='CategorizedWord',
+            name="CategorizedWord",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('word', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='categorized', to='words.word')),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='categorized_words', to='words.category')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "word",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="categorized",
+                        to="words.word",
+                    ),
+                ),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="categorized_words",
+                        to="words.category",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['category__name'],
-                'unique_together': {('word', 'category')},
+                "ordering": ["category__name"],
+                "unique_together": {("word", "category")},
             },
         ),
     ]

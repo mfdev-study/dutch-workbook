@@ -6,25 +6,44 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('words', '0003_word_context_word_example'),
+        ("words", "0003_word_context_word_example"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Example',
+            name="Example",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('text', models.TextField(help_text='Example sentence in Dutch')),
-                ('translation', models.TextField(blank=True, help_text='Translation of the example (optional)')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('created_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('word', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='examples', to='words.word')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("text", models.TextField(help_text="Example sentence in Dutch")),
+                (
+                    "translation",
+                    models.TextField(blank=True, help_text="Translation of the example (optional)"),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+                    ),
+                ),
+                (
+                    "word",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="examples",
+                        to="words.word",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
     ]

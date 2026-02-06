@@ -1,6 +1,8 @@
 import re
+
 import pdfplumber
 from django.core.management.base import BaseCommand
+
 from words.models import Word
 
 
@@ -60,9 +62,7 @@ class Command(BaseCommand):
 
                 self.stdout.write(f"Processed page {page_num}")
 
-        self.stdout.write(
-            self.style.SUCCESS(f"Successfully imported {words_imported} words")
-        )
+        self.stdout.write(self.style.SUCCESS(f"Successfully imported {words_imported} words"))
         if words_skipped > 0:
             self.stdout.write(f"Skipped {words_skipped} duplicate words")
 

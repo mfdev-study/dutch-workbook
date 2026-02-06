@@ -1,12 +1,13 @@
 import random
-from django.shortcuts import render, redirect, get_object_or_404
+
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from datetime import timedelta
-from .models import QuizSession, QuizAnswer
-from words.models import Word, Flashcard
-from progress.models import UserProgress, DailyActivity
+
+from progress.models import DailyActivity, UserProgress
+from words.models import Flashcard, Word
+
+from .models import QuizAnswer, QuizSession
 
 
 @login_required
@@ -30,9 +31,7 @@ def start_quiz(request, quiz_type):
     word_ids = list(flashcards.values_list("word_id", flat=True))
     random.shuffle(word_ids)
 
-    session = QuizSession.objects.create(
-        user=request.user, quiz_type=quiz_type, total=10
-    )
+    session = QuizSession.objects.create(user=request.user, quiz_type=quiz_type, total=10)
 
     request.session["quiz_word_ids"] = word_ids[:10]
     request.session["quiz_current"] = 0
@@ -150,9 +149,9 @@ def quiz_results(request):
 
 @login_required
 def quiz_history(request):
-    sessions = QuizSession.objects.filter(
-        user=request.user, completed_at__isnull=False
-    ).order_by("-started_at")[:50]
+    sessions = QuizSession.objects.filter(user=request.user, completed_at__isnull=False).order_by(
+        "-started_at"
+    )[:50]
 
     context = {
         "sessions": sessions,

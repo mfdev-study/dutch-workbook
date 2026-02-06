@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -15,34 +14,54 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='UserProgress',
+            name="UserProgress",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('words_learned', models.IntegerField(default=0)),
-                ('current_streak', models.IntegerField(default=0)),
-                ('longest_streak', models.IntegerField(default=0)),
-                ('last_activity', models.DateField(blank=True, null=True)),
-                ('total_quizzes', models.IntegerField(default=0)),
-                ('average_score', models.FloatField(default=0.0)),
-                ('total_reviews', models.IntegerField(default=0)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("words_learned", models.IntegerField(default=0)),
+                ("current_streak", models.IntegerField(default=0)),
+                ("longest_streak", models.IntegerField(default=0)),
+                ("last_activity", models.DateField(blank=True, null=True)),
+                ("total_quizzes", models.IntegerField(default=0)),
+                ("average_score", models.FloatField(default=0.0)),
+                ("total_reviews", models.IntegerField(default=0)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='DailyActivity',
+            name="DailyActivity",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateField()),
-                ('words_reviewed', models.IntegerField(default=0)),
-                ('quizzes_completed', models.IntegerField(default=0)),
-                ('new_words', models.IntegerField(default=0)),
-                ('correct_answers', models.IntegerField(default=0)),
-                ('total_answers', models.IntegerField(default=0)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("date", models.DateField()),
+                ("words_reviewed", models.IntegerField(default=0)),
+                ("quizzes_completed", models.IntegerField(default=0)),
+                ("new_words", models.IntegerField(default=0)),
+                ("correct_answers", models.IntegerField(default=0)),
+                ("total_answers", models.IntegerField(default=0)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('user', 'date')},
+                "unique_together": {("user", "date")},
             },
         ),
     ]

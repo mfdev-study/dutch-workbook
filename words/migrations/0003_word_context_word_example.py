@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('words', '0002_alter_word_source'),
+        ("words", "0002_alter_word_source"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='word',
-            name='context',
-            field=models.TextField(blank=True, default=''),
+            model_name="word",
+            name="context",
+            field=models.TextField(blank=True, default=""),
         ),
         migrations.AddField(
-            model_name='word',
-            name='example',
-            field=models.TextField(blank=True, default=''),
+            model_name="word",
+            name="example",
+            field=models.TextField(blank=True, default=""),
         ),
     ]

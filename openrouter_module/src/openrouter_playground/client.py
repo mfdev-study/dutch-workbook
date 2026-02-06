@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,7 +9,7 @@ from openai import OpenAI
 
 def load_models_from_file(models_file: str = "free_models.txt"):
     try:
-        with open(models_file, "r") as f:
+        with open(models_file) as f:
             lines = f.readlines()
     except FileNotFoundError:
         return [], 0
@@ -28,9 +28,7 @@ def load_models_from_file(models_file: str = "free_models.txt"):
 
 
 class OpenRouterClient:
-    def __init__(
-        self, api_key: str = None, base_url: str = "https://openrouter.ai/api/v1"
-    ):
+    def __init__(self, api_key: str = None, base_url: str = "https://openrouter.ai/api/v1"):
         self.api_key = api_key or os.getenv("OPENROUTER_API_KEY")
         self.base_url = base_url
         self.client = OpenAI(api_key=self.api_key, base_url=self.base_url)
@@ -44,9 +42,7 @@ class OpenRouterClient:
         content = response.choices[0].message.content
         return model, content
 
-    def list_models(
-        self, page: int = 0, per_page: int = 20, models_file: str = "free_models.txt"
-    ):
+    def list_models(self, page: int = 0, per_page: int = 20, models_file: str = "free_models.txt"):
         models, total = load_models_from_file(models_file)
         start = page * per_page
         end = start + per_page
@@ -87,9 +83,7 @@ def chat(prompt: str, model: str = None, api_key: str = None) -> tuple[str, str]
     return client.chat(prompt, model)
 
 
-def list_models(
-    page: int = 0, per_page: int = 20, models_file: str = "free_models.txt"
-):
+def list_models(page: int = 0, per_page: int = 20, models_file: str = "free_models.txt"):
     return load_models_from_file(models_file)
 
 

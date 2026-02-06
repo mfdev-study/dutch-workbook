@@ -1,23 +1,7 @@
-from django.db import models
 from django.contrib.auth import get_user_model
+from django.db import models
 
 User = get_user_model()
-
-
-class Category(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    description = models.TextField(blank=True)
-    color = models.CharField(
-        max_length=7, default="#007bff", help_text="Hex color code"
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["name"]
-        verbose_name_plural = "Categories"
-
-    def __str__(self):
-        return self.name
 
 
 class Word(models.Model):
@@ -45,9 +29,7 @@ class Word(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
-    color = models.CharField(
-        max_length=7, default="#007bff", help_text="Hex color code"
-    )
+    color = models.CharField(max_length=7, default="#007bff", help_text="Hex color code")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -109,9 +91,7 @@ class WordList(models.Model):
 class Example(models.Model):
     word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name="examples")
     text = models.TextField(help_text="Example sentence in Dutch")
-    translation = models.TextField(
-        blank=True, help_text="Translation of the example (optional)"
-    )
+    translation = models.TextField(blank=True, help_text="Translation of the example (optional)")
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 

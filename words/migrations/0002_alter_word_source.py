@@ -4,15 +4,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('words', '0001_initial'),
+        ("words", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='word',
-            name='source',
-            field=models.CharField(choices=[('EN', 'English-Dutch'), ('UK', 'Ukrainian-Dutch'), ('RU', 'Russian-Dutch')], max_length=2),
+            model_name="word",
+            name="source",
+            field=models.CharField(
+                choices=[
+                    ("EN", "English-Dutch"),
+                    ("UK", "Ukrainian-Dutch"),
+                    ("RU", "Russian-Dutch"),
+                ],
+                max_length=2,
+            ),
         ),
     ]

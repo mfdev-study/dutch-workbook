@@ -1,12 +1,14 @@
 import re
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from django.utils import timezone
-from django.db.models import Q
 from datetime import timedelta
-from .models import Word, Flashcard, WordList, Example, Category
-from progress.models import UserProgress, DailyActivity
+
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+
+from progress.models import DailyActivity, UserProgress
+
+from .models import Example, Flashcard, Word, WordList
 
 
 @login_required
@@ -32,7 +34,7 @@ def add_word(request):
                 word.context = context
                 word.example = example
                 word.save()
-                flashcard = Flashcard.objects.create(
+                _ = Flashcard.objects.create(
                     user=request.user,
                     word=word,
                     box=1,
@@ -43,9 +45,7 @@ def add_word(request):
                 progress.save()
 
                 today = timezone.now().date()
-                daily, _ = DailyActivity.objects.get_or_create(
-                    user=request.user, date=today
-                )
+                daily, _ = DailyActivity.objects.get_or_create(user=request.user, date=today)
                 daily.new_words += 1
                 daily.save()
 

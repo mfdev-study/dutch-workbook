@@ -1,5 +1,6 @@
 import os
 import sys
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -90,7 +91,7 @@ def main():
 
 def load_all_models():
     try:
-        with open(MODELS_FILE, "r") as f:
+        with open(MODELS_FILE) as f:
             lines = f.readlines()
     except FileNotFoundError:
         return []
@@ -137,10 +138,10 @@ def switch_model(arg, models_file):
 
 def save_model_to_env(model_id):
     env_path = ".env"
-    api_key = os.getenv("OPENROUTER_API_KEY", "")
+    _ = os.getenv("OPENROUTER_API_KEY", "")
 
     if os.path.exists(env_path):
-        with open(env_path, "r") as f:
+        with open(env_path) as f:
             lines = f.readlines()
     else:
         lines = []

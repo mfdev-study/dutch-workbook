@@ -1,9 +1,9 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from .models import Category, CategorizedWord, Word
+from django.shortcuts import get_object_or_404, redirect, render
+
+from .models import CategorizedWord, Category, Word
 
 
 @login_required
@@ -82,9 +82,7 @@ def add_to_category(request, word_id):
             if created:
                 messages.success(request, f'"{word.dutch}" added to "{category.name}"')
             else:
-                messages.info(
-                    request, f'"{word.dutch}" is already in "{category.name}"'
-                )
+                messages.info(request, f'"{word.dutch}" is already in "{category.name}"')
 
             return redirect("word_detail", word_id=word_id)
 

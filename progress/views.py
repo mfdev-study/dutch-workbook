@@ -1,11 +1,13 @@
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from django.utils import timezone
 from datetime import timedelta
-from .models import UserProgress, DailyActivity
-from words.models import Flashcard
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from django.utils import timezone
+
 from quiz.models import QuizSession
-from collections import defaultdict
+from words.models import Flashcard
+
+from .models import DailyActivity, UserProgress
 
 
 @login_required
@@ -15,9 +17,9 @@ def progress_dashboard(request):
     today = timezone.now().date()
     week_ago = today - timedelta(days=7)
 
-    daily_activities = DailyActivity.objects.filter(
-        user=request.user, date__gte=week_ago
-    ).order_by("date")
+    daily_activities = DailyActivity.objects.filter(user=request.user, date__gte=week_ago).order_by(
+        "date"
+    )
 
     activity_data = {a.date: a for a in daily_activities}
 
@@ -81,9 +83,7 @@ def streak_view(request):
     for i in range(30, -1, -1):
         date = today - timedelta(days=i)
         activity = DailyActivity.objects.filter(user=request.user, date=date).first()
-        has_activity = activity and (
-            activity.words_reviewed > 0 or activity.quizzes_completed > 0
-        )
+        has_activity = activity and (activity.words_reviewed > 0 or activity.quizzes_completed > 0)
         streak_data.append(
             {
                 "date": date,
