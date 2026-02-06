@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Generate Words with AI - Dutch Workbook{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Generate Words with AI</h1>
+    
+    {% if not openrouter_enabled %}
+    <div class="alert alert-warning">
+        <strong>OpenRouter is not enabled.</strong> Please set the OPENROUTER_API_KEY environment variable to use AI features.
+    </div>
+    {% endif %}
+    
+    {% if error %}
+    <div class="alert alert-danger">
+        {{ error }}
+    </div>
+    {% endif %}
+    
+    {% if words_created %}
+    <div class="alert alert-success">
+        <h4>Success!</h4>
+        <p>Created {{ words_created|length }} new words using {{ model_used }}.</p>
+        {% if words_skipped %}
+        <p class="text-muted">Skipped {{ words_skipped|length }} duplicate words.</p>
+        {% endif %}
+    </div>
+    
+    <h3>Generated Words:</h3>
+    <div class="list-group mb-4">
+        {% for word in words_created %}
+        <div class="list-group-item">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ word.dutch }}</h5>
+                <small class="text-muted">{{ word.get_source_display }}</small>
+            </div>
+            <p class="mb-1"><strong>Translation:</strong> {{ word.translation }}</p>
+            {% if word.part_of_speech %}
+            <small class="text-muted">{{ word.part_of_speech }}</small>
+            {% endif %}
+            {% if word.example %}
+            <p class="mb-0 mt-2"><em>"{{ word.example }}"</em></p>
+            {% endif %}
+            <a href="{% url 'word_detail' word.id %}" class="btn btn-sm btn-outline-primary mt-2">View Word</a>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <a href="{% url 'generate_words' %}" class="btn btn-primary">Generate More Words</a>
+    {% else %}
+    
+    <form method="post" class="mt-4">
+        {% csrf_token %}
+        
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="count" class="form-label">Number of Words</label>
+                <input type="number" class="form-control" id="count" name="count" value="5" min="1" max="20" required>
+                <div class="form-text">Generate 1-20 words at a time</div>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label for="level" class="form-label">Language Level</label>
+                <select class="form-select" id="level" name="level" required>
+                    {% for level in levels %}
+                    <option value="{{ level }}" {% if level == 'A2' %}selected{% endif %}>{{ level }}</option>
+                    {% endfor %}
+                </select>
+                <div class="form-text">CEFR level (A1-C1)</div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="source" class="form-label">Translation Language</label>
+                <select class="form-select" id="source" name="source" required>
+                    {% for code, name in sources %}
+                    <option value="{{ code }}" {% if code == 'EN' %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label for="category" class="form-label">Category (Optional)</label>
+                <select class="form-select" id="category" name="category">
+                    <option value="">-- Select Category --</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+                <div class="form-text">Add generated words to a category</div>
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <label for="theme" class="form-label">Theme (Optional)</label>
+            <input type="text" class="form-control" id="theme" name="theme" placeholder="e.g., food, travel, work, daily life">
+            <div class="form-text">Specify a topic for focused vocabulary generation</div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" {% if not openrouter_enabled %}disabled{% endif %}>
+            Generate Words
+        </button>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+    
+    {% if raw_response %}
+    <div class="mt-4">
+        <h5>Debug: Raw AI Response</h5>
+        <pre class="bg-light p-3"><code>{{ raw_response }}</code></pre>
+    </div>
+    {% endif %}
+    
+    {% endif %}
+</div>
+{% endblock %}
