@@ -3,115 +3,243 @@
 {% block title %}Generate Words with AI - Dutch Workbook{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1>Generate Words with AI</h1>
-    
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">Generate Words with AI</h1>
+        <p class="text-gray-600">Use artificial intelligence to generate Dutch vocabulary words with translations, examples, and context.</p>
+    </div>
+
+    <!-- OpenRouter Not Enabled Warning -->
     {% if not openrouter_enabled %}
-    <div class="alert alert-warning">
-        <strong>OpenRouter is not enabled.</strong> Please set the OPENROUTER_API_KEY environment variable to use AI features.
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-yellow-800">OpenRouter is not enabled</h3>
+                <p class="text-sm text-yellow-700 mt-1">Please set the OPENROUTER_API_KEY environment variable to use AI features.</p>
+            </div>
+        </div>
     </div>
     {% endif %}
-    
+
+    <!-- Error Message -->
     {% if error %}
-    <div class="alert alert-danger">
-        {{ error }}
+    <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">Error</h3>
+                <p class="text-sm text-red-700 mt-1">{{ error }}</p>
+            </div>
+        </div>
     </div>
     {% endif %}
-    
+
+    <!-- Success Results -->
     {% if words_created %}
-    <div class="alert alert-success">
-        <h4>Success!</h4>
-        <p>Created {{ words_created|length }} new words using {{ model_used }}.</p>
-        {% if words_skipped %}
-        <p class="text-muted">Skipped {{ words_skipped|length }} duplicate words.</p>
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <!-- Success Header -->
+        <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-green-800">Success!</h3>
+                    <p class="text-sm text-green-700 mt-1">
+                        Created {{ words_created|length }} new words using <span class="font-medium">{{ model_used }}</span>.
+                        {% if words_skipped %}
+                        <span class="text-gray-500">(Skipped {{ words_skipped|length }} duplicate words)</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generated Words List -->
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Generated Words</h2>
+        <div class="space-y-4">
+            {% for word in words_created %}
+            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-3 mb-2">
+                            <h3 class="text-xl font-bold text-dutch-orange">{{ word.dutch }}</h3>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {{ word.get_source_display }}
+                            </span>
+                            {% if word.part_of_speech %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                {{ word.part_of_speech }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <p class="text-gray-700 mb-2">
+                            <span class="font-medium">Translation:</span> {{ word.translation }}
+                        </p>
+                        {% if word.context %}
+                        <p class="text-sm text-gray-600 mb-2">
+                            <span class="font-medium">Context:</span> {{ word.context }}
+                        </p>
+                        {% endif %}
+                        {% if word.example %}
+                        <p class="text-sm text-gray-600 italic bg-white p-2 rounded border-l-2 border-dutch-orange mt-2">
+                            "{{ word.example }}"
+                        </p>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'word_detail' word.id %}" class="ml-4 inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-dutch-orange hover:bg-orange-600 transition">
+                        View
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="mt-6 flex gap-4">
+            <a href="{% url 'generate_words' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-dutch-orange hover:bg-orange-600 transition">
+                Generate More Words
+            </a>
+            <a href="{% url 'dashboard' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition">
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    {% else %}
+
+    <!-- Generation Form -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Number of Words -->
+                <div>
+                    <label for="count" class="block text-sm font-medium text-gray-700 mb-2">
+                        Number of Words
+                    </label>
+                    <input
+                        type="number"
+                        name="count"
+                        id="count"
+                        value="5"
+                        min="1"
+                        max="20"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-dutch-orange focus:border-transparent"
+                    >
+                    <p class="mt-1 text-sm text-gray-500">Generate 1-20 words at a time</p>
+                </div>
+
+                <!-- Language Level -->
+                <div>
+                    <label for="level" class="block text-sm font-medium text-gray-700 mb-2">
+                        Language Level
+                    </label>
+                    <select
+                        name="level"
+                        id="level"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-dutch-orange focus:border-transparent"
+                    >
+                        {% for level in levels %}
+                        <option value="{{ level }}" {% if level == 'A2' %}selected{% endif %}>{{ level }}</option>
+                        {% endfor %}
+                    </select>
+                    <p class="mt-1 text-sm text-gray-500">CEFR level (A1-C1)</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Translation Language -->
+                <div>
+                    <label for="source" class="block text-sm font-medium text-gray-700 mb-2">
+                        Translation Language
+                    </label>
+                    <select
+                        name="source"
+                        id="source"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-dutch-orange focus:border-transparent"
+                    >
+                        {% for code, name in sources %}
+                        <option value="{{ code }}" {% if code == 'EN' %}selected{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Category -->
+                <div>
+                    <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+                        Category (Optional)
+                    </label>
+                    <select
+                        name="category"
+                        id="category"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-dutch-orange focus:border-transparent"
+                    >
+                        <option value="">-- Select Category --</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <p class="mt-1 text-sm text-gray-500">Auto-assign to category</p>
+                </div>
+            </div>
+
+            <!-- Theme -->
+            <div>
+                <label for="theme" class="block text-sm font-medium text-gray-700 mb-2">
+                    Theme (Optional)
+                </label>
+                <input
+                    type="text"
+                    name="theme"
+                    id="theme"
+                    placeholder="e.g., food, travel, work, daily life"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-dutch-orange focus:border-transparent"
+                >
+                <p class="mt-1 text-sm text-gray-500">Specify a topic for focused vocabulary generation</p>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex gap-4 pt-4">
+                <button
+                    type="submit"
+                    {% if not openrouter_enabled %}disabled{% endif %}
+                    class="flex-1 bg-dutch-orange text-white py-3 px-4 rounded-lg hover:bg-orange-600 transition font-medium text-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                    Generate Words
+                </button>
+                <a href="{% url 'dashboard' %}" class="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition">
+                    Cancel
+                </a>
+            </div>
+        </form>
+
+        <!-- Debug: Raw Response -->
+        {% if raw_response %}
+        <div class="mt-8 pt-6 border-t border-gray-200">
+            <h3 class="text-sm font-medium text-gray-700 mb-3">Debug: Raw AI Response</h3>
+            <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm"><code>{{ raw_response }}</code></pre>
+        </div>
         {% endif %}
     </div>
-    
-    <h3>Generated Words:</h3>
-    <div class="list-group mb-4">
-        {% for word in words_created %}
-        <div class="list-group-item">
-            <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">{{ word.dutch }}</h5>
-                <small class="text-muted">{{ word.get_source_display }}</small>
-            </div>
-            <p class="mb-1"><strong>Translation:</strong> {{ word.translation }}</p>
-            {% if word.part_of_speech %}
-            <small class="text-muted">{{ word.part_of_speech }}</small>
-            {% endif %}
-            {% if word.example %}
-            <p class="mb-0 mt-2"><em>"{{ word.example }}"</em></p>
-            {% endif %}
-            <a href="{% url 'word_detail' word.id %}" class="btn btn-sm btn-outline-primary mt-2">View Word</a>
-        </div>
-        {% endfor %}
-    </div>
-    
-    <a href="{% url 'generate_words' %}" class="btn btn-primary">Generate More Words</a>
-    {% else %}
-    
-    <form method="post" class="mt-4">
-        {% csrf_token %}
-        
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="count" class="form-label">Number of Words</label>
-                <input type="number" class="form-control" id="count" name="count" value="5" min="1" max="20" required>
-                <div class="form-text">Generate 1-20 words at a time</div>
-            </div>
-            
-            <div class="col-md-6 mb-3">
-                <label for="level" class="form-label">Language Level</label>
-                <select class="form-select" id="level" name="level" required>
-                    {% for level in levels %}
-                    <option value="{{ level }}" {% if level == 'A2' %}selected{% endif %}>{{ level }}</option>
-                    {% endfor %}
-                </select>
-                <div class="form-text">CEFR level (A1-C1)</div>
-            </div>
-        </div>
-        
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="source" class="form-label">Translation Language</label>
-                <select class="form-select" id="source" name="source" required>
-                    {% for code, name in sources %}
-                    <option value="{{ code }}" {% if code == 'EN' %}selected{% endif %}>{{ name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            
-            <div class="col-md-6 mb-3">
-                <label for="category" class="form-label">Category (Optional)</label>
-                <select class="form-select" id="category" name="category">
-                    <option value="">-- Select Category --</option>
-                    {% for category in categories %}
-                    <option value="{{ category.id }}">{{ category.name }}</option>
-                    {% endfor %}
-                </select>
-                <div class="form-text">Add generated words to a category</div>
-            </div>
-        </div>
-        
-        <div class="mb-3">
-            <label for="theme" class="form-label">Theme (Optional)</label>
-            <input type="text" class="form-control" id="theme" name="theme" placeholder="e.g., food, travel, work, daily life">
-            <div class="form-text">Specify a topic for focused vocabulary generation</div>
-        </div>
-        
-        <button type="submit" class="btn btn-primary" {% if not openrouter_enabled %}disabled{% endif %}>
-            Generate Words
-        </button>
-        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
-    </form>
-    
-    {% if raw_response %}
-    <div class="mt-4">
-        <h5>Debug: Raw AI Response</h5>
-        <pre class="bg-light p-3"><code>{{ raw_response }}</code></pre>
-    </div>
-    {% endif %}
-    
     {% endif %}
 </div>
 {% endblock %}
