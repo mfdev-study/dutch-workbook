@@ -53,7 +53,16 @@ def quiz_question(request):
     word_id = word_ids[current]
     word = get_object_or_404(Word, id=word_id)
 
-    wrong_words = Word.objects.exclude(id=word_id).order_by("?")[:3]
+    # Select wrong answers only from user's flashcard words to avoid 404 errors
+    # when words are deleted from the database
+    other_word_ids = [wid for wid in word_ids if wid != word_id]
+    if len(other_word_ids) >= 3:
+        wrong_word_ids = random.sample(other_word_ids, 3)
+        wrong_words = Word.objects.filter(id__in=wrong_word_ids)
+    else:
+        # If user has fewer than 4 words, just use what they have
+        wrong_words = Word.objects.filter(id__in=other_word_ids)
+
     options = list(wrong_words) + [word]
     random.shuffle(options)
 
@@ -77,7 +86,14 @@ def submit_answer(request):
     answer_id = request.POST.get("answer_id")
 
     word = get_object_or_404(Word, id=word_id)
-    answer_word = get_object_or_404(Word, id=answer_id)
+
+    # Handle case where answer word might not exist (e.g., was deleted)
+    try:
+        answer_word = Word.objects.get(id=answer_id)
+        user_answer_text = answer_word.translation
+    except Word.DoesNotExist:
+        # If the answer word was deleted, use the ID as the answer text
+        user_answer_text = f"Unknown word (ID: {answer_id})"
 
     is_correct = answer_id == word_id
 
@@ -87,7 +103,7 @@ def submit_answer(request):
     QuizAnswer.objects.create(
         session=session,
         word=word,
-        user_answer=answer_word.translation,
+        user_answer=user_answer_text,
         is_correct=is_correct,
     )
 
