@@ -13,11 +13,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install UV
-        uses: astral-sh/setup-uv@v5
-        with:
-          version: latest
-
       - name: Add SSH private key to agent
         uses: webfactory/ssh-agent@v0.5.3
         with:
@@ -31,30 +26,51 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          # Deploy script
-          ssh -o StrictHostKeyChecking=no -p 22 ${SERVER_USER}@${SERVER_IP} "
-            cd ${APP_DIR} &&
-            git pull origin main &&
-            uv sync --no-dev &&
-            uv run python manage.py migrate &&
-            uv run python manage.py collectstatic --noinput 2>/dev/null || true &&
-            if systemctl is-active --quiet dutchworkbook; then
-              sudo systemctl restart dutchworkbook
-              echo 'SERVICE_RESTARTED=success' > /tmp/deploy_status
-            else
-              echo 'SERVICE_RESTARTED=failed' > /tmp/deploy_status
-            fi
-          "
+          # Add server host key to known_hosts
+          ssh-keyscan -H ${SERVER_IP} >> ~/.ssh/known_hosts 2>/dev/null
 
-          # Get deployment status
+          # Deploy using rsync (exclude venv, staticfiles, logs, db)
+          rsync -avz --exclude='.venv' --exclude='staticfiles' --exclude='logs' --exclude='db.sqlite3' --exclude='.git' -e ssh ./ ${SERVER_USER}@${SERVER_IP}:${APP_DIR}/
+
+          # Create deployment script on server
+          ssh -o StrictHostKeyChecking=no -p 22 ${SERVER_USER}@${SERVER_IP} 'cat > /tmp/deploy_script.sh << "EOF"
+            cd ${APP_DIR}
+            export PATH="$HOME/.local/bin:$PATH"
+
+            # Install uv if not present
+            if ! command -v uv &> /dev/null; then
+              curl -LsSf https://astral.sh/uv/install.sh | sh
+            fi
+
+            uv sync --no-dev
+            uv run python manage.py migrate
+            uv run python manage.py collectstatic --noinput 2>/dev/null || true
+
+            # Restart gunicorn (try systemctl first, then pkill)
+            if command -v systemctl &> /dev/null && systemctl is-active --quiet dutchworkbook 2>/dev/null; then
+              sudo systemctl restart dutchworkbook
+            elif pgrep -f "gunicorn.*nederlandse_workbook" > /dev/null; then
+              pkill -f "gunicorn.*nederlandse_workbook" || true
+            fi
+
+            sleep 2
+            if pgrep -f "gunicorn.*nederlandse_workbook" > /dev/null; then
+              echo "SERVICE_RESTARTED=success" > /tmp/deploy_status
+            else
+              echo "SERVICE_RESTARTED=failed" > /tmp/deploy_status
+            fi
+          EOF'
+
+          # Run deployment script
+          ssh -o StrictHostKeyChecking=no -p 22 ${SERVER_USER}@${SERVER_IP} 'bash /tmp/deploy_script.sh'
+
           DEPLOY_STATUS=$(ssh -o StrictHostKeyChecking=no -p 22 ${SERVER_USER}@${SERVER_IP} "cat /tmp/deploy_status | cut -d= -f2")
 
-          # Send Telegram notification
           if [ "$DEPLOY_STATUS" = "success" ]; then
             curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
               -d "chat_id=${TELEGRAM_CHAT_ID}" \
               -d "parse_mode=HTML" \
-              -d "text=<b>✅ Deployment Successful</b>%0A%0A<b>Branch:</b> main%0A<b>Commit:</b> ${GITHUB_SHA:0:7}%0A<b>Author:</b> ${GITHUB_ACTOR}%0A%0A<b>Server:</b> ${SERVER_IP}%0A<b>Directory:</b> ${APP_DIR}%0A%0A<a href='https://github.com/mfdev-study/dutch-workbook/actions/runs/${GITHUB_RUN_ID}'>View Workflow</a>"
+              -d "text=<b>Deployment Successful</b>%0A%0ABranch: main%0ACommit: ${GITHUB_SHA:0:7}%0AAuthor: ${GITHUB_ACTOR}%0A%0AServer: ${SERVER_IP}%0A%0A<a href='https://github.com/mfdev-study/dutch-workbook/actions/runs/${GITHUB_RUN_ID}'>View Workflow</a>"
           fi
         shell: bash
 
@@ -67,5 +83,5 @@ jobs:
           curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
             -d "chat_id=${TELEGRAM_CHAT_ID}" \
             -d "parse_mode=HTML" \
-            -d "text=<b>❌ Deployment Failed</b>%0A%0A<b>Branch:</b> main%0A<b>Commit:</b> ${GITHUB_SHA:0:7}%0A<b>Author:</b> ${GITHUB_ACTOR}%0A%0A<a href='https://github.com/mfdev-study/dutch-workbook/actions/runs/${GITHUB_RUN_ID}'>View Workflow</a>"
+            -d "text=<b>Deployment Failed</b>%0A%0ABranch: main%0ACommit: ${GITHUB_SHA:0:7}%0AAuthor: ${GITHUB_ACTOR}%0A%0A<a href='https://github.com/mfdev-study/dutch-workbook/actions/runs/${GITHUB_RUN_ID}'>View Workflow</a>"
         shell: bash
