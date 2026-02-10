@@ -8,29 +8,38 @@ on:
 jobs:
   validate-secrets:
     runs-on: ubuntu-latest
-    outputs:
-      valid: ${{ steps.check-secrets.outputs.valid }}
     steps:
       - name: Check required secrets
-        id: check-secrets
         run: |
-          required_secrets=(
-            "SSH_PRIVATE_KEY"
-            "SERVER_USER"
-            "SERVER_IP"
-            "APP_DIR"
-            "TELEGRAM_BOT_TOKEN"
-            "TELEGRAM_CHAT_ID"
-            "SECRET_KEY"
-          )
-          for secret in "${required_secrets[@]}"; do
-            if [[ -z "${{ secrets.$secret }}" ]]; then
-              echo "Missing secret: $secret"
-              echo "valid=false" >> $GITHUB_OUTPUT
-              exit 1
-            fi
-          done
-          echo "valid=true" >> $GITHUB_OUTPUT
+          if [[ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]]; then
+            echo "Missing secret: SSH_PRIVATE_KEY"
+            exit 1
+          fi
+          if [[ -z "${{ secrets.SERVER_USER }}" ]]; then
+            echo "Missing secret: SERVER_USER"
+            exit 1
+          fi
+          if [[ -z "${{ secrets.SERVER_IP }}" ]]; then
+            echo "Missing secret: SERVER_IP"
+            exit 1
+          fi
+          if [[ -z "${{ secrets.APP_DIR }}" ]]; then
+            echo "Missing secret: APP_DIR"
+            exit 1
+          fi
+          if [[ -z "${{ secrets.TELEGRAM_BOT_TOKEN }}" ]]; then
+            echo "Missing secret: TELEGRAM_BOT_TOKEN"
+            exit 1
+          fi
+          if [[ -z "${{ secrets.TELEGRAM_CHAT_ID }}" ]]; then
+            echo "Missing secret: TELEGRAM_CHAT_ID"
+            exit 1
+          fi
+          if [[ -z "${{ secrets.SECRET_KEY }}" ]]; then
+            echo "Missing secret: SECRET_KEY"
+            exit 1
+          fi
+          echo "All secrets present"
 
   test:
     runs-on: ubuntu-latest
