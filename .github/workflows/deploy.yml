@@ -13,11 +13,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install UV
-        uses: astral-sh/setup-uv@v5
-        with:
-          version: latest
-
       - name: Add SSH private key to agent
         uses: webfactory/ssh-agent@v0.5.3
         with:
@@ -53,11 +48,18 @@ jobs:
             uv run python manage.py collectstatic --noinput 2>/dev/null || true &&
             if systemctl is-active --quiet dutchworkbook; then
               sudo systemctl restart dutchworkbook
-              echo 'SERVICE_RESTARTED=success' > /tmp/deploy_status
-            else
-              echo 'SERVICE_RESTARTED=failed' > /tmp/deploy_status
+            elif pgrep -f "gunicorn.*nederlandse_workbook" > /dev/null; then
+              pkill -f "gunicorn.*nederlandse_workbook" || true
             fi
-          "
+
+            # Give gunicorn time to restart and check status
+            sleep 2
+            if pgrep -f "gunicorn.*nederlandse_workbook" > /dev/null; then
+              echo "SERVICE_RESTARTED=success" > /tmp/deploy_status
+            else
+              echo "SERVICE_RESTARTED=failed" > /tmp/deploy_status
+            fi
+          '
 
           DEPLOY_STATUS=$(ssh -o StrictHostKeyChecking=no -p 22 ${SERVER_USER}@${SERVER_IP} "cat /tmp/deploy_status | cut -d= -f2")
 
