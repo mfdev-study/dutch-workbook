@@ -40,9 +40,14 @@ jobs:
           # Deploy using rsync (exclude venv, staticfiles, logs, db)
           rsync -avz --exclude='.venv' --exclude='staticfiles' --exclude='logs' --exclude='db.sqlite3' --exclude='.git' -e ssh ./ ${SERVER_USER}@${SERVER_IP}:${APP_DIR}/
 
-          # Run deployment tasks on server
+          # Install uv on server if not present, then run deployment tasks
           ssh -o StrictHostKeyChecking=no -p 22 ${SERVER_USER}@${SERVER_IP} "
             cd ${APP_DIR} &&
+            if ! command -v uv &> /dev/null; then
+              curl -LsSf https://astral.sh/uv/install.sh | sh
+              export PATH='\$HOME/.cargo/bin:\$PATH'
+            fi &&
+            export PATH='\$HOME/.cargo/bin:\$PATH' &&
             uv sync --no-dev &&
             uv run python manage.py migrate &&
             uv run python manage.py collectstatic --noinput 2>/dev/null || true &&
