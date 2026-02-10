@@ -8,7 +8,6 @@ class Word(models.Model):
     SOURCE_CHOICES = [
         ("EN", "English-Dutch"),
         ("UK", "Ukrainian-Dutch"),
-        ("RU", "Russian-Dutch"),
     ]
     dutch = models.CharField(max_length=200)
     translation = models.CharField(max_length=200)
