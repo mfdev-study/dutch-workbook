@@ -1,0 +1,68 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install UV
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: latest
+
+      - name: Add SSH private key to agent
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to Server
+        env:
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          APP_DIR: ${{ secrets.APP_DIR }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -p 22 ${SERVER_USER}@${SERVER_IP} "
+            cd ${APP_DIR} &&
+            git pull origin main &&
+            uv sync --no-dev &&
+            uv run python manage.py migrate &&
+            uv run python manage.py collectstatic --noinput 2>/dev/null || true &&
+            if systemctl is-active --quiet dutchworkbook; then
+              sudo systemctl restart dutchworkbook
+              echo 'SERVICE_RESTARTED=success' > /tmp/deploy_status
+            else
+              echo 'SERVICE_RESTARTED=failed' > /tmp/deploy_status
+            fi
+          "
+
+          DEPLOY_STATUS=$(ssh -o StrictHostKeyChecking=no -p 22 ${SERVER_USER}@${SERVER_IP} "cat /tmp/deploy_status | cut -d= -f2")
+
+          if [ "$DEPLOY_STATUS" = "success" ]; then
+            curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+              -d "chat_id=${TELEGRAM_CHAT_ID}" \
+              -d "parse_mode=HTML" \
+              -d "text=<b>Deployment Successful</b>%0A%0ABranch: main%0ACommit: ${GITHUB_SHA:0:7}%0AAuthor: ${GITHUB_ACTOR}%0A%0AServer: ${SERVER_IP}%0A%0A<a href='https://github.com/mfdev-study/dutch-workbook/actions/runs/${GITHUB_RUN_ID}'>View Workflow</a>"
+          fi
+        shell: bash
+
+      - name: Notify on Failure
+        if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d "chat_id=${TELEGRAM_CHAT_ID}" \
+            -d "parse_mode=HTML" \
+            -d "text=<b>Deployment Failed</b>%0A%0ABranch: main%0ACommit: ${GITHUB_SHA:0:7}%0AAuthor: ${GITHUB_ACTOR}%0A%0A<a href='https://github.com/mfdev-study/dutch-workbook/actions/runs/${GITHUB_RUN_ID}'>View Workflow</a>"
+        shell: bash
