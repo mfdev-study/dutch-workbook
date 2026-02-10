@@ -23,6 +23,9 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      - name: Install rsync
+        run: sudo apt-get update && sudo apt-get install -y rsync
+
       - name: Deploy to Server
         env:
           SERVER_USER: ${{ secrets.SERVER_USER }}
@@ -31,10 +34,12 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          # Deploy script
+          # Deploy using rsync (exclude venv, staticfiles, logs, db)
+          rsync -avz --exclude='.venv' --exclude='staticfiles' --exclude='logs' --exclude='db.sqlite3' --exclude='.git' -e ssh ./ ${SERVER_USER}@${SERVER_IP}:${APP_DIR}/
+
+          # Run deployment tasks on server
           ssh -o StrictHostKeyChecking=no -p 22 ${SERVER_USER}@${SERVER_IP} "
             cd ${APP_DIR} &&
-            git pull origin main &&
             uv sync --no-dev &&
             uv run python manage.py migrate &&
             uv run python manage.py collectstatic --noinput 2>/dev/null || true &&
@@ -46,15 +51,13 @@ jobs:
             fi
           "
 
-          # Get deployment status
           DEPLOY_STATUS=$(ssh -o StrictHostKeyChecking=no -p 22 ${SERVER_USER}@${SERVER_IP} "cat /tmp/deploy_status | cut -d= -f2")
 
-          # Send Telegram notification
           if [ "$DEPLOY_STATUS" = "success" ]; then
             curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
               -d "chat_id=${TELEGRAM_CHAT_ID}" \
               -d "parse_mode=HTML" \
-              -d "text=<b>✅ Deployment Successful</b>%0A%0A<b>Branch:</b> main%0A<b>Commit:</b> ${GITHUB_SHA:0:7}%0A<b>Author:</b> ${GITHUB_ACTOR}%0A%0A<b>Server:</b> ${SERVER_IP}%0A<b>Directory:</b> ${APP_DIR}%0A%0A<a href='https://github.com/mfdev-study/dutch-workbook/actions/runs/${GITHUB_RUN_ID}'>View Workflow</a>"
+              -d "text=<b>Deployment Successful</b>%0A%0ABranch: main%0ACommit: ${GITHUB_SHA:0:7}%0AAuthor: ${GITHUB_ACTOR}%0A%0AServer: ${SERVER_IP}%0A%0A<a href='https://github.com/mfdev-study/dutch-workbook/actions/runs/${GITHUB_RUN_ID}'>View Workflow</a>"
           fi
         shell: bash
 
@@ -67,5 +70,5 @@ jobs:
           curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
             -d "chat_id=${TELEGRAM_CHAT_ID}" \
             -d "parse_mode=HTML" \
-            -d "text=<b>❌ Deployment Failed</b>%0A%0A<b>Branch:</b> main%0A<b>Commit:</b> ${GITHUB_SHA:0:7}%0A<b>Author:</b> ${GITHUB_ACTOR}%0A%0A<a href='https://github.com/mfdev-study/dutch-workbook/actions/runs/${GITHUB_RUN_ID}'>View Workflow</a>"
+            -d "text=<b>Deployment Failed</b>%0A%0ABranch: main%0ACommit: ${GITHUB_SHA:0:7}%0AAuthor: ${GITHUB_ACTOR}%0A%0A<a href='https://github.com/mfdev-study/dutch-workbook/actions/runs/${GITHUB_RUN_ID}'>View Workflow</a>"
         shell: bash
