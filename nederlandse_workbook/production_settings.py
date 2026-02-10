@@ -18,36 +18,20 @@ X_FRAME_OPTIONS = "DENY"
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
-# DATABASE
+# DATABASE (SQLite)
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DB_NAME", "dutchworkbook"),
-        "USER": os.getenv("DB_USER", "dutchapp"),
-        "PASSWORD": os.getenv("DB_PASSWORD", "secure_password_123"),
-        "HOST": os.getenv("DB_HOST", "localhost"),
-        "PORT": os.getenv("DB_PORT", "5432"),
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.getenv("DB_PATH", os.path.join(BASE_DIR, "db.sqlite3")),
     }
 }
-
-# REDIS (for caching and sessions)
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": os.getenv("REDIS_URL", "redis://localhost:6379/0"),
-    }
-}
-
-# SESSIONS
-SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-SESSION_CACHE_ALIAS = "default"
 
 # STATIC FILES
-STATIC_ROOT = "/app/staticfiles"
+STATIC_ROOT = os.getenv("STATIC_ROOT", os.path.join(BASE_DIR, "staticfiles"))
 STATIC_URL = "/static/"
 
 # MEDIA FILES
-MEDIA_ROOT = "/app/media"
+MEDIA_ROOT = os.getenv("MEDIA_ROOT", os.path.join(BASE_DIR, "media"))
 MEDIA_URL = "/media/"
 
 # LOGGING
@@ -64,7 +48,7 @@ LOGGING = {
         "file": {
             "level": "INFO",
             "class": "logging.FileHandler",
-            "filename": "/app/django.log",
+            "filename": os.path.join(BASE_DIR, "django.log"),
             "formatter": "verbose",
         },
         "console": {

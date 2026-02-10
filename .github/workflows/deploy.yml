@@ -6,9 +6,103 @@ on:
       - main
 
 jobs:
-  deploy:
+  validate-secrets:
     runs-on: ubuntu-latest
+    outputs:
+      valid: ${{ steps.check-secrets.outputs.valid }}
+    steps:
+      - name: Check required secrets
+        id: check-secrets
+        run: |
+          required_secrets=(
+            "SSH_PRIVATE_KEY"
+            "SERVER_USER"
+            "SERVER_IP"
+            "APP_DIR"
+            "TELEGRAM_BOT_TOKEN"
+            "TELEGRAM_CHAT_ID"
+            "SECRET_KEY"
+          )
+          for secret in "${required_secrets[@]}"; do
+            if [[ -z "${{ secrets.$secret }}" ]]; then
+              echo "Missing secret: $secret"
+              echo "valid=false" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+          done
+          echo "valid=true" >> $GITHUB_OUTPUT
 
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install UV
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache UV dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Run migrations
+        run: uv run python manage.py migrate
+        env:
+          DJANGO_SETTINGS_MODULE: nederlandse_workbook.settings
+          PYTHONDONTWRITEBYTECODE: 1
+
+      - name: Run tests
+        run: uv run python manage.py test
+        env:
+          DJANGO_SETTINGS_MODULE: nederlandse_workbook.settings
+          PYTHONDONTWRITEBYTECODE: 1
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install UV
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache UV dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Run Ruff linter
+        run: uv run ruff check .
+
+      - name: Check formatting
+        run: uv run ruff format --check .
+
+  deploy:
+    needs: [validate-secrets, test, lint]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,67 +112,123 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Install rsync
-        run: sudo apt-get update && sudo apt-get install -y rsync
+      - name: Setup SSH known hosts
+        run: ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts 2>/dev/null
 
-      - name: Deploy to Server
+      - name: Create env file on server
         env:
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_IP: ${{ secrets.SERVER_IP }}
           APP_DIR: ${{ secrets.APP_DIR }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          # Add server host key to known_hosts
-          ssh-keyscan -H ${SERVER_IP} >> ~/.ssh/known_hosts 2>/dev/null
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
+            echo 'SECRET_KEY=${{ secrets.SECRET_KEY }}' > ${{ secrets.APP_DIR }}/.env
+            echo 'OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}' >> ${{ secrets.APP_DIR }}/.env
+            echo 'OPENROUTER_MODEL=\${OPENROUTER_MODEL:-anthropic/claude-3.5-sonnet}' >> ${{ secrets.APP_DIR }}/.env
+            chmod 600 ${{ secrets.APP_DIR }}/.env
+          "
 
-          # Deploy using rsync (exclude venv, staticfiles, logs, db)
-          rsync -avz --exclude='.venv' --exclude='staticfiles' --exclude='logs' --exclude='db.sqlite3' --exclude='.git' -e ssh ./ ${SERVER_USER}@${SERVER_IP}:${APP_DIR}/
+      - name: Backup current deployment
+        env:
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          APP_DIR: ${{ secrets.APP_DIR }}
+        run: |
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
+            if [ -d '${{ secrets.APP_DIR }}' ]; then
+              cp -r '${{ secrets.APP_DIR }}' '${{ secrets.APP_DIR }}.backup.\$TIMESTAMP'
+            fi
+          " || echo "No existing deployment to backup"
 
-          # Install uv on server if not present, then run deployment tasks
-          ssh -o StrictHostKeyChecking=no -p 22 ${SERVER_USER}@${SERVER_IP} "
-            cd ${APP_DIR} &&
+      - name: Deploy files via rsync
+        env:
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          APP_DIR: ${{ secrets.APP_DIR }}
+        run: |
+          rsync -avz --delete \
+            --exclude='.venv' \
+            --exclude='__pycache__' \
+            --exclude='staticfiles' \
+            --exclude='logs' \
+            --exclude='db.sqlite3' \
+            --exclude='.git' \
+            --exclude='.pytest_cache' \
+            --exclude='.ruff_cache' \
+            --exclude='*.log' \
+            --exclude='*.pyc' \
+            --exclude='.env' \
+            -e "ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30" \
+            ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:${{ secrets.APP_DIR }}/
+
+      - name: Install dependencies and run migrations
+        env:
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          APP_DIR: ${{ secrets.APP_DIR }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
+            cd ${{ secrets.APP_DIR }}
+            export PATH=\$HOME/.cargo/bin:\$PATH
             if ! command -v uv &> /dev/null; then
               curl -LsSf https://astral.sh/uv/install.sh | sh
-              export PATH='\$HOME/.cargo/bin:\$PATH'
-            fi &&
-            export PATH='\$HOME/.cargo/bin:\$PATH' &&
-            uv sync --no-dev &&
-            uv run python manage.py migrate &&
-            uv run python manage.py collectstatic --noinput 2>/dev/null || true &&
-            if systemctl is-active --quiet dutchworkbook; then
+            fi
+            uv sync --no-dev
+            uv run python manage.py migrate --noinput || true
+            uv run python manage.py collectstatic --noinput 2>/dev/null || true
+          "
+
+      - name: Restart gunicorn and health check
+        env:
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          APP_DIR: ${{ secrets.APP_DIR }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "
+            cd ${{ secrets.APP_DIR }}
+            if systemctl is-active --quiet dutchworkbook 2>/dev/null; then
               sudo systemctl restart dutchworkbook
-            elif pgrep -f "gunicorn.*nederlandse_workbook" > /dev/null; then
-              pkill -f "gunicorn.*nederlandse_workbook" || true
+            elif pgrep -f 'gunicorn.*nederlandse_workbook' > /dev/null; then
+              pkill -f 'gunicorn.*nederlandse_workbook' || true
+              sleep 2
             fi
-
-            # Give gunicorn time to restart and check status
-            sleep 2
-            if pgrep -f "gunicorn.*nederlandse_workbook" > /dev/null; then
-              echo "SERVICE_RESTARTED=success" > /tmp/deploy_status
+            sleep 3
+            if curl -sf --max-time 10 http://127.0.0.1:8000 > /dev/null 2>&1; then
+              echo 'HEALTHY'
             else
-              echo "SERVICE_RESTARTED=failed" > /tmp/deploy_status
+              echo 'UNHEALTHY'
             fi
-          '
+          " | tee /tmp/deploy_status
 
-          DEPLOY_STATUS=$(ssh -o StrictHostKeyChecking=no -p 22 ${SERVER_USER}@${SERVER_IP} "cat /tmp/deploy_status | cut -d= -f2")
-
-          if [ "$DEPLOY_STATUS" = "success" ]; then
-            curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-              -d "chat_id=${TELEGRAM_CHAT_ID}" \
+      - name: Send Telegram notification
+        if: always()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+        run: |
+          DEPLOY_STATUS=$(cat /tmp/deploy_status)
+          if [ "$DEPLOY_STATUS" = "HEALTHY" ]; then
+            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+              -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
               -d "parse_mode=HTML" \
-              -d "text=<b>Deployment Successful</b>%0A%0ABranch: main%0ACommit: ${GITHUB_SHA:0:7}%0AAuthor: ${GITHUB_ACTOR}%0A%0AServer: ${SERVER_IP}%0A%0A<a href='https://github.com/mfdev-study/dutch-workbook/actions/runs/${GITHUB_RUN_ID}'>View Workflow</a>"
+              -d "text=<b>Deployment Successful</b>%0A%0ACommit: ${GITHUB_SHA:0:7}%0AAuthor: ${GITHUB_ACTOR}%0A%0AServer: ${{ secrets.SERVER_IP }}%0A%0A<a href='https://github.com/mfdev-study/dutch-workbook/actions/runs/${GITHUB_RUN_ID}'>View Workflow</a>"
+          else
+            curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+              -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+              -d "parse_mode=HTML" \
+              -d "text=<b>Deployment Failed</b>%0A%0ACommit: ${GITHUB_SHA:0:7}%0AAuthor: ${GITHUB_ACTOR}%0A%0AServer: ${{ secrets.SERVER_IP }}%0A%0A<a href='https://github.com/mfdev-study/dutch-workbook/actions/runs/${GITHUB_RUN_ID}'>View Workflow</a>"
+            exit 1
           fi
-        shell: bash
 
-      - name: Notify on Failure
+      - name: Notify on Workflow Failure
         if: failure()
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            -d "chat_id=${TELEGRAM_CHAT_ID}" \
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
             -d "parse_mode=HTML" \
-            -d "text=<b>Deployment Failed</b>%0A%0ABranch: main%0ACommit: ${GITHUB_SHA:0:7}%0AAuthor: ${GITHUB_ACTOR}%0A%0A<a href='https://github.com/mfdev-study/dutch-workbook/actions/runs/${GITHUB_RUN_ID}'>View Workflow</a>"
-        shell: bash
+            -d "text=<b>Workflow Failed</b>%0A%0AJob: Deploy%0ACommit: ${GITHUB_SHA:0:7}%0AAuthor: ${GITHUB_ACTOR}%0A%0A<a href='https://github.com/mfdev-study/dutch-workbook/actions/runs/${GITHUB_RUN_ID}'>View Workflow</a>"
