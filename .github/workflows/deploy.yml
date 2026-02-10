@@ -18,6 +18,9 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      - name: Install rsync
+        run: sudo apt-get update && sudo apt-get install -y rsync
+
       - name: Deploy to Server
         env:
           SERVER_USER: ${{ secrets.SERVER_USER }}
@@ -32,22 +35,18 @@ jobs:
           # Deploy using rsync (exclude venv, staticfiles, logs, db)
           rsync -avz --exclude='.venv' --exclude='staticfiles' --exclude='logs' --exclude='db.sqlite3' --exclude='.git' -e ssh ./ ${SERVER_USER}@${SERVER_IP}:${APP_DIR}/
 
-          # Run deployment tasks on server
-          ssh -o StrictHostKeyChecking=no -p 22 ${SERVER_USER}@${SERVER_IP} '
-            cd ${APP_DIR}
-            export PATH="$HOME/.local/bin:$PATH"
-
-            # Install uv if not present
+          # Install uv on server if not present, then run deployment tasks
+          ssh -o StrictHostKeyChecking=no -p 22 ${SERVER_USER}@${SERVER_IP} "
+            cd ${APP_DIR} &&
             if ! command -v uv &> /dev/null; then
               curl -LsSf https://astral.sh/uv/install.sh | sh
-            fi
-
-            uv sync --no-dev
-            uv run python manage.py migrate
-            uv run python manage.py collectstatic --noinput 2>/dev/null || true
-
-            # Restart gunicorn (try systemctl first, then pkill)
-            if command -v systemctl &> /dev/null && systemctl is-active --quiet dutchworkbook 2>/dev/null; then
+              export PATH='\$HOME/.cargo/bin:\$PATH'
+            fi &&
+            export PATH='\$HOME/.cargo/bin:\$PATH' &&
+            uv sync --no-dev &&
+            uv run python manage.py migrate &&
+            uv run python manage.py collectstatic --noinput 2>/dev/null || true &&
+            if systemctl is-active --quiet dutchworkbook; then
               sudo systemctl restart dutchworkbook
             elif pgrep -f "gunicorn.*nederlandse_workbook" > /dev/null; then
               pkill -f "gunicorn.*nederlandse_workbook" || true
