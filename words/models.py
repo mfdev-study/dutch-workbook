@@ -5,30 +5,44 @@ User = get_user_model()
 
 
 class Word(models.Model):
-    SOURCE_CHOICES = [
-        ("EN", "English-Dutch"),
-        ("UK", "Ukrainian-Dutch"),
-    ]
+    """Dutch vocabulary word model."""
+
+    class Source(models.TextChoices):
+        ENGLISH = "EN", "English-Dutch"
+        UKRAINIAN = "UK", "Ukrainian-Dutch"
+
     dutch = models.CharField(max_length=200)
     translation = models.CharField(max_length=200)
-    source = models.CharField(max_length=2, choices=SOURCE_CHOICES)
+    source = models.CharField(max_length=2, choices=Source.choices, default=Source.ENGLISH)
     part_of_speech = models.CharField(max_length=50, blank=True, default="")
     context = models.TextField(blank=True, default="")
     example = models.TextField(blank=True, default="")
+    example_translation = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ["dutch", "translation", "source"]
         ordering = ["dutch"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["dutch", "translation", "source"],
+                name="unique_word_translation_source",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.dutch} - {self.translation}"
 
 
 class Category(models.Model):
+    """Category for organizing words."""
+
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
-    color = models.CharField(max_length=7, default="#007bff", help_text="Hex color code")
+    color = models.CharField(
+        max_length=7,
+        default="#007bff",
+        help_text="Hex color code",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -40,57 +54,99 @@ class Category(models.Model):
 
 
 class CategorizedWord(models.Model):
-    word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name="categorized")
+    """Many-to-many relationship between words and categories."""
+
+    word = models.ForeignKey(
+        Word,
+        on_delete=models.CASCADE,
+        related_name="categorized",
+    )
     category = models.ForeignKey(
-        Category, on_delete=models.CASCADE, related_name="categorized_words"
+        Category,
+        on_delete=models.CASCADE,
+        related_name="categorized_words",
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ["word", "category"]
         ordering = ["category__name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["word", "category"],
+                name="unique_word_category",
+            ),
+        ]
 
 
 class Flashcard(models.Model):
-    BOX_CHOICES = [(i, i) for i in range(1, 6)]
+    """User flashcard for word learning with spaced repetition."""
+
+    class Box(models.IntegerChoices):
+        BOX_1 = 1
+        BOX_2 = 2
+        BOX_3 = 3
+        BOX_4 = 4
+        BOX_5 = 5
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     word = models.ForeignKey(Word, on_delete=models.CASCADE)
-    box = models.IntegerField(choices=BOX_CHOICES, default=1)
+    box = models.IntegerField(choices=Box.choices, default=Box.BOX_1)
     next_review = models.DateTimeField(null=True, blank=True)
     last_reviewed = models.DateTimeField(null=True, blank=True)
     ease_factor = models.FloatField(default=2.5)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ["user", "word"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "word"],
+                name="unique_user_word_flashcard",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.user.username} - {self.word.dutch} (Box {self.box})"
 
 
 class WordList(models.Model):
-    LIST_TYPE_CHOICES = [
-        ("FAV", "Favorites"),
-        ("LEARN", "To Learn"),
-        ("MASTERED", "Mastered"),
-    ]
+    """User's word list for organization."""
+
+    class ListType(models.TextChoices):
+        FAVORITES = "FAV", "Favorites"
+        TO_LEARN = "LEARN", "To Learn"
+        MASTERED = "MASTERED", "Mastered"
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
-    list_type = models.CharField(max_length=10, choices=LIST_TYPE_CHOICES)
+    list_type = models.CharField(max_length=10, choices=ListType.choices)
     words = models.ManyToManyField(Word, related_name="lists")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ["user", "name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "name"],
+                name="unique_user_list_name",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.user.username} - {self.name}"
 
 
 class Example(models.Model):
-    word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name="examples")
+    """User-added example sentence for a word."""
+
+    word = models.ForeignKey(
+        Word,
+        on_delete=models.CASCADE,
+        related_name="examples",
+    )
     text = models.TextField(help_text="Example sentence in Dutch")
-    translation = models.TextField(blank=True, help_text="Translation of the example (optional)")
+    translation = models.TextField(
+        blank=True,
+        help_text="Translation of the example (optional)",
+    )
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -1,4 +1,3 @@
-import json
 import re
 from contextlib import suppress
 from datetime import timedelta
@@ -9,10 +8,13 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from nederlandse_workbook.utils.openrouter import OpenRouterClient
 from progress.models import DailyActivity, UserProgress
 
 from .models import Category, Example, Flashcard, Word, WordList
+from .services.word_generation import (
+    WordGenerationRequest,
+    WordGenerationService,
+)
 
 
 @login_required
@@ -320,108 +322,48 @@ def delete_example(request, example_id):
 def generate_words_view(request):
     """View for AI word generation interface."""
     context = {
-        "openrouter_enabled": settings.OPENROUTER_ENABLED,
+        "opencode_enabled": settings.OPENCODE_ENABLED,
         "categories": Category.objects.all().order_by("name"),
         "levels": ["A1", "A2", "B1", "B2", "C1"],
         "sources": [("EN", "English"), ("RU", "Russian"), ("UK", "Ukrainian")],
     }
 
     if request.method == "POST":
-        if not settings.OPENROUTER_ENABLED:
-            context["error"] = "OpenRouter is not enabled. Please set OPENROUTER_API_KEY."
+        if not settings.OPENCODE_ENABLED:
+            context["error"] = "OpenCode is not enabled. opencode-auto not found in PATH."
             return render(request, "words/generate_words.html", context)
 
         count = int(request.POST.get("count", 5))
         level = request.POST.get("level", "A2")
-        theme = request.POST.get("theme", "").strip()
+        theme = request.POST.get("theme", "").strip() or None
         source = request.POST.get("source", "EN")
         category_id = request.POST.get("category", "")
 
-        # Build prompt
-        source_names = {"EN": "English", "RU": "Russian", "UK": "Ukrainian"}
-        source_name = source_names.get(source, "English")
+        category = None
+        if category_id:
+            with suppress(Category.DoesNotExist):
+                category = Category.objects.get(id=category_id)
 
-        theme_str = f"Theme: {theme}\n" if theme else ""
-        prompt = f"""Generate {count} Dutch vocabulary words at CEFR level {level}.
-{theme_str}Translate to {source_name}.
-
-Return ONLY a JSON array with this exact structure:
-[
-  {{
-    "dutch": "het woord",
-    "translation": "the word",
-    "part_of_speech": "noun",
-    "context": "daily life",
-    "example": "Dit is een voorbeeld zin."
-  }}
-]
-
-Generate exactly {count} words now."""
+        request_data = WordGenerationRequest(
+            count=count,
+            level=level,
+            theme=theme,
+            source=source,
+            category_name=category.name if category else None,
+        )
 
         try:
-            client = OpenRouterClient()
-            used_model, response = client.chat(prompt)
+            service = WordGenerationService()
+            used_model, generated_words = service.generate_words(request_data)
 
-            # Parse response
-            import re
-
-            json_match = re.search(r"\[.*\]", response, re.DOTALL)
-            words_data = []
-            if json_match:
-                try:
-                    data = json.loads(json_match.group())
-                    if isinstance(data, list):
-                        words_data = data
-                except json.JSONDecodeError:
-                    pass
-
-            if not words_data:
+            if not generated_words:
                 context["error"] = "Could not parse AI response. Please try again."
-                context["raw_response"] = response
                 return render(request, "words/generate_words.html", context)
 
-            # Get category if specified
-            category = None
-            if category_id:
-                with suppress(Category.DoesNotExist):
-                    category = Category.objects.get(id=category_id)
+            created, skipped = service.save_words(generated_words, source, category)
 
-            # Save words
-            words_created = []
-            words_skipped = []
-
-            for word_data in words_data:
-                dutch = word_data.get("dutch", "").strip()
-                translation = word_data.get("translation", "").strip()
-                pos = word_data.get("part_of_speech", "")
-                word_context = word_data.get("context", "")
-                example = word_data.get("example", "")
-
-                if not dutch or not translation:
-                    continue
-
-                word, created = Word.objects.get_or_create(
-                    dutch=dutch,
-                    translation=translation,
-                    source=source,
-                    defaults={
-                        "part_of_speech": pos,
-                        "context": word_context,
-                        "example": example,
-                    },
-                )
-
-                if created:
-                    words_created.append(word)
-                    if category:
-                        from words.models import CategorizedWord
-
-                        CategorizedWord.objects.get_or_create(word=word, category=category)
-                else:
-                    words_skipped.append(word)
-
-            context["words_created"] = words_created
-            context["words_skipped"] = words_skipped
+            context["words_created"] = created
+            context["words_skipped"] = skipped
             context["model_used"] = used_model
 
         except Exception as e:

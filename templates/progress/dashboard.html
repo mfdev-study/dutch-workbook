@@ -3,42 +3,42 @@
 {% block title %}Progress - Dutch Learning Workbook{% endblock %}
 
 {% block content %}
-<div class="space-y-6">
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <h1 class="text-2xl font-bold text-gray-900 mb-6">Your Progress</h1>
+<div class="space-y-4 sm:space-y-6">
+    <div class="bg-white rounded-lg shadow-md p-4 sm:p-6">
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Your Progress</h1>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="text-center p-4 bg-orange-50 rounded-lg">
-                <div class="text-3xl font-bold text-dutch-orange">{{ progress.words_learned }}</div>
-                <div class="text-sm text-gray-600 mt-1">Words Learned</div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+            <div class="text-center p-3 sm:p-4 bg-orange-50 rounded-lg">
+                <div class="text-2xl sm:text-3xl font-bold text-dutch-orange">{{ progress.words_learned }}</div>
+                <div class="text-xs sm:text-sm text-gray-600 mt-1">Words Learned</div>
             </div>
-            <div class="text-center p-4 bg-green-50 rounded-lg">
-                <div class="text-3xl font-bold text-green-600">{{ progress.current_streak }}</div>
-                <div class="text-sm text-gray-600 mt-1">Day Streak</div>
+            <div class="text-center p-3 sm:p-4 bg-green-50 rounded-lg">
+                <div class="text-2xl sm:text-3xl font-bold text-green-600">{{ progress.current_streak }}</div>
+                <div class="text-xs sm:text-sm text-gray-600 mt-1">Day Streak</div>
             </div>
-            <div class="text-center p-4 bg-blue-50 rounded-lg">
-                <div class="text-3xl font-bold text-blue-600">{{ progress.total_quizzes }}</div>
-                <div class="text-sm text-gray-600 mt-1">Quizzes Taken</div>
+            <div class="text-center p-3 sm:p-4 bg-blue-50 rounded-lg">
+                <div class="text-2xl sm:text-3xl font-bold text-blue-600">{{ progress.total_quizzes }}</div>
+                <div class="text-xs sm:text-sm text-gray-600 mt-1">Quizzes</div>
             </div>
-            <div class="text-center p-4 bg-purple-50 rounded-lg">
-                <div class="text-3xl font-bold text-purple-600">{{ progress.average_score|floatformat:0 }}%</div>
-                <div class="text-sm text-gray-600 mt-1">Avg Score</div>
+            <div class="text-center p-3 sm:p-4 bg-purple-50 rounded-lg">
+                <div class="text-2xl sm:text-3xl font-bold text-purple-600">{{ progress.average_score|floatformat:0 }}%</div>
+                <div class="text-xs sm:text-sm text-gray-600 mt-1">Avg Score</div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
                 <h2 class="text-lg font-semibold text-gray-900 mb-4">Last 7 Days</h2>
                 <div class="space-y-2">
                     {% for day in chart_data %}
                     <div class="flex items-center">
-                        <span class="w-12 text-sm text-gray-500">{{ day.date }}</span>
+                        <span class="w-10 sm:w-12 text-xs sm:text-sm text-gray-500">{{ day.date }}</span>
                         <div class="flex-1 mx-2">
-                            <div class="h-6 bg-gray-100 rounded flex items-center">
+                            <div class="h-5 sm:h-6 bg-gray-100 rounded flex items-center">
                                 <div class="h-full bg-green-500 rounded" style="width: {% widthratio day.reviews 10 100 %}%"></div>
                             </div>
                         </div>
-                        <span class="w-8 text-sm text-gray-500 text-right">{{ day.reviews }}</span>
+                        <span class="w-6 sm:w-8 text-xs sm:text-sm text-gray-500 text-right">{{ day.reviews }}</span>
                     </div>
                     {% endfor %}
                 </div>
@@ -49,13 +49,13 @@
                 <div class="space-y-3">
                     {% for count in box_distribution %}
                     <div class="flex items-center">
-                        <span class="w-12 text-sm text-gray-500">Box {{ forloop.counter }}</span>
+                        <span class="w-10 sm:w-12 text-xs sm:text-sm text-gray-500">Box {{ forloop.counter }}</span>
                         <div class="flex-1 mx-2">
-                            <div class="h-6 bg-gray-100 rounded flex items-center">
+                            <div class="h-5 sm:h-6 bg-gray-100 rounded flex items-center">
                                 <div class="h-full bg-blue-500 rounded" style="width: {% widthratio count total_words 100 %}%"></div>
                             </div>
                         </div>
-                        <span class="w-8 text-sm text-gray-500 text-right">{{ count }}</span>
+                        <span class="w-6 sm:w-8 text-xs sm:text-sm text-gray-500 text-right">{{ count }}</span>
                     </div>
                     {% endfor %}
                 </div>
