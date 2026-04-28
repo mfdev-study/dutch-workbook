@@ -27,7 +27,26 @@ apt-get install -y python3 python3-pip git curl
 # Install uv
 echo "Installing uv..."
 curl -LsSf https://astral.sh/uv/install.sh | sh
-export PATH="$HOME/.cargo/bin:$PATH"
+
+# Add cargo bin to PATH for current session
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+
+# Also add to bashrc for future sessions
+for bashrc in /root/.bashrc /home/"$APP_USER"/.bashrc; do
+    if [ -f "$bashrc" ]; then
+        if ! grep -q '.local/bin\|.cargo/bin' "$bashrc" 2>/dev/null; then
+            echo 'export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"' >> "$bashrc"
+        fi
+    fi
+done
+
+# Verify uv installation
+if command -v uv &> /dev/null; then
+    echo "uv installed successfully: $(uv --version)"
+else
+    echo "ERROR: uv installation failed"
+    exit 1
+fi
 
 # Clone repository
 if [ ! -d "$APP_DIR" ]; then
@@ -40,8 +59,9 @@ fi
 
 # Setup Python environment
 echo "Setting up Python environment..."
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 cd "$APP_DIR"
-sudo -u "$APP_USER" bash -c "export PATH=\"$HOME/.cargo/bin:$PATH\" && uv sync"
+sudo -u "$APP_USER" bash -c "export PATH=\"$HOME/.local/bin:$HOME/.cargo/bin:$PATH\" && cd $APP_DIR && uv sync"
 
 # Create production settings if not exists
 if [ ! -f "$APP_DIR/nederlandse_workbook/production_settings.py" ]; then
@@ -76,8 +96,9 @@ fi
 
 # Run initial setup
 echo "Running initial Django setup..."
-sudo -u "$APP_USER" bash -c "cd $APP_DIR && export PATH=\"$HOME/.cargo/bin:$PATH\" && uv run python manage.py migrate --settings nederlandse_workbook.production_settings"
-sudo -u "$APP_USER" bash -c "cd $APP_DIR && export PATH=\"$HOME/.cargo/bin:$PATH\" && uv run python manage.py collectstatic --noinput --settings nederlandse_workbook.production_settings"
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+sudo -u "$APP_USER" bash -c "export PATH=\"$HOME/.local/bin:$HOME/.cargo/bin:$PATH\" && cd $APP_DIR && uv run python manage.py migrate --settings nederlandse_workbook.production_settings"
+sudo -u "$APP_USER" bash -c "export PATH=\"$HOME/.local/bin:$HOME/.cargo/bin:$PATH\" && cd $APP_DIR && uv run python manage.py collectstatic --noinput --settings nederlandse_workbook.production_settings"
 
 # Install systemd service
 echo "Installing systemd service..."
