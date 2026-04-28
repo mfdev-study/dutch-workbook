@@ -75,39 +75,42 @@ jobs:
         key: ${{ secrets.HETZNER_SSH_KEY }}
         port: ${{ secrets.HETZNER_PORT || 22 }}
         script: |
-          # Check if app directory exists, if not run initial setup
-          if [ ! -d /opt/dutchworkbook ]; then
-            echo "First deployment - need to run setup-vps.sh manually"
-            echo "Please SSH into the server and run: bash /tmp/setup-vps.sh"
+          APP_DIR="/opt/dutchworkbook"
+          APP_USER="dutchapp"
+
+          # Check if first deployment
+          if [ ! -d "$APP_DIR" ]; then
+            echo "ERROR: First deployment needed. Run setup-vps.sh manually."
+            echo "SSH into server and run: bash setup-vps.sh"
             exit 1
           fi
 
-          cd /opt/dutchworkbook
+          cd "$APP_DIR"
 
           # Backup current state
           echo "Creating backup..."
-          sudo -u dutchapp cp -r . ../dutchworkbook-backup-$(date +%Y%m%d-%H%M%S) 2>/dev/null || true
+          sudo -u "$APP_USER" cp -r . ../dutchworkbook-backup-$(date +%Y%m%d-%H%M%S) 2>/dev/null || true
 
           # Pull latest changes
           echo "Pulling latest changes..."
-          git fetch origin
-          git reset --hard origin/main
+          sudo -u "$APP_USER" git fetch origin
+          sudo -u "$APP_USER" git reset --hard origin/main
 
           # Activate virtual environment and install/update dependencies
           echo "Updating dependencies..."
-          sudo -u dutchapp bash -c "export PATH=\"$HOME/.cargo/bin:$PATH\" && cd /opt/dutchworkbook && uv sync"
+          sudo -u "$APP_USER" bash -c "export PATH=\"$HOME/.cargo/bin:$PATH\" && cd $APP_DIR && uv sync"
 
           # Run migrations
           echo "Running migrations..."
-          sudo -u dutchapp bash -c "cd /opt/dutchworkbook && uv run python manage.py migrate --settings nederlandse_workbook.production_settings"
+          sudo -u "$APP_USER" bash -c "cd $APP_DIR && uv run python manage.py migrate --settings nederlandse_workbook.production_settings"
 
           # Collect static files
           echo "Collecting static files..."
-          sudo -u dutchapp bash -c "cd /opt/dutchworkbook && uv run python manage.py collectstatic --noinput --settings nederlandse_workbook.production_settings"
+          sudo -u "$APP_USER" bash -c "cd $APP_DIR && uv run python manage.py collectstatic --noinput --settings nederlandse_workbook.production_settings"
 
           # Restart gunicorn service
           echo "Restarting application..."
-          sudo systemctl restart dutchworkbook || echo "Service restart failed - may need initial setup"
+          sudo systemctl restart dutchworkbook || echo "Service restart failed - check setup"
 
           # Check service status
           echo "Checking service status..."
