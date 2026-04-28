@@ -1,0 +1,191 @@
+# Ukrainian translations for Dutch Workbook
+msgid ""
+msgstr ""
+"Project-Id-Version: Dutch Workbook 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-28 12:00+0000\n"
+"PO-Revision-Date: 2026-04-28 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: uk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+msgid "Dutch Learning Workbook"
+msgstr "Нідерландський навчальний зошит"
+
+msgid "Dutch Workbook"
+msgstr "Нідерландський зошит"
+
+msgid "Dashboard"
+msgstr "Панель керування"
+
+msgid "Add Word"
+msgstr "Додати слово"
+
+msgid "AI Generate"
+msgstr "Генерація ШІ"
+
+msgid "Browse"
+msgstr "Огляд"
+
+msgid "Categories"
+msgstr "Категорії"
+
+msgid "Flashcards"
+msgstr "Флеш-картки"
+
+msgid "Quiz"
+msgstr "Вікторина"
+
+msgid "Progress"
+msgstr "Прогрес"
+
+msgid "Logout"
+msgstr "Вийти"
+
+msgid "Login"
+msgstr "Увійти"
+
+msgid "Sign Up"
+msgstr "Реєстрація"
+
+msgid "Dutch Learning Workbook - Learn Dutch with flashcards and quizzes"
+msgstr "Нідерландський навчальний зошит - Вивчайте нідерландську з флеш-картками та вікторинами"
+
+msgid "Welcome back, %(username)s!"
+msgstr "З поверненням, %(username)s!"
+
+msgid "Continue your Dutch learning journey."
+msgstr "Продовжуйте свою подорож вивчення нідерландської."
+
+msgid "Cards Due Today"
+msgstr "Карток на сьогодні"
+
+msgid "Words Learned"
+msgstr "Вивчено слів"
+
+msgid "Favorites"
+msgstr "Обране"
+
+msgid "Day Streak"
+msgstr "Днів підряд"
+
+msgid "Quick Actions"
+msgstr "Швидкі дії"
+
+msgid "Add New Word"
+msgstr "Додати нове слово"
+
+msgid "Review Flashcards"
+msgstr "Повторити флеш-картки"
+
+msgid "Take a Quiz"
+msgstr "Пройти вікторину"
+
+msgid "Browse Word Bank"
+msgstr "Переглянути словник"
+
+msgid "Today's Activity"
+msgstr "Активність за сьогодні"
+
+msgid "Words Reviewed"
+msgstr "Слів повторено"
+
+msgid "Quizzes Completed"
+msgstr "Вікторин пройдено"
+
+msgid "New Words Added"
+msgstr "Нових слів додано"
+
+msgid "Getting Started"
+msgstr "Початок роботи"
+
+msgid "1. Browse the word bank and add words to your flashcards"
+msgstr "1. Перегляньте словник і додайте слова у свої флеш-картки"
+
+msgid "2. Review your flashcards daily using spaced repetition"
+msgstr "2. Повторюйте флеш-картки щодня, використовуючи інтервальні повторення"
+
+msgid "3. Take quizzes to test your knowledge"
+msgstr "3. Проходьте вікторини, щоб перевірити свої знання"
+
+msgid "4. Track your progress and maintain your streak!"
+msgstr "4. Відстежуйте свій прогрес і зберігайте серію!"
+
+msgid "Start Learning"
+msgstr "Почати навчання"
+
+msgid "Search words..."
+msgstr "Пошук слів..."
+
+msgid "All Sources"
+msgstr "Всі джерела"
+
+msgid "Ukrainian"
+msgstr "Українська"
+
+msgid "English"
+msgstr "Англійська"
+
+msgid "Dutch"
+msgstr "Нідерландська"
+
+msgid "Translation"
+msgstr "Переклад"
+
+msgid "Source"
+msgstr "Джерело"
+
+msgid "Actions"
+msgstr "Дії"
+
+msgid "View"
+msgstr "Перегляд"
+
+msgid "No words found."
+msgstr "Слів не знайдено."
+
+msgid "Showing first 100 results"
+msgstr "Показано перші 100 результатів"
+
+msgid "Welcome Back"
+msgstr "З поверненням"
+
+msgid "Your username and password didn't match. Please try again."
+msgstr "Ім'я користувача або пароль не підходять. Спробуйте ще раз."
+
+msgid "Username"
+msgstr "Ім'я користувача"
+
+msgid "Password"
+msgstr "Пароль"
+
+msgid "Login"
+msgstr "Увійти"
+
+msgid "Don't have an account?"
+msgstr "Немає аккаунта?"
+
+msgid "Sign up"
+msgstr "Реєстрація"
+
+msgid "Create Account"
+msgstr "Створити аккаунт"
+
+msgid "Please correct the errors below."
+msgstr "Виправте помилки нижче."
+
+msgid "Email (optional)"
+msgstr "Email (необов'язково)"
+
+msgid "Confirm Password"
+msgstr "Підтвердіть пароль"
+
+msgid "Sign Up"
+msgstr "Реєстрація"
+
+msgid "Already have an account?"
+msgstr "Вже є аккаунт?"

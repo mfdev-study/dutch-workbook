@@ -2,16 +2,24 @@
 Django settings for nederlandse_workbook project.
 """
 
+import contextlib
+import os
 from pathlib import Path
 
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "django-insecure-ie6=7syc1kw^l!2i8zo89+d939wtsk_&006&fhn4&@anb#g$6l"
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.getenv(
+    "SECRET_KEY", "django-insecure-ie6=7syc1kw^l!2i8zo89+d939wtsk_&006&fhn4&@anb#g$6l"
+)
 
-DEBUG = True
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.getenv("DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1,testserver").split(",")
 
+# Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -28,6 +36,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",  # Added for i18n
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -44,6 +53,7 @@ TEMPLATES = [
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
+                "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
@@ -54,13 +64,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "nederlandse_workbook.wsgi.application"
 
+# Database
+# https://docs.djangoproject.com/el/5.2/ref/settings/#databases
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
+        "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.sqlite3"),
         "NAME": BASE_DIR / "db.sqlite3",
+        "USER": os.getenv("DB_USER", ""),
+        "PASSWORD": os.getenv("DB_PASSWORD", ""),
+        "HOST": os.getenv("DB_HOST", ""),
+        "PORT": os.getenv("DB_PORT", ""),
     }
 }
 
+# Password validation
+# https://docs.djangoproject.com/el/5.2/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -76,24 +94,43 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGE_CODE = "en-us"
-
+# Internationalization
+# https://docs.djangoproject.com/el/5.2/topics/i18n/
+LANGUAGE_CODE = "en"
 TIME_ZONE = "UTC"
-
 USE_I18N = True
-
+USE_L10N = True
 USE_TZ = True
 
+# Supported languages
+LANGUAGES = [
+    ("en", "English"),
+    ("nl", "Nederlands"),
+    ("ru", "Русский"),
+    ("uk", "Українська"),
+]
+
+LOCALE_PATHS = [BASE_DIR / "locale"]
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/el/5.2/howto/static-files/
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-AUTH_USER_MODEL = "accounts.CustomUser"
-
-LOGIN_REDIRECT_URL = "dashboard"
-LOGOUT_REDIRECT_URL = "login"
-
+# Media files
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# Import AI/OpenRouter settings
-from .ai_settings import *
+# Custom user model
+AUTH_USER_MODEL = "accounts.CustomUser"
+
+# Login/logout URLs
+LOGIN_REDIRECT_URL = "dashboard"
+LOGOUT_REDIRECT_URL = "login"
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Import AI/OpenRouter settings if available
+with contextlib.suppress(ImportError):
+    from .ai_settings import *

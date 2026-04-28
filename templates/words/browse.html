@@ -1,24 +1,25 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
-{% block title %}Browse Words - Dutch Learning Workbook{% endblock %}
+{% block title %}{% trans "Browse Words" %} - {% trans "Dutch Learning Workbook" %}{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
     <div class="bg-white rounded-lg shadow-md p-4 sm:p-6">
-        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Browse Word Bank</h1>
+        <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4">{% trans "Browse Word Bank" %}</h1>
 
         <form method="get" class="flex flex-col sm:flex-row gap-3">
             <div class="flex-1 min-w-[200px]">
-                <input type="text" name="q" value="{{ query }}" placeholder="Search words..."
+                <input type="text" name="q" value="{{ query }}" placeholder="{% trans "Search words..." %}"
                     class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dutch-orange focus:border-transparent">
             </div>
             <select name="source" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dutch-orange">
-                <option value="">All Sources</option>
-                <option value="UK" {% if source == 'UK' %}selected{% endif %}>Ukrainian</option>
-                <option value="EN" {% if source == 'EN' %}selected{% endif %}>English</option>
+                <option value="">{% trans "All Sources" %}</option>
+                <option value="UK" {% if source == 'UK' %}selected{% endif %}>{% trans "Ukrainian" %}</option>
+                <option value="EN" {% if source == 'EN' %}selected{% endif %}>{% trans "English" %}</option>
             </select>
             <button type="submit" class="bg-dutch-orange text-white px-6 py-2 rounded-md hover:bg-orange-600 transition font-medium whitespace-nowrap">
-                Search
+                {% trans "Search" %}
             </button>
         </form>
     </div>
@@ -29,10 +30,10 @@
             <table class="w-full">
                 <thead>
                     <tr class="border-b border-gray-200">
-                        <th class="text-left py-3 px-4 font-semibold text-gray-600">Dutch</th>
-                        <th class="text-left py-3 px-4 font-semibold text-gray-600">Translation</th>
-                        <th class="text-left py-3 px-4 font-semibold text-gray-600">Source</th>
-                        <th class="text-left py-3 px-4 font-semibold text-gray-600">Actions</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-600">{% trans "Dutch" %}</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-600">{% trans "Translation" %}</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-600">{% trans "Source" %}</th>
+                        <th class="text-left py-3 px-4 font-semibold text-gray-600">{% trans "Actions" %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -50,13 +51,13 @@
                             </span>
                         </td>
                         <td class="py-3 px-4">
-                            <a href="{% url 'word_detail' word.id %}" class="text-blue-600 hover:text-blue-800 text-sm">View</a>
+                            <a href="{% url 'word_detail' word.id %}" class="text-blue-600 hover:text-blue-800 text-sm">{% trans "View" %}</a>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
                         <td colspan="4" class="py-8 text-center text-gray-500">
-                            No words found.
+                            {% trans "No words found." %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -81,20 +82,20 @@
                         </div>
                     </div>
                     <a href="{% url 'word_detail' word.id %}" class="text-blue-600 hover:text-blue-800 text-sm ml-3">
-                        View
+                        {% trans "View" %}
                     </a>
                 </div>
             </div>
             {% empty %}
             <p class="py-8 text-center text-gray-500">
-                No words found.
+                {% trans "No words found." %}
             </p>
             {% endfor %}
         </div>
 
         {% if words %}
         <div class="mt-4 text-sm text-gray-500 text-center">
-            Showing first 100 results
+            {% trans "Showing first 100 results" %}
         </div>
         {% endif %}
     </div>

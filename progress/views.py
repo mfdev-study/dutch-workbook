@@ -72,7 +72,7 @@ def progress_dashboard(request):
 
 @login_required
 def streak_view(request):
-    progress = UserProgress.objects.get(user=request.user)
+    progress, created = UserProgress.objects.get_or_create(user=request.user)
 
     today = timezone.now().date()
 

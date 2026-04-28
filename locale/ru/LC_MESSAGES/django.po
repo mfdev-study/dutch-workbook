@@ -1,0 +1,191 @@
+# Russian translations for Dutch Workbook
+msgid ""
+msgstr ""
+"Project-Id-Version: Dutch Workbook 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-28 12:00+0000\n"
+"PO-Revision-Date: 2026-04-28 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+msgid "Dutch Learning Workbook"
+msgstr "Учебная тетрадь по голландскому языку"
+
+msgid "Dutch Workbook"
+msgstr "Учебная тетрадь по голландскому"
+
+msgid "Dashboard"
+msgstr "Панель управления"
+
+msgid "Add Word"
+msgstr "Добавить слово"
+
+msgid "AI Generate"
+msgstr "Генерация ИИ"
+
+msgid "Browse"
+msgstr "Обзор"
+
+msgid "Categories"
+msgstr "Категории"
+
+msgid "Flashcards"
+msgstr "Карточки"
+
+msgid "Quiz"
+msgstr "Викторина"
+
+msgid "Progress"
+msgstr "Прогресс"
+
+msgid "Logout"
+msgstr "Выйти"
+
+msgid "Login"
+msgstr "Войти"
+
+msgid "Sign Up"
+msgstr "Регистрация"
+
+msgid "Dutch Learning Workbook - Learn Dutch with flashcards and quizzes"
+msgstr "Учебная тетрадь по голландскому - Изучайте голландский с флеш-картами и викторинами"
+
+msgid "Welcome back, %(username)s!"
+msgstr "С возвращением, %(username)s!"
+
+msgid "Continue your Dutch learning journey."
+msgstr "Продолжите свое путешествие по изучению голландского."
+
+msgid "Cards Due Today"
+msgstr "Карточек на сегодня"
+
+msgid "Words Learned"
+msgstr "Выучено слов"
+
+msgid "Favorites"
+msgstr "Избранное"
+
+msgid "Day Streak"
+msgstr "Дней подряд"
+
+msgid "Quick Actions"
+msgstr "Быстрые действия"
+
+msgid "Add New Word"
+msgstr "Добавить новое слово"
+
+msgid "Review Flashcards"
+msgstr "Повторить карточки"
+
+msgid "Take a Quiz"
+msgstr "Пройти тест"
+
+msgid "Browse Word Bank"
+msgstr "Просмотреть словарь"
+
+msgid "Today's Activity"
+msgstr "Активность за сегодня"
+
+msgid "Words Reviewed"
+msgstr "Слов повторено"
+
+msgid "Quizzes Completed"
+msgstr "Тестов пройдено"
+
+msgid "New Words Added"
+msgstr "Новых слов добавлено"
+
+msgid "Getting Started"
+msgstr "Начало работы"
+
+msgid "1. Browse the word bank and add words to your flashcards"
+msgstr "1. Просмотрите словарь и добавьте слова в свои карточки"
+
+msgid "2. Review your flashcards daily using spaced repetition"
+msgstr "2. Повторяйте карточки ежедневно, используя интервальные повторения"
+
+msgid "3. Take quizzes to test your knowledge"
+msgstr "3. Проходите тесты, чтобы проверить свои знания"
+
+msgid "4. Track your progress and maintain your streak!"
+msgstr "4. Отслеживайте свой прогресс и сохраняйте серию!"
+
+msgid "Start Learning"
+msgstr "Начать обучение"
+
+msgid "Search words..."
+msgstr "Поиск слов..."
+
+msgid "All Sources"
+msgstr "Все источники"
+
+msgid "Ukrainian"
+msgstr "Украинский"
+
+msgid "English"
+msgstr "Английский"
+
+msgid "Dutch"
+msgstr "Голландский"
+
+msgid "Translation"
+msgstr "Перевод"
+
+msgid "Source"
+msgstr "Источник"
+
+msgid "Actions"
+msgstr "Действия"
+
+msgid "View"
+msgstr "Просмотр"
+
+msgid "No words found."
+msgstr "Слова не найдены."
+
+msgid "Showing first 100 results"
+msgstr "Показаны первые 100 результатов"
+
+msgid "Welcome Back"
+msgstr "С возвращением"
+
+msgid "Your username and password didn't match. Please try again."
+msgstr "Имя пользователя или пароль не подходят. Попробуйте снова."
+
+msgid "Username"
+msgstr "Имя пользователя"
+
+msgid "Password"
+msgstr "Пароль"
+
+msgid "Login"
+msgstr "Войти"
+
+msgid "Don't have an account?"
+msgstr "Нет аккаунта?"
+
+msgid "Sign up"
+msgstr "Регистрация"
+
+msgid "Create Account"
+msgstr "Создать аккаунт"
+
+msgid "Please correct the errors below."
+msgstr "Исправьте ошибки ниже."
+
+msgid "Email (optional)"
+msgstr "Email (необязательно)"
+
+msgid "Confirm Password"
+msgstr "Подтвердите пароль"
+
+msgid "Sign Up"
+msgstr "Регистрация"
+
+msgid "Already have an account?"
+msgstr "Уже есть аккаунт?"

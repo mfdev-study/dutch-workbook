@@ -1,0 +1,191 @@
+# Dutch translations for Dutch Workbook
+msgid ""
+msgstr ""
+"Project-Id-Version: Dutch Workbook 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-28 12:00+0000\n"
+"PO-Revision-Date: 2026-04-28 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Dutch Learning Workbook"
+msgstr "Nederlandse Leerwerkboek"
+
+msgid "Dutch Workbook"
+msgstr "Nederlandse Werkboek"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Add Word"
+msgstr "Woord Toevoegen"
+
+msgid "AI Generate"
+msgstr "AI Genereren"
+
+msgid "Browse"
+msgstr "Bladeren"
+
+msgid "Categories"
+msgstr "Categorieën"
+
+msgid "Flashcards"
+msgstr "Flashcards"
+
+msgid "Quiz"
+msgstr "Quiz"
+
+msgid "Progress"
+msgstr "Voortgang"
+
+msgid "Logout"
+msgstr "Uitloggen"
+
+msgid "Login"
+msgstr "Inloggen"
+
+msgid "Sign Up"
+msgstr "Registreren"
+
+msgid "Dutch Learning Workbook - Learn Dutch with flashcards and quizzes"
+msgstr "Nederlandse Leerwerkboek - Leer Nederlands met flashcards en quizzen"
+
+msgid "Welcome back, %(username)s!"
+msgstr "Welkom terug, %(username)s!"
+
+msgid "Continue your Dutch learning journey."
+msgstr "Ga verder met je Nederlandse leerreis."
+
+msgid "Cards Due Today"
+msgstr "Vandaag te leren kaarten"
+
+msgid "Words Learned"
+msgstr "Woorden geleerd"
+
+msgid "Favorites"
+msgstr "Favorieten"
+
+msgid "Day Streak"
+msgstr "Dagen reeks"
+
+msgid "Quick Actions"
+msgstr "Snelle acties"
+
+msgid "Add New Word"
+msgstr "Nieuw woord toevoegen"
+
+msgid "Review Flashcards"
+msgstr "Flashcards herzien"
+
+msgid "Take a Quiz"
+msgstr "Doe een quiz"
+
+msgid "Browse Word Bank"
+msgstr "Blader door woordenbank"
+
+msgid "Today's Activity"
+msgstr "Activiteit van vandaag"
+
+msgid "Words Reviewed"
+msgstr "Woorden herzien"
+
+msgid "Quizzes Completed"
+msgstr "Quizzen voltooid"
+
+msgid "New Words Added"
+msgstr "Nieuwe woorden toegevoegd"
+
+msgid "Getting Started"
+msgstr "Aan de slag"
+
+msgid "1. Browse the word bank and add words to your flashcards"
+msgstr "1. Blader door de woordenbank en voeg woorden toe aan je flashcards"
+
+msgid "2. Review your flashcards daily using spaced repetition"
+msgstr "2. Herzie je flashcards dagelijks met gespreide herhaling"
+
+msgid "3. Take quizzes to test your knowledge"
+msgstr "3. Doe quizzen om je kennis te testen"
+
+msgid "4. Track your progress and maintain your streak!"
+msgstr "4. Volg je voortgang en behoud je reeks!"
+
+msgid "Start Learning"
+msgstr "Begin met leren"
+
+msgid "Search words..."
+msgstr "Zoek woorden..."
+
+msgid "All Sources"
+msgstr "Alle bronnen"
+
+msgid "Ukrainian"
+msgstr "Oekraïens"
+
+msgid "English"
+msgstr "Engels"
+
+msgid "Dutch"
+msgstr "Nederlands"
+
+msgid "Translation"
+msgstr "Vertaling"
+
+msgid "Source"
+msgstr "Bron"
+
+msgid "Actions"
+msgstr "Acties"
+
+msgid "View"
+msgstr "Bekijk"
+
+msgid "No words found."
+msgstr "Geen woorden gevonden."
+
+msgid "Showing first 100 results"
+msgstr "Eerste 100 resultaten worden getoond"
+
+msgid "Welcome Back"
+msgstr "Welkom terug"
+
+msgid "Your username and password didn't match. Please try again."
+msgstr "Je gebruikersnaam en wachtwoord komen niet overeen. Probeer het opnieuw."
+
+msgid "Username"
+msgstr "Gebruikersnaam"
+
+msgid "Password"
+msgstr "Wachtwoord"
+
+msgid "Login"
+msgstr "Inloggen"
+
+msgid "Don't have an account?"
+msgstr "Heb je nog geen account?"
+
+msgid "Sign up"
+msgstr "Registreren"
+
+msgid "Create Account"
+msgstr "Account aanmaken"
+
+msgid "Please correct the errors below."
+msgstr "Corrigeer de fouten hieronder."
+
+msgid "Email (optional)"
+msgstr "E-mail (optioneel)"
+
+msgid "Confirm Password"
+msgstr "Bevestig wachtwoord"
+
+msgid "Sign Up"
+msgstr "Registreren"
+
+msgid "Already have an account?"
+msgstr "Heb je al een account?"

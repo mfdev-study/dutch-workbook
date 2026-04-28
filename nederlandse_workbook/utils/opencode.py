@@ -7,7 +7,6 @@ import logging
 import shutil
 import subprocess
 from pathlib import Path
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 class OpenCodeClient:
     """Client for interacting with opencode CLI."""
 
-    def __init__(self, opencode_path: Optional[Path] = None):
+    def __init__(self, opencode_path: Path | None = None):
         self.opencode_path = opencode_path or self._find_opencode_path()
 
     def _find_opencode_path(self) -> Path:
@@ -31,8 +30,8 @@ class OpenCodeClient:
         return Path.home() / ".local" / "bin" / "opencode-auto"
 
     def chat(
-        self, prompt: str, model: Optional[str] = None, timeout: int = 120
-    ) -> tuple[Optional[str], str]:
+        self, prompt: str, model: str | None = None, timeout: int = 120
+    ) -> tuple[str | None, str]:
         """Send a chat prompt using opencode-auto and return model used and response content."""
         opencode_auto_path = self._find_opencode_auto_path()
 
@@ -73,7 +72,7 @@ class OpenCodeClient:
             return None, result.stdout
 
 
-def chat(prompt: str, model: Optional[str] = None) -> tuple[Optional[str], str]:
+def chat(prompt: str, model: str | None = None) -> tuple[str | None, str]:
     """Convenience function for one-off chat requests."""
     client = OpenCodeClient()
     return client.chat(prompt, model)

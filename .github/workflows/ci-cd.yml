@@ -1,0 +1,119 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.11, 3.12]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gettext
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
+
+    - name: Install dependencies
+      run: |
+        uv sync
+
+    - name: Run migrations
+      env:
+        DJANGO_SETTINGS_MODULE: nederlandse_workbook.settings
+        SECRET_KEY: test-secret-key-for-ci
+        DEBUG: "True"
+        ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+      run: |
+        uv run python manage.py migrate
+
+    - name: Compile translations
+      env:
+        DJANGO_SETTINGS_MODULE: nederlandse_workbook.settings
+      run: |
+        uv run python manage.py compilemessages
+
+    - name: Run tests
+      env:
+        DJANGO_SETTINGS_MODULE: nederlandse_workbook.settings
+        SECRET_KEY: test-secret-key-for-ci
+        DEBUG: "True"
+        ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+      run: |
+        uv run python manage.py test --verbosity=2
+
+    - name: Run linting with ruff
+      run: |
+        uv run ruff check .
+
+    - name: Check formatting with ruff
+      run: |
+        uv run ruff format --check .
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Deploy to Hetzner VPS
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HETZNER_HOST }}
+        username: ${{ secrets.HETZNER_USER }}
+        key: ${{ secrets.HETZNER_SSH_KEY }}
+        port: ${{ secrets.HETZNER_PORT || 22 }}
+        script: |
+          cd /opt/dutchworkbook
+          
+          # Backup current state
+          echo "Creating backup..."
+          sudo -u dutchapp cp -r . ../dutchworkbook-backup-$(date +%Y%m%d-%H%M%S) 2>/dev/null || true
+          
+          # Pull latest changes
+          echo "Pulling latest changes..."
+          git fetch origin
+          git reset --hard origin/main
+          
+          # Activate virtual environment and install/update dependencies
+          echo "Updating dependencies..."
+          sudo -u dutchapp bash -c "export PATH=\"\$HOME/.cargo/bin:\$PATH\" && cd /opt/dutchworkbook && uv sync"
+          
+          # Compile translations
+          echo "Compiling translations..."
+          sudo -u dutchapp bash -c "cd /opt/dutchworkbook && uv run python manage.py compilemessages --settings nederlandse_workbook.production_settings"
+          
+          # Run migrations
+          echo "Running migrations..."
+          sudo -u dutchapp bash -c "cd /opt/dutchworkbook && uv run python manage.py migrate --settings nederlandse_workbook.production_settings"
+          
+          # Collect static files
+          echo "Collecting static files..."
+          sudo -u dutchapp bash -c "cd /opt/dutchworkbook && uv run python manage.py collectstatic --noinput --settings nederlandse_workbook.production_settings"
+          
+          # Restart gunicorn service
+          echo "Restarting application..."
+          sudo systemctl restart dutchworkbook
+          
+          # Check service status
+          echo "Checking service status..."
+          sudo systemctl status dutchworkbook --no-pager
+          
+          echo "Deployment completed successfully!"
