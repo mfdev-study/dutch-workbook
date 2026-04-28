@@ -33,6 +33,14 @@ jobs:
       run: |
         uv sync
 
+    - name: Run linting with ruff
+      run: |
+        uv run ruff check .
+
+    - name: Check formatting with ruff
+      run: |
+        uv run ruff format --check .
+
     - name: Run migrations
       env:
         DJANGO_SETTINGS_MODULE: nederlandse_workbook.settings
@@ -51,19 +59,11 @@ jobs:
       run: |
         uv run python manage.py test --verbosity=2
 
-    - name: Run linting with ruff
-      run: |
-        uv run ruff check .
-
-    - name: Check formatting with ruff
-      run: |
-        uv run ruff format --check .
-
   deploy:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
+
     steps:
     - uses: actions/checkout@v4
 
@@ -76,34 +76,34 @@ jobs:
         port: ${{ secrets.HETZNER_PORT || 22 }}
         script: |
           cd /opt/dutchworkbook
-          
+
           # Backup current state
           echo "Creating backup..."
           sudo -u dutchapp cp -r . ../dutchworkbook-backup-$(date +%Y%m%d-%H%M%S) 2>/dev/null || true
-          
+
           # Pull latest changes
           echo "Pulling latest changes..."
           git fetch origin
           git reset --hard origin/main
-          
+
           # Activate virtual environment and install/update dependencies
           echo "Updating dependencies..."
-          sudo -u dutchapp bash -c "export PATH=\"\$HOME/.cargo/bin:\$PATH\" && cd /opt/dutchworkbook && uv sync"
-          
+          sudo -u dutchapp bash -c "export PATH=\"$HOME/.cargo/bin:$PATH\" && cd /opt/dutchworkbook && uv sync"
+
           # Run migrations
           echo "Running migrations..."
           sudo -u dutchapp bash -c "cd /opt/dutchworkbook && uv run python manage.py migrate --settings nederlandse_workbook.production_settings"
-          
+
           # Collect static files
           echo "Collecting static files..."
           sudo -u dutchapp bash -c "cd /opt/dutchworkbook && uv run python manage.py collectstatic --noinput --settings nederlandse_workbook.production_settings"
-          
+
           # Restart gunicorn service
           echo "Restarting application..."
           sudo systemctl restart dutchworkbook
-          
+
           # Check service status
           echo "Checking service status..."
           sudo systemctl status dutchworkbook --no-pager
-          
+
           echo "Deployment completed successfully!"
