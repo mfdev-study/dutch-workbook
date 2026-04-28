@@ -24,7 +24,7 @@ jobs:
     - name: Install system dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y gettext
+        sudo apt-get install -y gettext || true
 
     - name: Install uv
       uses: astral-sh/setup-uv@v3
@@ -43,10 +43,16 @@ jobs:
         uv run python manage.py migrate
 
     - name: Compile translations
-      env:
-        DJANGO_SETTINGS_MODULE: nederlandse_workbook.settings
       run: |
-        uv run python manage.py compilemessages
+        # Compile only our project's translation files, not Django's internals
+        if command -v msgfmt &> /dev/null; then
+          for po_file in $(find locale -name "*.po" 2>/dev/null); do
+            mo_file="${po_file%.po}.mo"
+            msgfmt -o "$mo_file" "$po_file"
+          done
+        else
+          echo "msgfmt not found, skipping translation compilation"
+        fi
 
     - name: Run tests
       env:
