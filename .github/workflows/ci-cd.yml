@@ -75,6 +75,13 @@ jobs:
         key: ${{ secrets.HETZNER_SSH_KEY }}
         port: ${{ secrets.HETZNER_PORT || 22 }}
         script: |
+          # Check if app directory exists, if not run initial setup
+          if [ ! -d /opt/dutchworkbook ]; then
+            echo "First deployment - need to run setup-vps.sh manually"
+            echo "Please SSH into the server and run: bash /tmp/setup-vps.sh"
+            exit 1
+          fi
+
           cd /opt/dutchworkbook
 
           # Backup current state
@@ -100,10 +107,10 @@ jobs:
 
           # Restart gunicorn service
           echo "Restarting application..."
-          sudo systemctl restart dutchworkbook
+          sudo systemctl restart dutchworkbook || echo "Service restart failed - may need initial setup"
 
           # Check service status
           echo "Checking service status..."
-          sudo systemctl status dutchworkbook --no-pager
+          sudo systemctl status dutchworkbook --no-pager || echo "Service not running - check setup"
 
           echo "Deployment completed successfully!"

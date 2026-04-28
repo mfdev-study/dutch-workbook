@@ -1,0 +1,15 @@
+[Unit]
+Description=Dutch Workbook Django Application
+After=network.target
+
+[Service]
+Type=notify
+User=dutchapp
+Group=dutchapp
+WorkingDirectory=/opt/dutchworkbook
+ExecStart=/opt/dutchworkbook/.venv/bin/gunicorn nederlandse_workbook.wsgi:application --bind 0.0.0.0:8000 --workers 3
+Restart=always
+Environment="DJANGO_SETTINGS_MODULE=nederlandse_workbook.production_settings"
+
+[Install]
+WantedBy=multi-user.target
