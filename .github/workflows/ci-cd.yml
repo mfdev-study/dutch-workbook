@@ -42,18 +42,6 @@ jobs:
       run: |
         uv run python manage.py migrate
 
-    - name: Compile translations
-      run: |
-        # Compile only our project's translation files, not Django's internals
-        if command -v msgfmt &> /dev/null; then
-          for po_file in $(find locale -name "*.po" 2>/dev/null); do
-            mo_file="${po_file%.po}.mo"
-            msgfmt -o "$mo_file" "$po_file"
-          done
-        else
-          echo "msgfmt not found, skipping translation compilation"
-        fi
-
     - name: Run tests
       env:
         DJANGO_SETTINGS_MODULE: nederlandse_workbook.settings
@@ -101,10 +89,6 @@ jobs:
           # Activate virtual environment and install/update dependencies
           echo "Updating dependencies..."
           sudo -u dutchapp bash -c "export PATH=\"\$HOME/.cargo/bin:\$PATH\" && cd /opt/dutchworkbook && uv sync"
-          
-          # Compile translations
-          echo "Compiling translations..."
-          sudo -u dutchapp bash -c "cd /opt/dutchworkbook && uv run python manage.py compilemessages --settings nederlandse_workbook.production_settings"
           
           # Run migrations
           echo "Running migrations..."
