@@ -117,6 +117,54 @@
         </div>
     </div>
 
+    {% elif generating %}
+
+    <!-- Generating State -->
+    <div id="generating-state" class="bg-white rounded-lg shadow-md p-6 text-center">
+        <svg class="animate-spin h-8 w-8 text-dutch-orange mx-auto mb-4" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <h2 class="text-lg font-semibold text-gray-900 mb-2">Generating Words...</h2>
+        <p class="text-gray-600">Please wait while AI generates Dutch vocabulary for you.</p>
+    </div>
+
+    <script>
+    let pollCount = 0;
+    const maxPolls = 150; // 5 minutes max (150 * 2 seconds)
+    
+    function checkStatus() {
+        pollCount++;
+        if (pollCount > maxPolls) {
+            document.getElementById('generating-state').innerHTML =
+                '<div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">' +
+                '<p class="text-sm text-red-700">Generation timed out. Please try again.</p>' +
+                '<a href="' + location.pathname + '" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition mt-3">Try Again</a>' +
+                '</div>';
+            return;
+        }
+        
+        fetch('?check=true')
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'done') {
+                    // Reload page to show results from cache
+                    location.reload();
+                } else if (data.status === 'error') {
+                    document.getElementById('generating-state').innerHTML =
+                        '<div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">' +
+                        '<p class="text-sm text-red-700">' + data.message + '</p>' +
+                        '<a href="' + location.pathname + '" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition mt-3">Try Again</a>' +
+                        '</div>';
+                } else {
+                    setTimeout(checkStatus, 2000);
+                }
+            })
+            .catch(() => setTimeout(checkStatus, 2000));
+    }
+    checkStatus();
+    </script>
+
     {% else %}
 
     <!-- Generation Form -->

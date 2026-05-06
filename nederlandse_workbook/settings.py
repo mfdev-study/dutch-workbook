@@ -121,6 +121,15 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+# Cache for background tasks (used for AI word generation)
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "word-generation",
+        "TIMEOUT": 300,
+    }
+}
+
 # Custom user model
 AUTH_USER_MODEL = "accounts.CustomUser"
 

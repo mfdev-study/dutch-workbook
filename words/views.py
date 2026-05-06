@@ -4,7 +4,9 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
@@ -95,14 +97,11 @@ def browse_words(request):
     words = Word.objects.all()
 
     if query:
-        # For Cyrillic characters, use regex search for proper case insensitivity
-        if any(ord(c) > 127 for c in query):  # Contains non-ASCII characters
-            # Use regex for Cyrillic case insensitive search
+        if any(ord(c) > 127 for c in query):
             dutch_q = Q(dutch__regex=f"(?i){re.escape(query)}")
             translation_q = Q(translation__regex=f"(?i){re.escape(query)}")
             words = words.filter(dutch_q | translation_q)
         else:
-            # Use standard icontains for ASCII characters
             words = words.filter(dutch__icontains=query) | words.filter(
                 translation__icontains=query
             )
@@ -204,11 +203,9 @@ def flashcards_review(request):
     if not due_cards.exists():
         return render(request, "words/no_cards.html")
 
-    # Get the first due card for review
     current_card = due_cards.first()
     remaining_count = due_cards.count()
 
-    # Update daily activity
     today = timezone.now().date()
     daily, _ = DailyActivity.objects.get_or_create(user=request.user, date=today)
     daily.words_reviewed += 1
@@ -244,7 +241,6 @@ def rate_card(request, card_id, rating):
     card.last_reviewed = timezone.now()
     card.save()
 
-    # Redirect back to review page to show next card
     return redirect("flashcards")
 
 
@@ -320,7 +316,9 @@ def delete_example(request, example_id):
 
 @login_required
 def generate_words_view(request):
-    """View for AI word generation interface."""
+    """AI word generation - simplified non-blocking approach."""
+
+    # Base context
     context = {
         "opencode_enabled": settings.OPENCODE_ENABLED,
         "categories": Category.objects.all().order_by("name"),
@@ -328,9 +326,41 @@ def generate_words_view(request):
         "sources": [("EN", "English"), ("RU", "Russian"), ("UK", "Ukrainian")],
     }
 
+    result_key = f"gen_result_{request.user.id}"
+
+    # AJAX polling endpoint
+    if request.GET.get("check") == "true":
+        result = cache.get(result_key)
+        if result:
+            if "error" in result:
+                return JsonResponse({"status": "error", "message": result["error"]})
+            return JsonResponse(
+                {
+                    "status": "done",
+                    "word_ids": result.get("word_ids", []),
+                    "words_skipped": result.get("words_skipped", 0),
+                    "model_used": result.get("model_used", "unknown"),
+                }
+            )
+        return JsonResponse({"status": "pending"})
+
+    # Check for completed results to display
+    result = cache.get(result_key)
+    if result and "word_ids" in result and "error" not in result:
+        word_ids = result.get("word_ids", [])
+        if word_ids:
+            created_words = Word.objects.filter(id__in=word_ids)
+            if created_words.exists():
+                context["words_created"] = created_words
+                context["words_skipped"] = result.get("words_skipped", 0)
+                context["model_used"] = result.get("model_used", "unknown")
+                cache.delete(result_key)  # Clear after displaying
+                return render(request, "words/generate_words.html", context)
+
+    # Handle form submission - start background generation
     if request.method == "POST":
         if not settings.OPENCODE_ENABLED:
-            context["error"] = "OpenCode is not enabled. opencode-auto not found in PATH."
+            context["error"] = "OpenCode is not enabled."
             return render(request, "words/generate_words.html", context)
 
         count = int(request.POST.get("count", 5))
@@ -344,29 +374,98 @@ def generate_words_view(request):
             with suppress(Category.DoesNotExist):
                 category = Category.objects.get(id=category_id)
 
-        request_data = WordGenerationRequest(
-            count=count,
-            level=level,
-            theme=theme,
-            source=source,
-            category_name=category.name if category else None,
+        # Clear any previous result
+        cache.set(result_key, {"status": "generating"}, timeout=300)
+
+        # Import here to avoid circular imports
+        import threading
+
+        def generate_async(
+            user_id, req_count, req_level, req_theme, req_source, req_category_name, req_result_key
+        ):
+            """Background generation function - runs in separate thread."""
+            try:
+                # Initialize Django in this thread
+                import os
+
+                os.environ["DJANGO_SETTINGS_MODULE"] = "nederlandse_workbook.settings"
+                import django
+
+                django.setup()
+
+                # Now we can import Django stuff
+                from django.core.cache import cache as thread_cache
+                from words.models import Word
+                from words.services.word_generation import (
+                    WordGenerationRequest,
+                    WordGenerationService,
+                )
+
+                # Re-fetch category in this thread
+                thread_category = None
+                if req_category_name:
+                    from words.models import Category as ThreadCategory
+
+                    try:
+                        thread_category = ThreadCategory.objects.get(name=req_category_name)
+                    except ThreadCategory.DoesNotExist:
+                        pass
+
+                service = WordGenerationService()
+                request_data = WordGenerationRequest(
+                    count=req_count,
+                    level=req_level,
+                    theme=req_theme,
+                    source=req_source,
+                    category_name=req_category_name,
+                )
+                used_model, generated_words = service.generate_words(request_data)
+
+                if not generated_words:
+                    thread_cache.set(
+                        req_result_key, {"error": "Could not parse AI response."}, timeout=300
+                    )
+                    return
+
+                created, skipped = service.save_words(generated_words, req_source, thread_category)
+                result_data = {
+                    "word_ids": [w.id for w in created],
+                    "words_skipped": len(skipped),
+                    "model_used": used_model,
+                }
+                thread_cache.set(req_result_key, result_data, timeout=300)
+            except Exception as e:
+                import logging
+
+                logger = logging.getLogger(__name__)
+                logger.error(f"Error in background generation: {e}")
+                from django.core.cache import cache as thread_cache
+
+                thread_cache.set(req_result_key, {"error": str(e)}, timeout=300)
+
+        # Start background thread
+        thread = threading.Thread(
+            target=generate_async,
+            args=(
+                request.user.id,
+                count,
+                level,
+                theme,
+                source,
+                category.name if category else None,
+                result_key,
+            ),
+            daemon=True,
         )
+        thread.start()
 
-        try:
-            service = WordGenerationService()
-            used_model, generated_words = service.generate_words(request_data)
+        # Return generating state
+        context["generating"] = True
+        return render(request, "words/generate_words.html", context)
 
-            if not generated_words:
-                context["error"] = "Could not parse AI response. Please try again."
-                return render(request, "words/generate_words.html", context)
-
-            created, skipped = service.save_words(generated_words, source, category)
-
-            context["words_created"] = created
-            context["words_skipped"] = skipped
-            context["model_used"] = used_model
-
-        except Exception as e:
-            context["error"] = f"Error generating words: {str(e)}"
+    # GET request - show form (or generating state if in progress)
+    result = cache.get(result_key)
+    if result is not None and "word_ids" not in result and "error" not in result:
+        context["generating"] = True
 
     return render(request, "words/generate_words.html", context)
