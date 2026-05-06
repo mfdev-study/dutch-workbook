@@ -130,39 +130,61 @@
     </div>
 
     <script>
-    let pollCount = 0;
-    const maxPolls = 150; // 5 minutes max (150 * 2 seconds)
-    
-    function checkStatus() {
-        pollCount++;
-        if (pollCount > maxPolls) {
-            document.getElementById('generating-state').innerHTML =
-                '<div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">' +
-                '<p class="text-sm text-red-700">Generation timed out. Please try again.</p>' +
-                '<a href="' + location.pathname + '" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition mt-3">Try Again</a>' +
-                '</div>';
-            return;
+    // Only start polling if we're in generating state
+    const generatingElement = document.getElementById('generating-state');
+    if (!generatingElement) {
+        // Not in generating state, don't poll
+    } else {
+        let pollCount = 0;
+        const maxPolls = 150; // 5 minutes max (150 * 2 seconds)
+        let pollTimer = null;
+
+        function checkStatus() {
+            // Prevent multiple simultaneous polls
+            if (pollTimer) {
+                clearTimeout(pollTimer);
+                pollTimer = null;
+            }
+
+            pollCount++;
+            if (pollCount > maxPolls) {
+                generatingElement.innerHTML =
+                    '<div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">' +
+                    '<p class="text-sm text-red-700">Generation timed out. Please try again.</p>' +
+                    '<a href="' + location.pathname + '" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition mt-3">Try Again</a>' +
+                    '</div>';
+                return;
+            }
+
+            fetch('?check=true')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'done') {
+                        // Stop polling and show link to view results
+                        if (pollTimer) {
+                            clearTimeout(pollTimer);
+                            pollTimer = null;
+                        }
+                        generatingElement.innerHTML =
+                            '<div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">' +
+                            '<p class="text-sm text-green-700">Results are ready! <a href="' + location.pathname + '" class="underline font-medium">Click here to view</a></p>' +
+                            '</div>';
+                    } else if (data.status === 'error') {
+                        generatingElement.innerHTML =
+                            '<div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">' +
+                            '<p class="text-sm text-red-700">' + data.message + '</p>' +
+                            '<a href="' + location.pathname + '" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition mt-3">Try Again</a>' +
+                            '</div>';
+                    } else {
+                        pollTimer = setTimeout(checkStatus, 2000);
+                    }
+                })
+                .catch(() => {
+                    pollTimer = setTimeout(checkStatus, 2000);
+                });
         }
-        
-        fetch('?check=true')
-            .then(r => r.json())
-            .then(data => {
-                if (data.status === 'done') {
-                    // Reload page to show results from cache
-                    location.reload();
-                } else if (data.status === 'error') {
-                    document.getElementById('generating-state').innerHTML =
-                        '<div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">' +
-                        '<p class="text-sm text-red-700">' + data.message + '</p>' +
-                        '<a href="' + location.pathname + '" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition mt-3">Try Again</a>' +
-                        '</div>';
-                } else {
-                    setTimeout(checkStatus, 2000);
-                }
-            })
-            .catch(() => setTimeout(checkStatus, 2000));
+        checkStatus();
     }
-    checkStatus();
     </script>
 
     {% else %}

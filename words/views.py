@@ -334,14 +334,16 @@ def generate_words_view(request):
         if result:
             if "error" in result:
                 return JsonResponse({"status": "error", "message": result["error"]})
-            return JsonResponse(
-                {
-                    "status": "done",
-                    "word_ids": result.get("word_ids", []),
-                    "words_skipped": result.get("words_skipped", 0),
-                    "model_used": result.get("model_used", "unknown"),
-                }
-            )
+            if "word_ids" in result:
+                return JsonResponse(
+                    {
+                        "status": "done",
+                        "word_ids": result.get("word_ids", []),
+                        "words_skipped": result.get("words_skipped", 0),
+                        "model_used": result.get("model_used", "unknown"),
+                    }
+                )
+            return JsonResponse({"status": "pending"})
         return JsonResponse({"status": "pending"})
 
     # Check for completed results to display
@@ -356,6 +358,10 @@ def generate_words_view(request):
                 context["model_used"] = result.get("model_used", "unknown")
                 cache.delete(result_key)  # Clear after displaying
                 return render(request, "words/generate_words.html", context)
+
+    # Show generating state only if cache indicates generation in progress
+    if result is not None and "word_ids" not in result and "error" not in result:
+        context["generating"] = True
 
     # Handle form submission - start background generation
     if request.method == "POST":
@@ -459,9 +465,8 @@ def generate_words_view(request):
         )
         thread.start()
 
-        # Return generating state
-        context["generating"] = True
-        return render(request, "words/generate_words.html", context)
+        # PRG pattern: redirect to GET to avoid form resubmission on reload
+        return redirect("generate_words")
 
     # GET request - show form (or generating state if in progress)
     result = cache.get(result_key)
