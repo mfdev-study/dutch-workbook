@@ -5,13 +5,13 @@ User = get_user_model()
 
 
 class QuizSession(models.Model):
-    QUIZ_TYPE_CHOICES = [
-        ("MC", "Multiple Choice"),
-        ("FL", "Fill-in-the-blank"),
-        ("SP", "Speed Round"),
-    ]
+    class QuizType(models.TextChoices):
+        MULTIPLE_CHOICE = "MC", "Multiple Choice"
+        FILL_IN_BLANK = "FL", "Fill-in-the-blank"
+        SPEED_ROUND = "SP", "Speed Round"
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    quiz_type = models.CharField(max_length=2, choices=QUIZ_TYPE_CHOICES)
+    quiz_type = models.CharField(max_length=2, choices=QuizType.choices)
     score = models.IntegerField(default=0)
     total = models.IntegerField(default=0)
     started_at = models.DateTimeField(auto_now_add=True)

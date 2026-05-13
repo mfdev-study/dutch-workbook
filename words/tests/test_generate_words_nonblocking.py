@@ -3,12 +3,12 @@
 import json
 from unittest.mock import patch
 
-from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
+from django.test import TestCase
 from django.urls import reverse
 
-from words.models import Word, Category
+from words.models import Word
 
 
 class GenerateWordsNonBlockingTest(TestCase):
@@ -144,7 +144,7 @@ class GenerateWordsNonBlockingTest(TestCase):
     def test_cache_key_is_user_specific(self):
         """Cache key should be specific to each user."""
         # Create another user
-        user2 = get_user_model().objects.create_user(username="testuser2", password="testpass123")
+        get_user_model().objects.create_user(username="testuser2", password="testpass123")
 
         # Set result for user1
         result_key1 = f"gen_result_{self.user.id}"

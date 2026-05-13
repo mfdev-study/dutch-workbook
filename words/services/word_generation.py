@@ -5,11 +5,10 @@ AI-powered word generation service.
 import json
 import logging
 import re
-from contextlib import suppress
 from dataclasses import dataclass
 
 from nederlandse_workbook.utils.opencode import OpenCodeClient
-from words.models import Category, Word
+from words.models import Word
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +28,6 @@ class WordGenerationRequest:
     level: str = "A2"
     theme: str | None = None
     source: str = "EN"
-    category_name: str | None = None
     model: str | None = None
 
 
@@ -66,7 +64,6 @@ class WordGenerationService:
         self,
         words: list[GeneratedWord],
         source: str,
-        category: Category | None = None,
     ) -> tuple[list[Word], list[Word]]:
         """Save generated words to database."""
         created_words = []
@@ -87,10 +84,6 @@ class WordGenerationService:
 
             if created:
                 created_words.append(word)
-                if category:
-                    from words.models import CategorizedWord
-
-                    CategorizedWord.objects.create(word=word, category=category)
             else:
                 skipped_words.append(word)
 
@@ -171,25 +164,15 @@ def generate_words(
     level: str = "A2",
     theme: str | None = None,
     source: str = "EN",
-    category_name: str | None = None,
-    category_id: int | None = None,
 ) -> tuple[str | None, list[GeneratedWord]]:
     """Convenience function for word generation."""
     service = WordGenerationService()
-
-    category = None
-    if category_id:
-        with suppress(Category.DoesNotExist):
-            category = Category.objects.get(id=category_id)
-    elif category_name:
-        category, _ = Category.objects.get_or_create(name=category_name)
 
     request = WordGenerationRequest(
         count=count,
         level=level,
         theme=theme,
         source=source,
-        category_name=category_name,
     )
 
     return service.generate_words(request)

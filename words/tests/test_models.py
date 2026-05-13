@@ -7,7 +7,7 @@ from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 
-from words.models import Category, Example, Flashcard, Word, WordList
+from words.models import Example, Flashcard, Word, WordList
 
 User = get_user_model()
 
@@ -34,17 +34,6 @@ class WordModelTest(TestCase):
         """Test unique constraint on dutch+translation+source."""
         with self.assertRaises(IntegrityError):
             Word.objects.create(dutch="hond", translation="dog", source="EN")
-
-
-class CategoryModelTest(TestCase):
-    """Test Category model."""
-
-    def test_category_creation(self):
-        category, _ = Category.objects.get_or_create(
-            name="Animals", defaults={"description": "Animal-related words", "color": "#FF0000"}
-        )
-        self.assertEqual(category.name, "Animals")
-        self.assertEqual(str(category), "Animals")
 
 
 class WordListViewTest(TestCase):

@@ -9,7 +9,7 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase, override_settings
 
-from words.models import Category, Word
+from words.models import Word
 
 
 class GenerateWordsCommandTests(TestCase):
@@ -44,31 +44,6 @@ class GenerateWordsCommandTests(TestCase):
         word = Word.objects.first()
         self.assertEqual(word.dutch, "het huis")
         self.assertEqual(word.translation, "the house")
-
-    @override_settings(OPENCODE_ENABLED=True)
-    @patch("words.services.word_generation.OpenCodeClient")
-    def test_command_with_category(self, mock_client_class):
-        """Test word generation with category assignment."""
-        category = Category.objects.create(name="Test Category")
-
-        mock_client = Mock()
-        mock_client.chat.return_value = (
-            "test-model",
-            '[{"dutch": "het boek", "translation": "the book", "part_of_speech": "noun"}]',
-        )
-        mock_client_class.return_value = mock_client
-
-        call_command(
-            "generate_words",
-            count=1,
-            category="Test Category",
-            stdout=self.stdout,
-            stderr=self.stderr,
-        )
-
-        word = Word.objects.first()
-        self.assertIsNotNone(word)
-        self.assertTrue(word.categorized.filter(category=category).exists())
 
     @override_settings(OPENCODE_ENABLED=True)
     @patch("words.services.word_generation.OpenCodeClient")

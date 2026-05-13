@@ -33,51 +33,6 @@ class Word(models.Model):
         return f"{self.dutch} - {self.translation}"
 
 
-class Category(models.Model):
-    """Category for organizing words."""
-
-    name = models.CharField(max_length=100, unique=True)
-    description = models.TextField(blank=True)
-    color = models.CharField(
-        max_length=7,
-        default="#007bff",
-        help_text="Hex color code",
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["name"]
-        verbose_name_plural = "Categories"
-
-    def __str__(self):
-        return self.name
-
-
-class CategorizedWord(models.Model):
-    """Many-to-many relationship between words and categories."""
-
-    word = models.ForeignKey(
-        Word,
-        on_delete=models.CASCADE,
-        related_name="categorized",
-    )
-    category = models.ForeignKey(
-        Category,
-        on_delete=models.CASCADE,
-        related_name="categorized_words",
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["category__name"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["word", "category"],
-                name="unique_word_category",
-            ),
-        ]
-
-
 class Flashcard(models.Model):
     """User flashcard for word learning with spaced repetition."""
 

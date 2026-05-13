@@ -13,5 +13,5 @@ urlpatterns += i18n_patterns(
     path("words/", include("words.urls")),
     path("quiz/", include("quiz.urls")),
     path("progress/", include("progress.urls")),
-    path("", RedirectView.as_view(url="words/", permanent=False)),
+    path("", RedirectView.as_view(pattern_name="dashboard", permanent=False)),
 )

@@ -65,6 +65,15 @@ deploy:
 	ssh dutchapp@your-server "cd /opt/dutchworkbook && ./deploy-hetzner.sh"
 	@echo "Deployment complete!"
 
+# Build deploy archive
+tar:
+	@echo "Building deploy archive..."
+	tar --exclude='.venv' --exclude='__pycache__' --exclude='.git' \
+		--exclude='.ruff_cache' --exclude='db.sqlite3' --exclude='.env' \
+		--exclude='logs' --exclude='*.pyc' \
+		-czf /tmp/dutch-workbook-deploy.tar.gz .
+	@echo "Archive created: /tmp/dutch-workbook-deploy.tar.gz"
+
 # Database backup
 backup:
 	@echo "Creating database backup..."

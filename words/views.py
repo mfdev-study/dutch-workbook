@@ -1,26 +1,54 @@
-import re
-from contextlib import suppress
+"""Views for the words (vocabulary) app."""
+
+import logging
+import threading
 from datetime import timedelta
+from typing import Any
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.db.models import Q
-from django.http import JsonResponse
+from django.db.models import Q, QuerySet
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from progress.models import DailyActivity, UserProgress
 
-from .models import Category, Example, Flashcard, Word, WordList
-from .services.word_generation import (
+from .models import Example, Flashcard, Word, WordList
+from .services.word_generation import (  # noqa: F401  # Used by tests via mock
     WordGenerationRequest,
     WordGenerationService,
 )
 
+logger = logging.getLogger(__name__)
+
+
+def _get_favorite_list(user) -> WordList:
+    """Get or create the user's Favorites word list."""
+    favorite_list, _ = WordList.objects.get_or_create(
+        user=user,
+        name="Favorites",
+        defaults={"list_type": WordList.ListType.FAVORITES},
+    )
+    return favorite_list
+
+
+def _record_word_learned(user) -> None:
+    """Increment words_learned counter and daily activity."""
+    progress, _ = UserProgress.objects.get_or_create(user=user)
+    progress.words_learned += 1
+    progress.save()
+
+    today = timezone.now().date()
+    daily, _ = DailyActivity.objects.get_or_create(user=user, date=today)
+    daily.new_words += 1
+    daily.save()
+
 
 @login_required
-def add_word(request):
+def add_word(request: HttpRequest) -> HttpResponse:
+    """Add a new Dutch word to the vocabulary."""
     if request.method == "POST":
         dutch = request.POST.get("dutch", "").strip()
         translation = request.POST.get("translation", "").strip()
@@ -39,47 +67,30 @@ def add_word(request):
                 },
             )
             if created:
-                word.context = context
-                word.example = example
-                word.save()
-                _ = Flashcard.objects.create(
+                Flashcard.objects.create(
                     user=request.user,
                     word=word,
-                    box=1,
+                    box=Flashcard.Box.BOX_1,
                     next_review=timezone.now(),
                 )
-                progress, _ = UserProgress.objects.get_or_create(user=request.user)
-                progress.words_learned += 1
-                progress.save()
-
-                today = timezone.now().date()
-                daily, _ = DailyActivity.objects.get_or_create(user=request.user, date=today)
-                daily.new_words += 1
-                daily.save()
-
+                _record_word_learned(request.user)
                 return redirect("word_detail", word_id=word.id)
 
     return render(request, "words/add_word.html")
 
 
 @login_required
-def dashboard(request):
-    progress, created = UserProgress.objects.get_or_create(user=request.user)
+def dashboard(request: HttpRequest) -> HttpResponse:
+    """Show the main dashboard with learning stats."""
+    progress, _ = UserProgress.objects.get_or_create(user=request.user)
     today = timezone.now().date()
-
-    try:
-        daily = DailyActivity.objects.get(user=request.user, date=today)
-    except DailyActivity.DoesNotExist:
-        daily = DailyActivity.objects.create(user=request.user, date=today)
+    daily, _ = DailyActivity.objects.get_or_create(user=request.user, date=today)
 
     flashcards = Flashcard.objects.filter(user=request.user)
     due_cards = flashcards.filter(next_review__lte=timezone.now())
+    favorite_list = _get_favorite_list(request.user)
 
-    favorite_list, _ = WordList.objects.get_or_create(
-        user=request.user, name="Favorites", defaults={"list_type": "FAV"}
-    )
-
-    context = {
+    context: dict[str, Any] = {
         "progress": progress,
         "due_cards_count": due_cards.count(),
         "total_cards": flashcards.count(),
@@ -90,34 +101,25 @@ def dashboard(request):
 
 
 @login_required
-def browse_words(request):
-    query = request.GET.get("q", "")
+def browse_words(request: HttpRequest) -> HttpResponse:
+    """Browse and search the word bank."""
+    query = request.GET.get("q", "").strip()
     source = request.GET.get("source", "")
 
-    words = Word.objects.all()
+    words: QuerySet[Word] = Word.objects.all()
 
     if query:
-        if any(ord(c) > 127 for c in query):
-            dutch_q = Q(dutch__regex=f"(?i){re.escape(query)}")
-            translation_q = Q(translation__regex=f"(?i){re.escape(query)}")
-            words = words.filter(dutch_q | translation_q)
-        else:
-            words = words.filter(dutch__icontains=query) | words.filter(
-                translation__icontains=query
-            )
+        words = words.filter(Q(dutch__icontains=query) | Q(translation__icontains=query))
 
     if source:
         words = words.filter(source=source)
 
     words = words[:100]
 
-    favorite_list, _ = WordList.objects.get_or_create(
-        user=request.user, name="Favorites", defaults={"list_type": "FAV"}
-    )
-
+    favorite_list = _get_favorite_list(request.user)
     favorites_ids = list(favorite_list.words.values_list("id", flat=True))
 
-    context = {
+    context: dict[str, Any] = {
         "words": words,
         "query": query,
         "source": source,
@@ -127,17 +129,15 @@ def browse_words(request):
 
 
 @login_required
-def word_detail(request, word_id):
+def word_detail(request: HttpRequest, word_id: int) -> HttpResponse:
+    """Show details for a single word."""
     word = get_object_or_404(Word, id=word_id)
 
     has_flashcard = Flashcard.objects.filter(user=request.user, word=word).exists()
-
-    favorite_list, _ = WordList.objects.get_or_create(
-        user=request.user, name="Favorites", defaults={"list_type": "FAV"}
-    )
+    favorite_list = _get_favorite_list(request.user)
     is_favorite = favorite_list.words.filter(id=word_id).exists()
 
-    context = {
+    context: dict[str, Any] = {
         "word": word,
         "has_flashcard": has_flashcard,
         "is_favorite": is_favorite,
@@ -146,45 +146,38 @@ def word_detail(request, word_id):
 
 
 @login_required
-def add_flashcard(request, word_id):
+def add_flashcard(request: HttpRequest, word_id: int) -> HttpResponse:
+    """Add a word to the user's flashcards."""
     word = get_object_or_404(Word, id=word_id)
 
-    flashcard, created = Flashcard.objects.get_or_create(
+    _, created = Flashcard.objects.get_or_create(
         user=request.user,
         word=word,
         defaults={
-            "box": 1,
+            "box": Flashcard.Box.BOX_1,
             "next_review": timezone.now(),
         },
     )
 
     if created:
-        progress, _ = UserProgress.objects.get_or_create(user=request.user)
-        progress.words_learned += 1
-        progress.save()
-
-        today = timezone.now().date()
-        daily, _ = DailyActivity.objects.get_or_create(user=request.user, date=today)
-        daily.new_words += 1
-        daily.save()
+        _record_word_learned(request.user)
 
     return redirect("word_detail", word_id=word_id)
 
 
 @login_required
-def remove_flashcard(request, word_id):
+def remove_flashcard(request: HttpRequest, word_id: int) -> HttpResponse:
+    """Remove a word from the user's flashcards."""
     word = get_object_or_404(Word, id=word_id)
     Flashcard.objects.filter(user=request.user, word=word).delete()
     return redirect("word_detail", word_id=word_id)
 
 
 @login_required
-def toggle_favorite(request, word_id):
+def toggle_favorite(request: HttpRequest, word_id: int) -> HttpResponse:
+    """Toggle the favorite status of a word."""
     word = get_object_or_404(Word, id=word_id)
-
-    favorite_list, _ = WordList.objects.get_or_create(
-        user=request.user, name="Favorites", defaults={"list_type": "FAV"}
-    )
+    favorite_list = _get_favorite_list(request.user)
 
     if favorite_list.words.filter(id=word_id).exists():
         favorite_list.words.remove(word)
@@ -195,7 +188,8 @@ def toggle_favorite(request, word_id):
 
 
 @login_required
-def flashcards_review(request):
+def flashcards_review(request: HttpRequest) -> HttpResponse:
+    """Show the flashcard review interface."""
     due_cards = Flashcard.objects.filter(
         user=request.user, next_review__lte=timezone.now()
     ).order_by("next_review")
@@ -211,7 +205,7 @@ def flashcards_review(request):
     daily.words_reviewed += 1
     daily.save()
 
-    context = {
+    context: dict[str, Any] = {
         "card": current_card,
         "remaining_count": remaining_count,
         "total_due": remaining_count,
@@ -220,22 +214,23 @@ def flashcards_review(request):
 
 
 @login_required
-def rate_card(request, card_id, rating):
+def rate_card(request: HttpRequest, card_id: int, rating: str) -> HttpResponse:
+    """Rate a flashcard after review (spaced repetition)."""
     card = get_object_or_404(Flashcard, id=card_id, user=request.user)
 
-    intervals = {1: 1, 2: 3, 3: 7, 4: 14, 5: 30}
+    intervals: dict[int, int] = {1: 1, 2: 3, 3: 7, 4: 14, 5: 30}
 
     if rating == "again":
-        card.box = 1
+        card.box = Flashcard.Box.BOX_1
         card.next_review = timezone.now() + timedelta(days=1)
     elif rating == "hard":
-        card.box = max(card.box, 2)
+        card.box = max(card.box, Flashcard.Box.BOX_2.value)
         card.next_review = timezone.now() + timedelta(days=intervals.get(card.box, 1))
     elif rating == "good":
-        card.box = min(card.box + 1, 5)
+        card.box = min(card.box + 1, Flashcard.Box.BOX_5.value)
         card.next_review = timezone.now() + timedelta(days=intervals.get(card.box, 1))
     elif rating == "easy":
-        card.box = min(card.box + 2, 5)
+        card.box = min(card.box + 2, Flashcard.Box.BOX_5.value)
         card.next_review = timezone.now() + timedelta(days=intervals.get(card.box, 1))
 
     card.last_reviewed = timezone.now()
@@ -245,14 +240,12 @@ def rate_card(request, card_id, rating):
 
 
 @login_required
-def favorites_list(request):
-    favorite_list, _ = WordList.objects.get_or_create(
-        user=request.user, name="Favorites", defaults={"list_type": "FAV"}
-    )
-
+def favorites_list(request: HttpRequest) -> HttpResponse:
+    """Show the user's favorite words."""
+    favorite_list = _get_favorite_list(request.user)
     words = favorite_list.words.all()
 
-    context = {
+    context: dict[str, Any] = {
         "list": favorite_list,
         "words": words,
     }
@@ -260,7 +253,8 @@ def favorites_list(request):
 
 
 @login_required
-def add_example(request, word_id):
+def add_example(request: HttpRequest, word_id: int) -> HttpResponse:
+    """Add an example sentence for a word."""
     word = get_object_or_404(Word, id=word_id)
 
     if request.method == "POST":
@@ -273,14 +267,15 @@ def add_example(request, word_id):
             )
             return redirect("word_detail", word_id=word_id)
 
-    context = {
+    context: dict[str, Any] = {
         "word": word,
     }
     return render(request, "words/add_example.html", context)
 
 
 @login_required
-def edit_example(request, example_id):
+def edit_example(request: HttpRequest, example_id: int) -> HttpResponse:
+    """Edit an existing example sentence."""
     example = get_object_or_404(Example, id=example_id, created_by=request.user)
 
     if request.method == "POST":
@@ -293,14 +288,15 @@ def edit_example(request, example_id):
             example.save()
             return redirect("word_detail", word_id=example.word.id)
 
-    context = {
+    context: dict[str, Any] = {
         "example": example,
     }
     return render(request, "words/edit_example.html", context)
 
 
 @login_required
-def delete_example(request, example_id):
+def delete_example(request: HttpRequest, example_id: int) -> HttpResponse:
+    """Delete an example sentence."""
     example = get_object_or_404(Example, id=example_id, created_by=request.user)
 
     if request.method == "POST":
@@ -308,45 +304,29 @@ def delete_example(request, example_id):
         example.delete()
         return redirect("word_detail", word_id=word_id)
 
-    context = {
+    context: dict[str, Any] = {
         "example": example,
     }
     return render(request, "words/delete_example.html", context)
 
 
 @login_required
-def generate_words_view(request):
-    """AI word generation - simplified non-blocking approach."""
-
-    # Base context
-    context = {
-        "opencode_enabled": settings.OPENCODE_ENABLED,
-        "categories": Category.objects.all().order_by("name"),
-        "levels": ["A1", "A2", "B1", "B2", "C1"],
-        "sources": [("EN", "English"), ("RU", "Russian"), ("UK", "Ukrainian")],
-    }
-
+def generate_words_view(request: HttpRequest) -> HttpResponse:
+    """AI word generation with async polling support."""
     result_key = f"gen_result_{request.user.id}"
 
     # AJAX polling endpoint
     if request.GET.get("check") == "true":
-        result = cache.get(result_key)
-        if result:
-            if "error" in result:
-                return JsonResponse({"status": "error", "message": result["error"]})
-            if "word_ids" in result:
-                return JsonResponse(
-                    {
-                        "status": "done",
-                        "word_ids": result.get("word_ids", []),
-                        "words_skipped": result.get("words_skipped", 0),
-                        "model_used": result.get("model_used", "unknown"),
-                    }
-                )
-            return JsonResponse({"status": "pending"})
-        return JsonResponse({"status": "pending"})
+        return _handle_generation_poll(result_key)
 
-    # Check for completed results to display
+    # Base context
+    context: dict[str, Any] = {
+        "opencode_enabled": settings.OPENCODE_ENABLED,
+        "levels": ["A1", "A2", "B1", "B2", "C1"],
+        "sources": [("EN", "English"), ("RU", "Russian"), ("UK", "Ukrainian")],
+    }
+
+    # Check for completed results
     result = cache.get(result_key)
     if result and "word_ids" in result and "error" not in result:
         word_ids = result.get("word_ids", [])
@@ -356,14 +336,10 @@ def generate_words_view(request):
                 context["words_created"] = created_words
                 context["words_skipped"] = result.get("words_skipped", 0)
                 context["model_used"] = result.get("model_used", "unknown")
-                cache.delete(result_key)  # Clear after displaying
+                cache.delete(result_key)
                 return render(request, "words/generate_words.html", context)
 
-    # Show generating state only if cache indicates generation in progress
-    if result is not None and "word_ids" not in result and "error" not in result:
-        context["generating"] = True
-
-    # Handle form submission - start background generation
+    # Handle form submission
     if request.method == "POST":
         if not settings.OPENCODE_ENABLED:
             context["error"] = "OpenCode is not enabled."
@@ -373,104 +349,99 @@ def generate_words_view(request):
         level = request.POST.get("level", "A2")
         theme = request.POST.get("theme", "").strip() or None
         source = request.POST.get("source", "EN")
-        category_id = request.POST.get("category", "")
 
-        category = None
-        if category_id:
-            with suppress(Category.DoesNotExist):
-                category = Category.objects.get(id=category_id)
-
-        # Clear any previous result
         cache.set(result_key, {"status": "generating"}, timeout=300)
 
-        # Import here to avoid circular imports
-        import threading
-
-        def generate_async(
-            user_id, req_count, req_level, req_theme, req_source, req_category_name, req_result_key
-        ):
-            """Background generation function - runs in separate thread."""
-            try:
-                # Initialize Django in this thread
-                import os
-
-                os.environ["DJANGO_SETTINGS_MODULE"] = "nederlandse_workbook.settings"
-                import django
-
-                django.setup()
-
-                # Now we can import Django stuff
-                from django.core.cache import cache as thread_cache
-                from words.models import Word
-                from words.services.word_generation import (
-                    WordGenerationRequest,
-                    WordGenerationService,
-                )
-
-                # Re-fetch category in this thread
-                thread_category = None
-                if req_category_name:
-                    from words.models import Category as ThreadCategory
-
-                    try:
-                        thread_category = ThreadCategory.objects.get(name=req_category_name)
-                    except ThreadCategory.DoesNotExist:
-                        pass
-
-                service = WordGenerationService()
-                request_data = WordGenerationRequest(
-                    count=req_count,
-                    level=req_level,
-                    theme=req_theme,
-                    source=req_source,
-                    category_name=req_category_name,
-                )
-                used_model, generated_words = service.generate_words(request_data)
-
-                if not generated_words:
-                    thread_cache.set(
-                        req_result_key, {"error": "Could not parse AI response."}, timeout=300
-                    )
-                    return
-
-                created, skipped = service.save_words(generated_words, req_source, thread_category)
-                result_data = {
-                    "word_ids": [w.id for w in created],
-                    "words_skipped": len(skipped),
-                    "model_used": used_model,
-                }
-                thread_cache.set(req_result_key, result_data, timeout=300)
-            except Exception as e:
-                import logging
-
-                logger = logging.getLogger(__name__)
-                logger.error(f"Error in background generation: {e}")
-                from django.core.cache import cache as thread_cache
-
-                thread_cache.set(req_result_key, {"error": str(e)}, timeout=300)
-
-        # Start background thread
         thread = threading.Thread(
-            target=generate_async,
+            target=_generate_words_async,
             args=(
                 request.user.id,
                 count,
                 level,
                 theme,
                 source,
-                category.name if category else None,
                 result_key,
             ),
             daemon=True,
         )
         thread.start()
 
-        # PRG pattern: redirect to GET to avoid form resubmission on reload
         return redirect("generate_words")
 
-    # GET request - show form (or generating state if in progress)
+    # Show generating state if in progress
     result = cache.get(result_key)
     if result is not None and "word_ids" not in result and "error" not in result:
         context["generating"] = True
 
     return render(request, "words/generate_words.html", context)
+
+
+def _handle_generation_poll(result_key: str) -> JsonResponse:
+    """Handle AJAX polling for generation status."""
+    result = cache.get(result_key)
+    if result:
+        if "error" in result:
+            return JsonResponse({"status": "error", "message": result["error"]})
+        if "word_ids" in result:
+            return JsonResponse(
+                {
+                    "status": "done",
+                    "word_ids": result.get("word_ids", []),
+                    "words_skipped": result.get("words_skipped", 0),
+                    "model_used": result.get("model_used", "unknown"),
+                }
+            )
+        return JsonResponse({"status": "pending"})
+    return JsonResponse({"status": "pending"})
+
+
+def _generate_words_async(
+    user_id: int,
+    count: int,
+    level: str,
+    theme: str | None,
+    source: str,
+    result_key: str,
+) -> None:
+    """Run word generation in a background thread."""
+    try:
+        import os
+
+        os.environ["DJANGO_SETTINGS_MODULE"] = "nederlandse_workbook.settings"
+        import django
+
+        django.setup()
+
+        # Thread-safe imports
+        from django.core.cache import cache as thread_cache
+
+        from words.services.word_generation import (
+            WordGenerationRequest,
+            WordGenerationService,
+        )
+
+        service = WordGenerationService()
+        request_data = WordGenerationRequest(
+            count=count,
+            level=level,
+            theme=theme,
+            source=source,
+        )
+        used_model, generated_words = service.generate_words(request_data)
+
+        if not generated_words:
+            thread_cache.set(result_key, {"error": "Could not parse AI response."}, timeout=300)
+            return
+
+        created, skipped = service.save_words(generated_words, source)
+        result_data = {
+            "word_ids": [w.id for w in created],
+            "words_skipped": len(skipped),
+            "model_used": used_model,
+        }
+        thread_cache.set(result_key, result_data, timeout=300)
+    except Exception as e:
+        logger.exception("Error in background word generation")
+        from django.core.cache import cache as thread_cache
+
+        thread_cache.set(result_key, {"error": str(e)}, timeout=300)

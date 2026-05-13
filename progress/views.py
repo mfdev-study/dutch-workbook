@@ -1,6 +1,10 @@
+"""Views for the progress tracking app."""
+
 from datetime import timedelta
+from typing import Any
 
 from django.contrib.auth.decorators import login_required
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
 
@@ -11,8 +15,9 @@ from .models import DailyActivity, UserProgress
 
 
 @login_required
-def progress_dashboard(request):
-    progress, created = UserProgress.objects.get_or_create(user=request.user)
+def progress_dashboard(request: HttpRequest) -> HttpResponse:
+    """Show the user's learning progress dashboard."""
+    progress, _ = UserProgress.objects.get_or_create(user=request.user)
 
     today = timezone.now().date()
     week_ago = today - timedelta(days=7)
@@ -23,7 +28,8 @@ def progress_dashboard(request):
 
     activity_data = {a.date: a for a in daily_activities}
 
-    chart_data = []
+    # Build chart data for the last 8 days
+    chart_data: list[dict[str, Any]] = []
     for i in range(7, -1, -1):
         date = today - timedelta(days=i)
         if date in activity_data:
@@ -45,6 +51,8 @@ def progress_dashboard(request):
             )
 
     flashcards = Flashcard.objects.filter(user=request.user)
+
+    # Build box distribution [Box1, Box2, Box3, Box4, Box5]
     box_distribution = [0, 0, 0, 0, 0]
     for card in flashcards:
         if 1 <= card.box <= 5:
@@ -54,13 +62,12 @@ def progress_dashboard(request):
         user=request.user, completed_at__isnull=False
     ).order_by("-started_at")[:10]
 
-    # Calculate quiz percentages for template
-    quizzes_with_percentages = []
-    for quiz in recent_quizzes:
-        percentage = int(quiz.score / quiz.total * 100) if quiz.total > 0 else 0
-        quizzes_with_percentages.append({"quiz": quiz, "percentage": percentage})
+    quizzes_with_percentages = [
+        {"quiz": quiz, "percentage": int(quiz.score / quiz.total * 100) if quiz.total > 0 else 0}
+        for quiz in recent_quizzes
+    ]
 
-    context = {
+    context: dict[str, Any] = {
         "progress": progress,
         "chart_data": chart_data,
         "box_distribution": box_distribution,
@@ -71,12 +78,13 @@ def progress_dashboard(request):
 
 
 @login_required
-def streak_view(request):
-    progress, created = UserProgress.objects.get_or_create(user=request.user)
+def streak_view(request: HttpRequest) -> HttpResponse:
+    """Show the user's learning streak calendar."""
+    progress, _ = UserProgress.objects.get_or_create(user=request.user)
 
     today = timezone.now().date()
 
-    streak_data = []
+    streak_data: list[dict[str, Any]] = []
     for i in range(30, -1, -1):
         date = today - timedelta(days=i)
         activity = DailyActivity.objects.filter(user=request.user, date=date).first()
@@ -90,7 +98,7 @@ def streak_view(request):
             }
         )
 
-    context = {
+    context: dict[str, Any] = {
         "progress": progress,
         "streak_data": streak_data,
     }

@@ -5,7 +5,6 @@ Management command to generate Dutch words using OpenCode AI.
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
-from words.models import Category
 from words.services.word_generation import (
     GeneratedWord,
     WordGenerationRequest,
@@ -43,11 +42,6 @@ class Command(BaseCommand):
             help="Translation language (EN=English, RU=Russian, UK=Ukrainian)",
         )
         parser.add_argument(
-            "--category",
-            type=str,
-            help="Category name to assign generated words to",
-        )
-        parser.add_argument(
             "--dry-run",
             action="store_true",
             help="Show generated words without saving to database",
@@ -66,19 +60,12 @@ class Command(BaseCommand):
 
         service = WordGenerationService()
 
-        category = None
-        category_name = options.get("category")
-        if category_name:
-            category, _ = Category.objects.get_or_create(name=category_name)
-            self.stdout.write(f"Using category: {category.name}")
-
         source = options["source"]
         request = WordGenerationRequest(
             count=options["count"],
             level=options["level"],
             theme=options.get("theme"),
             source=source,
-            category_name=category_name,
             model=options.get("model"),
         )
 
@@ -107,7 +94,7 @@ class Command(BaseCommand):
                 self.style.WARNING(f"DRY RUN: {len(generated_words)} words generated but not saved")
             )
         else:
-            created, skipped = service.save_words(generated_words, source, category)
+            created, skipped = service.save_words(generated_words, source)
             self.stdout.write(self.style.SUCCESS(f"Successfully created {len(created)} words"))
             if skipped:
                 self.stdout.write(f"Skipped {len(skipped)} duplicate words")
