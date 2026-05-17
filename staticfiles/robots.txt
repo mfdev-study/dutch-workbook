@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /accounts/
+Disallow: /words/generate-words/
+Disallow: /words/flashcards/
+Disallow: /quiz/
+Disallow: /progress/

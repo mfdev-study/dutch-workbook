@@ -33,6 +33,10 @@
                 class="w-full bg-dutch-orange text-white py-2 px-4 rounded-md hover:bg-orange-600 transition duration-200 font-medium">
                 {% trans "Login" %}
             </button>
+
+            <div class="text-right">
+                <a href="{% url 'password_reset' %}" class="text-sm text-dutch-orange hover:text-orange-600">{% trans "Forgot password?" %}</a>
+            </div>
         </form>
 
         <div class="mt-6 text-center">

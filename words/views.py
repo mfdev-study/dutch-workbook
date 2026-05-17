@@ -190,15 +190,23 @@ def toggle_favorite(request: HttpRequest, word_id: int) -> HttpResponse:
 @login_required
 def flashcards_review(request: HttpRequest) -> HttpResponse:
     """Show the flashcard review interface."""
-    due_cards = Flashcard.objects.filter(
-        user=request.user, next_review__lte=timezone.now()
-    ).order_by("next_review")
+    due_cards = (
+        Flashcard.objects.filter(user=request.user, next_review__lte=timezone.now())
+        .select_related("word")
+        .order_by("next_review")
+    )
 
     if not due_cards.exists():
         return render(request, "words/no_cards.html")
 
     current_card = due_cards.first()
     remaining_count = due_cards.count()
+
+    intervals: dict[int, int] = {1: 1, 2: 3, 3: 7, 4: 14, 5: 30}
+    box = current_card.box
+    next_box_hard = max(box, 2)
+    next_box_good = min(box + 1, 5)
+    next_box_easy = min(box + 2, 5)
 
     today = timezone.now().date()
     daily, _ = DailyActivity.objects.get_or_create(user=request.user, date=today)
@@ -209,6 +217,10 @@ def flashcards_review(request: HttpRequest) -> HttpResponse:
         "card": current_card,
         "remaining_count": remaining_count,
         "total_due": remaining_count,
+        "again_interval": 1,
+        "hard_interval": intervals.get(next_box_hard, 1),
+        "good_interval": intervals.get(next_box_good, 1),
+        "easy_interval": intervals.get(next_box_easy, 1),
     }
     return render(request, "words/review.html", context)
 
@@ -232,6 +244,9 @@ def rate_card(request: HttpRequest, card_id: int, rating: str) -> HttpResponse:
     elif rating == "easy":
         card.box = min(card.box + 2, Flashcard.Box.BOX_5.value)
         card.next_review = timezone.now() + timedelta(days=intervals.get(card.box, 1))
+
+    else:
+        return redirect("flashcards")
 
     card.last_reviewed = timezone.now()
     card.save()
@@ -345,7 +360,10 @@ def generate_words_view(request: HttpRequest) -> HttpResponse:
             context["error"] = "OpenCode is not enabled."
             return render(request, "words/generate_words.html", context)
 
-        count = int(request.POST.get("count", 5))
+        try:
+            count = int(request.POST.get("count", 5))
+        except (ValueError, TypeError):
+            count = 5
         level = request.POST.get("level", "A2")
         theme = request.POST.get("theme", "").strip() or None
         source = request.POST.get("source", "EN")

@@ -44,15 +44,15 @@
                 </a>
                 <a href="{% url 'rate_card' card.id 'hard' %}"
                    class="px-6 py-3 text-lg bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition font-medium">
-                    Hard ({{ card.box|add:1 }} days)
+                    Hard ({{ hard_interval }} days)
                 </a>
                 <a href="{% url 'rate_card' card.id 'good' %}"
                    class="px-6 py-3 text-lg bg-green-500 text-white rounded-lg hover:bg-green-600 transition font-medium">
-                    Good ({{ card.box|add:1 }} days)
+                    Good ({{ good_interval }} days)
                 </a>
                 <a href="{% url 'rate_card' card.id 'easy' %}"
                    class="px-6 py-3 text-lg bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition font-medium">
-                    Easy ({{ card.box|add:2 }} days)
+                    Easy ({{ easy_interval }} days)
                 </a>
             </div>
 

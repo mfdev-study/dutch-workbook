@@ -11,9 +11,11 @@ class Word(models.Model):
         ENGLISH = "EN", "English-Dutch"
         UKRAINIAN = "UK", "Ukrainian-Dutch"
 
-    dutch = models.CharField(max_length=200)
-    translation = models.CharField(max_length=200)
-    source = models.CharField(max_length=2, choices=Source.choices, default=Source.ENGLISH)
+    dutch = models.CharField(max_length=200, db_index=True)
+    translation = models.CharField(max_length=200, db_index=True)
+    source = models.CharField(
+        max_length=2, choices=Source.choices, default=Source.ENGLISH, db_index=True
+    )
     part_of_speech = models.CharField(max_length=50, blank=True, default="")
     context = models.TextField(blank=True, default="")
     example = models.TextField(blank=True, default="")
@@ -43,15 +45,19 @@ class Flashcard(models.Model):
         BOX_4 = 4
         BOX_5 = 5
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
     word = models.ForeignKey(Word, on_delete=models.CASCADE)
     box = models.IntegerField(choices=Box.choices, default=Box.BOX_1)
-    next_review = models.DateTimeField(null=True, blank=True)
+    next_review = models.DateTimeField(null=True, blank=True, db_index=True)
     last_reviewed = models.DateTimeField(null=True, blank=True)
     ease_factor = models.FloatField(default=2.5)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        indexes = [
+            models.Index(fields=["user", "next_review"], name="idx_user_next_review"),
+            models.Index(fields=["user", "box"], name="idx_user_box"),
+        ]
         constraints = [
             models.UniqueConstraint(
                 fields=["user", "word"],
@@ -107,6 +113,12 @@ class Example(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["word", "text"],
+                name="unique_word_example",
+            ),
+        ]
 
     def __str__(self):
         return f"Example for {self.word.dutch}: {self.text[:50]}..."

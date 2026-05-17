@@ -84,10 +84,5 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "noreply@dutchworkbook.com")
 
-# CORS settings (if needed for API)
-CORS_ALLOWED_ORIGINS = [
-    "https://" + host for host in ALLOWED_HOSTS if host != "localhost" and host != "127.0.0.1"
-]
-
 # Performance settings
 CONN_MAX_AGE = 60

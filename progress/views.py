@@ -4,6 +4,7 @@ from datetime import timedelta
 from typing import Any
 
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
@@ -50,13 +51,16 @@ def progress_dashboard(request: HttpRequest) -> HttpResponse:
                 }
             )
 
-    flashcards = Flashcard.objects.filter(user=request.user)
-
-    # Build box distribution [Box1, Box2, Box3, Box4, Box5]
+    # Use aggregation for box distribution — single query
+    all_counts = (
+        Flashcard.objects.filter(user=request.user).values("box").annotate(count=Count("id"))
+    )
     box_distribution = [0, 0, 0, 0, 0]
-    for card in flashcards:
-        if 1 <= card.box <= 5:
-            box_distribution[card.box - 1] += 1
+    total_words = 0
+    for entry in all_counts:
+        if 1 <= entry["box"] <= 5:
+            box_distribution[entry["box"] - 1] = entry["count"]
+            total_words += entry["count"]
 
     recent_quizzes = QuizSession.objects.filter(
         user=request.user, completed_at__isnull=False
@@ -72,7 +76,7 @@ def progress_dashboard(request: HttpRequest) -> HttpResponse:
         "chart_data": chart_data,
         "box_distribution": box_distribution,
         "recent_quizzes": quizzes_with_percentages,
-        "total_words": flashcards.count(),
+        "total_words": total_words,
     }
     return render(request, "progress/dashboard.html", context)
 
@@ -84,17 +88,25 @@ def streak_view(request: HttpRequest) -> HttpResponse:
 
     today = timezone.now().date()
 
+    # Single query for all 31 days
+    activities = DailyActivity.objects.filter(
+        user=request.user,
+        date__gte=today - timedelta(days=30),
+    )
+    activity_map: dict[str, Any] = {}
+    for a in activities:
+        if a.words_reviewed > 0 or a.quizzes_completed > 0:
+            activity_map[a.date] = True
+
     streak_data: list[dict[str, Any]] = []
     for i in range(30, -1, -1):
         date = today - timedelta(days=i)
-        activity = DailyActivity.objects.filter(user=request.user, date=date).first()
-        has_activity = activity and (activity.words_reviewed > 0 or activity.quizzes_completed > 0)
         streak_data.append(
             {
                 "date": date,
                 "day": date.strftime("%d"),
                 "month": date.strftime("%b"),
-                "active": has_activity,
+                "active": date in activity_map,
             }
         )
 

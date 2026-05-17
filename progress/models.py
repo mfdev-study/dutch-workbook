@@ -29,6 +29,7 @@ class DailyActivity(models.Model):
     total_answers = models.IntegerField(default=0)
 
     class Meta:
+        ordering = ["-date"]
         unique_together = ["user", "date"]
 
     def __str__(self):
