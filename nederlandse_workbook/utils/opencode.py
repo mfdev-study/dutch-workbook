@@ -2,13 +2,20 @@
 OpenCode client for AI integration with Django using python-opencode-cli.
 """
 
-import json
 import logging
+import re
 import shutil
 import subprocess
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
+
+_ANSI_PATTERN = re.compile(r"\x1b\[[0-9;]*[a-zA-Z]")
+
+
+def _strip_ansi(text: str) -> str:
+    """Remove all ANSI escape sequences from a string."""
+    return _ANSI_PATTERN.sub("", text)
 
 
 class OpenCodeClient:
@@ -23,22 +30,16 @@ class OpenCodeClient:
             return Path(path)
         return Path.home() / ".local" / "bin" / "opencode"
 
-    def _find_opencode_auto_path(self) -> Path:
-        """Find opencode-auto executable."""
-        if path := shutil.which("opencode-auto"):
-            return Path(path)
-        return Path.home() / ".local" / "bin" / "opencode-auto"
-
     def chat(
         self, prompt: str, model: str | None = None, timeout: int = 120
     ) -> tuple[str | None, str]:
-        """Send a chat prompt using opencode-auto and return model used and response content."""
-        opencode_auto_path = self._find_opencode_auto_path()
+        """Send a chat prompt using opencode and return model used and response content."""
+        opencode_path = self.opencode_path
 
-        if not opencode_auto_path.exists():
-            return None, f"opencode-auto not found at {opencode_auto_path}"
+        if not opencode_path.exists():
+            return None, f"opencode not found at {opencode_path}"
 
-        cmd = [str(opencode_auto_path), "run"]
+        cmd = [str(opencode_path), "run"]
         if model:
             cmd.extend(["-m", model])
         cmd.append(prompt)
@@ -58,18 +59,15 @@ class OpenCodeClient:
         if result.returncode != 0:
             return None, f"Error: {result.stderr}"
 
-        try:
-            data = json.loads(result.stdout)
-            if data.get("success"):
-                output = data.get("output", "")
-                used_model = data.get("model", model or "unknown")
-                return used_model, output
-            else:
-                errors = data.get("errors", [])
-                error_msg = "; ".join(e.get("error", "Unknown error") for e in errors)
-                return None, error_msg
-        except json.JSONDecodeError:
-            return None, result.stdout
+        output = result.stdout
+        output = _strip_ansi(output)
+        used_model = "deepseek-v4-flash"
+
+        lines = output.strip().splitlines()
+        output_lines = [line for line in lines if not line.startswith(">")]
+        clean_output = "\n".join(output_lines).strip()
+
+        return used_model, clean_output
 
 
 def chat(prompt: str, model: str | None = None) -> tuple[str | None, str]:

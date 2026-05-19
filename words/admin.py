@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Example, Flashcard, Word, WordList
+from .models import Example, Flashcard, Word, WordList, WordRelation
 
 
 @admin.register(Word)
@@ -28,3 +28,10 @@ class WordListAdmin(admin.ModelAdmin):
 class ExampleAdmin(admin.ModelAdmin):
     list_display = ["word", "created_by", "created_at"]
     search_fields = ["word__dutch", "text"]
+
+
+@admin.register(WordRelation)
+class WordRelationAdmin(admin.ModelAdmin):
+    list_display = ["word_from", "relation_type", "word_to", "created_at"]
+    list_filter = ["relation_type"]
+    search_fields = ["word_from__dutch", "word_to__dutch"]

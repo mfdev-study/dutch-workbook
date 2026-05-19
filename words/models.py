@@ -34,6 +34,28 @@ class Word(models.Model):
     def __str__(self):
         return f"{self.dutch} - {self.translation}"
 
+    def related_words(self, relation_type=None):
+        """Get related words, optionally filtered by relation type."""
+        qs_out = self.relations_out.select_related("word_to")
+        qs_in = self.relations_in.select_related("word_from")
+        if relation_type:
+            qs_out = qs_out.filter(relation_type=relation_type)
+            qs_in = qs_in.filter(relation_type=relation_type)
+        related = []
+        for r in qs_out:
+            related.append(
+                {"word": r.word_to, "type": r.relation_type, "label": r.get_relation_type_display()}
+            )
+        for r in qs_in:
+            related.append(
+                {
+                    "word": r.word_from,
+                    "type": r.relation_type,
+                    "label": r.get_relation_type_display(),
+                }
+            )
+        return related
+
 
 class Flashcard(models.Model):
     """User flashcard for word learning with spaced repetition."""
@@ -93,6 +115,50 @@ class WordList(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.name}"
+
+
+class WordRelation(models.Model):
+    """Semantic relationship between two Dutch words."""
+
+    class RelationType(models.TextChoices):
+        SYNONYM = "SYN", "Synonym"
+        ANTONYM = "ANT", "Antonym"
+        HYPERNYM = "HYP", "Hypernym"
+        HYPONYM = "HPO", "Hyponym"
+        MERONYM = "MER", "Meronym"
+        HOLONYM = "HOL", "Holonym"
+        RELATED = "REL", "Related"
+        DERIVED = "DER", "Derived"
+
+    word_from = models.ForeignKey(
+        Word,
+        on_delete=models.CASCADE,
+        related_name="relations_out",
+    )
+    word_to = models.ForeignKey(
+        Word,
+        on_delete=models.CASCADE,
+        related_name="relations_in",
+    )
+    relation_type = models.CharField(
+        max_length=3,
+        choices=RelationType.choices,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["word_from", "relation_type"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["word_from", "word_to", "relation_type"],
+                name="unique_word_relation",
+            ),
+        ]
+
+    def __str__(self):
+        return (
+            f"{self.word_from.dutch} → [{self.get_relation_type_display()}] → {self.word_to.dutch}"
+        )
 
 
 class Example(models.Model):

@@ -20,6 +20,7 @@
             }
         }
     </script>
+    {% block extra_head %}{% endblock %}
 </head>
 <body class="bg-gray-50 min-h-screen">
     <nav class="bg-white shadow-sm border-b border-gray-200">
@@ -46,6 +47,7 @@
                         <a href="{% url 'browse' %}" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">{% trans "Browse" %}</a>
                         <a href="{% url 'flashcards' %}" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">{% trans "Flashcards" %}</a>
                         <a href="{% url 'quiz_home' %}" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">{% trans "Quiz" %}</a>
+                        <a href="{% url 'word_graph' %}" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">{% trans "Network" %}</a>
                         <a href="{% url 'progress' %}" class="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium">{% trans "Progress" %}</a>
                         <div class="ml-4 flex items-center border-l border-gray-200 pl-4">
                             <span class="text-sm text-gray-500 mr-2">{{ user.username }}</span>
@@ -89,6 +91,7 @@
                     <a href="{% url 'browse' %}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">{% trans "Browse" %}</a>
                     <a href="{% url 'flashcards' %}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">{% trans "Flashcards" %}</a>
                     <a href="{% url 'quiz_home' %}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">{% trans "Quiz" %}</a>
+                    <a href="{% url 'word_graph' %}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">{% trans "Network" %}</a>
                     <a href="{% url 'progress' %}" class="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md">{% trans "Progress" %}</a>
                     <div class="border-t border-gray-200 pt-2 mt-2">
                         <span class="block px-3 py-2 text-sm text-gray-500">{{ user.username }}</span>

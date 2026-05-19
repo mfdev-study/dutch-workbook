@@ -8,6 +8,7 @@ from typing import Any
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
+from django.core.paginator import Paginator
 from django.db.models import Q, QuerySet
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -15,7 +16,7 @@ from django.utils import timezone
 
 from progress.models import DailyActivity, UserProgress
 
-from .models import Example, Flashcard, Word, WordList
+from .models import Example, Flashcard, Word, WordList, WordRelation
 from .services.word_generation import (  # noqa: F401  # Used by tests via mock
     WordGenerationRequest,
     WordGenerationService,
@@ -114,13 +115,16 @@ def browse_words(request: HttpRequest) -> HttpResponse:
     if source:
         words = words.filter(source=source)
 
-    words = words[:100]
+    paginator = Paginator(words, 50)
+    page_number = request.GET.get("page", 1)
+    page_obj = paginator.get_page(page_number)
 
     favorite_list = _get_favorite_list(request.user)
     favorites_ids = list(favorite_list.words.values_list("id", flat=True))
 
     context: dict[str, Any] = {
-        "words": words,
+        "words": page_obj,
+        "page_obj": page_obj,
         "query": query,
         "source": source,
         "favorites_ids": favorites_ids,
@@ -213,6 +217,13 @@ def flashcards_review(request: HttpRequest) -> HttpResponse:
     daily.words_reviewed += 1
     daily.save()
 
+    related_words = current_card.word.related_words()
+    user_word_ids = set(
+        Flashcard.objects.filter(user=request.user).values_list("word_id", flat=True)
+    )
+    for rw in related_words:
+        rw["has_flashcard"] = rw["word"].id in user_word_ids
+
     context: dict[str, Any] = {
         "card": current_card,
         "remaining_count": remaining_count,
@@ -221,6 +232,7 @@ def flashcards_review(request: HttpRequest) -> HttpResponse:
         "hard_interval": intervals.get(next_box_hard, 1),
         "good_interval": intervals.get(next_box_good, 1),
         "easy_interval": intervals.get(next_box_easy, 1),
+        "related_words": related_words,
     }
     return render(request, "words/review.html", context)
 
@@ -265,6 +277,117 @@ def favorites_list(request: HttpRequest) -> HttpResponse:
         "words": words,
     }
     return render(request, "words/favorites.html", context)
+
+
+@login_required
+def learning_path(request: HttpRequest, word_id: int) -> HttpResponse:
+    """Show a BFS-based learning path from a starting word through its relations."""
+    start_word = get_object_or_404(Word, id=word_id)
+
+    visited = {word_id}
+    path_levels = []
+    current_level = [word_id]
+    user_word_ids = set(
+        Flashcard.objects.filter(user=request.user).values_list("word_id", flat=True)
+    )
+
+    while current_level and len(path_levels) < 5:
+        next_level = []
+        level_words = []
+
+        for wid in current_level:
+            related = WordRelation.objects.filter(
+                Q(word_from_id=wid) | Q(word_to_id=wid)
+            ).select_related("word_from", "word_to")
+
+            for r in related:
+                neighbor_id = r.word_to_id if r.word_from_id == wid else r.word_from_id
+                if neighbor_id not in visited:
+                    visited.add(neighbor_id)
+                    next_level.append(neighbor_id)
+                    word_obj = r.word_to if r.word_from_id == wid else r.word_from
+                    label = r.get_relation_type_display()
+                    level_words.append(
+                        {
+                            "word": word_obj,
+                            "relation": label,
+                            "has_flashcard": word_obj.id in user_word_ids,
+                        }
+                    )
+
+        if level_words:
+            path_levels.append(level_words)
+        current_level = next_level
+
+    context: dict[str, Any] = {
+        "start_word": start_word,
+        "path_levels": path_levels,
+    }
+    return render(request, "words/learning_path.html", context)
+
+
+@login_required
+def word_graph(request: HttpRequest) -> HttpResponse:
+    """Show interactive lexical network graph."""
+    return render(request, "words/graph.html")
+
+
+@login_required
+def word_graph_json(request: HttpRequest) -> JsonResponse:
+    """Return JSON data for the lexical network graph."""
+    flashcard_word_ids = list(
+        Flashcard.objects.filter(user=request.user).values_list("word_id", flat=True)
+    )
+
+    if not flashcard_word_ids:
+        return JsonResponse({"nodes": [], "edges": []})
+
+    limit = int(request.GET.get("limit", 200))
+    word_ids = flashcard_word_ids[:limit]
+    word_id_set = set(word_ids)
+
+    words = Word.objects.filter(id__in=word_ids)
+    nodes = [
+        {
+            "id": w.id,
+            "label": w.dutch,
+            "title": f"{w.dutch} — {w.translation}",
+            "group": w.part_of_speech or "other",
+        }
+        for w in words
+    ]
+
+    edges = []
+    relations = WordRelation.objects.filter(
+        Q(word_from_id__in=word_ids) & Q(word_to_id__in=word_ids)
+    ).select_related("word_from", "word_to")
+
+    color_map = {
+        "SYN": {"color": "#22c55e", "label": "synonym"},
+        "ANT": {"color": "#ef4444", "label": "antonym"},
+        "HYP": {"color": "#3b82f6", "label": "hypernym"},
+        "HPO": {"color": "#8b5cf6", "label": "hyponym"},
+        "MER": {"color": "#f59e0b", "label": "meronym"},
+        "HOL": {"color": "#ec4899", "label": "holonym"},
+        "REL": {"color": "#6b7280", "label": "related"},
+        "DER": {"color": "#14b8a6", "label": "derived"},
+    }
+
+    for r in relations:
+        if r.word_from_id in word_id_set and r.word_to_id in word_id_set:
+            style = color_map.get(r.relation_type, {"color": "#6b7280", "label": ""})
+            edges.append(
+                {
+                    "from": r.word_from_id,
+                    "to": r.word_to_id,
+                    "label": style["label"],
+                    "color": style["color"],
+                    "arrows": "to",
+                    "font": {"size": 10},
+                }
+            )
+
+    return JsonResponse({"nodes": nodes, "edges": edges})
 
 
 @login_required

@@ -142,9 +142,19 @@ Generate exactly {request.count} words now."""
         return []
 
     def _clean_response(self, response: str) -> str:
-        """Remove code blocks from response."""
-        cleaned = re.sub(r"^```json\s*", "", response.strip())
+        """Strip ANSI codes, tool log lines, and markdown fences from AI output."""
+        from nederlandse_workbook.utils.opencode import _strip_ansi
+
+        cleaned = _strip_ansi(response)
+        # Remove tool log lines (e.g. "> build · big-pickle, → Read file.json")
+        cleaned = "\n".join(
+            line for line in cleaned.splitlines() if not line.strip().startswith((">", "→"))
+        )
+        # Strip markdown code block markers
+        cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned.strip())
         cleaned = re.sub(r"\s*```$", "", cleaned)
+        # Strip any leading non-JSON content before the first [
+        cleaned = re.sub(r"^[^[]*", "", cleaned.strip())
         return cleaned
 
     def _to_generated_word(self, data: dict) -> GeneratedWord:

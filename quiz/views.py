@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from progress.models import DailyActivity, UserProgress
-from words.models import Flashcard, Word
+from words.models import Flashcard, Word, WordRelation
 
 from .models import QuizAnswer, QuizSession
 
@@ -61,14 +61,43 @@ def quiz_question(request: HttpRequest) -> HttpResponse:
     word_id = word_ids[current]
     word = get_object_or_404(Word, id=word_id)
 
-    # Build multiple choice options from the word pool
+    # Build multiple choice options — prefer semantically related words as distractors
     other_word_ids = [wid for wid in word_ids if wid != word_id]
-    if len(other_word_ids) >= 3:
-        wrong_word_ids = random.sample(other_word_ids, 3)
-        wrong_words: QuerySet[Word] = Word.objects.filter(id__in=wrong_word_ids)
-    else:
-        wrong_words = Word.objects.filter(id__in=other_word_ids)
 
+    related_ids = list(
+        WordRelation.objects.filter(
+            word_from_id=word_id,
+        )
+        .exclude(word_to_id=word_id)
+        .values_list("word_to_id", flat=True)
+    ) + list(
+        WordRelation.objects.filter(
+            word_to_id=word_id,
+        )
+        .exclude(word_from_id=word_id)
+        .values_list("word_from_id", flat=True)
+    )
+    related_ids = [rid for rid in related_ids if rid in other_word_ids]
+
+    wrong_word_ids = []
+    remaining_ids = [wid for wid in other_word_ids if wid not in related_ids]
+
+    if len(related_ids) >= 3:
+        wrong_word_ids = random.sample(related_ids, 3)
+    elif len(related_ids) > 0:
+        wrong_word_ids = list(related_ids)
+        needed = 3 - len(wrong_word_ids)
+        if len(remaining_ids) >= needed:
+            wrong_word_ids.extend(random.sample(remaining_ids, needed))
+        else:
+            wrong_word_ids.extend(remaining_ids)
+    else:
+        if len(other_word_ids) >= 3:
+            wrong_word_ids = random.sample(other_word_ids, 3)
+        else:
+            wrong_word_ids = list(other_word_ids)
+
+    wrong_words: QuerySet[Word] = Word.objects.filter(id__in=wrong_word_ids)
     options = list(wrong_words) + [word]
     random.shuffle(options)
 

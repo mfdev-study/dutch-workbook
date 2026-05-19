@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Learning Path - Dutch Learning Workbook{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">Learning Path</h1>
+            <p class="text-gray-600 mt-1">
+                Starting from <strong class="text-lg">{{ start_word.dutch }}</strong>
+                ({{ start_word.translation }})
+            </p>
+        </div>
+
+        {% if path_levels %}
+            {% for level in path_levels %}
+            <div class="mb-8">
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-8 h-8 rounded-full bg-dutch-orange text-white flex items-center justify-center text-sm font-bold">
+                        {{ forloop.counter }}
+                    </div>
+                    <h2 class="text-lg font-semibold text-gray-800">
+                        {% if forloop.first %}
+                        Directly Related
+                        {% else %}
+                        {{ forloop.counter }} Steps Away
+                        {% endif %}
+                    </h2>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {% for item in level %}
+                    <div class="border border-gray-200 rounded-lg p-3 hover:shadow-md transition">
+                        <div class="flex items-center justify-between mb-1">
+                            <a href="{% url 'word_detail' item.word.id %}"
+                               class="font-semibold text-gray-900 hover:text-dutch-orange">
+                                {{ item.word.dutch }}
+                            </a>
+                            {% if not item.has_flashcard %}
+                            <a href="{% url 'add_flashcard' item.word.id %}"
+                               class="text-xs bg-blue-500 text-white px-2 py-0.5 rounded hover:bg-blue-600 transition">
+                                + Add
+                            </a>
+                            {% else %}
+                            <span class="text-xs text-green-600">Learned</span>
+                            {% endif %}
+                        </div>
+                        <p class="text-sm text-gray-500">{{ item.word.translation }}</p>
+                        <span class="inline-block mt-1 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                            {{ item.relation }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="text-center py-12">
+            <p class="text-gray-500">No related words found for this word yet.</p>
+            <p class="text-sm text-gray-400 mt-2">Run <code>generate_relations</code> to build the lexical network.</p>
+        </div>
+        {% endif %}
+
+        <div class="mt-6 text-center">
+            <a href="{% url 'word_detail' start_word.id %}" class="text-gray-600 hover:text-gray-900">
+                &larr; Back to word details
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

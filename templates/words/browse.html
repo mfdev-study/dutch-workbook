@@ -93,10 +93,30 @@
             {% endfor %}
         </div>
 
-        {% if words %}
-        <div class="mt-4 text-sm text-gray-500 text-center">
-            {% trans "Showing first 100 results" %}
+        {% if page_obj.paginator.num_pages > 1 %}
+        <div class="flex flex-wrap items-center justify-center gap-2 mt-6">
+            {% if page_obj.has_previous %}
+            <a href="?{% if query %}q={{ query }}&{% endif %}{% if source %}source={{ source }}&{% endif %}page=1" class="px-3 py-1 border rounded text-sm hover:bg-gray-100">&laquo;</a>
+            <a href="?{% if query %}q={{ query }}&{% endif %}{% if source %}source={{ source }}&{% endif %}page={{ page_obj.previous_page_number }}" class="px-3 py-1 border rounded text-sm hover:bg-gray-100">&lsaquo;</a>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if num == page_obj.number %}
+                <span class="px-3 py-1 border rounded text-sm bg-dutch-orange text-white">{{ num }}</span>
+                {% elif num > page_obj.number|add:-3 and num < page_obj.number|add:3 %}
+                <a href="?{% if query %}q={{ query }}&{% endif %}{% if source %}source={{ source }}&{% endif %}page={{ num }}" class="px-3 py-1 border rounded text-sm hover:bg-gray-100">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <a href="?{% if query %}q={{ query }}&{% endif %}{% if source %}source={{ source }}&{% endif %}page={{ page_obj.next_page_number }}" class="px-3 py-1 border rounded text-sm hover:bg-gray-100">&rsaquo;</a>
+            <a href="?{% if query %}q={{ query }}&{% endif %}{% if source %}source={{ source }}&{% endif %}page={{ page_obj.paginator.num_pages }}" class="px-3 py-1 border rounded text-sm hover:bg-gray-100">&raquo;</a>
+            {% endif %}
         </div>
+
+        <p class="mt-2 text-xs text-gray-400 text-center">
+            {% blocktrans with total=page_obj.paginator.count start=page_obj.start_index end=page_obj.end_index %}Showing {{ start }}–{{ end }} of {{ total }}{% endblocktrans %}
+        </p>
         {% endif %}
     </div>
 </div>
