@@ -1,6 +1,6 @@
 import os
 
-from .settings import BASE_DIR
+from .settings import *  # noqa: F401, F403
 
 # SECURITY SETTINGS
 DEBUG = False
@@ -9,6 +9,8 @@ SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
 
 # SSL/HTTPS Settings
 SECURE_SSL_REDIRECT = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "https://workbook.mfdev.nl").split(",")
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
@@ -23,6 +25,10 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": os.getenv("DB_PATH", os.path.join(BASE_DIR, "db.sqlite3")),
+        "OPTIONS": {
+            "init_command": "PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;",
+            "transaction_mode": "IMMEDIATE",
+        },
     }
 }
 

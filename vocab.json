@@ -1,0 +1,82 @@
+[
+  {
+    "dutch": "het huis",
+    "translation": "будинок",
+    "part_of_speech": "noun",
+    "context": "daily life",
+    "example": "Mijn huis is groot en mooi.",
+    "example_translation": "Мій будинок великий і гарний."
+  },
+  {
+    "dutch": "de school",
+    "translation": "школа",
+    "part_of_speech": "noun",
+    "context": "education",
+    "example": "De school begint om acht uur.",
+    "example_translation": "Школа починається о восьмій годині."
+  },
+  {
+    "dutch": "lopen",
+    "translation": "ходити пішки",
+    "part_of_speech": "verb",
+    "context": "movement",
+    "example": "Wij lopen elke dag naar het park.",
+    "example_translation": "Ми щодня ходимо пішки до парку."
+  },
+  {
+    "dutch": "mooi",
+    "translation": "гарний",
+    "part_of_speech": "adjective",
+    "context": "description",
+    "example": "Dat is een mooie bloem.",
+    "example_translation": "Це гарна квітка."
+  },
+  {
+    "dutch": "de vriend",
+    "translation": "друг",
+    "part_of_speech": "noun",
+    "context": "social",
+    "example": "Mijn vriend woont in Amsterdam.",
+    "example_translation": "Мій друг живе в Амстердамі."
+  },
+  {
+    "dutch": "eten",
+    "translation": "їсти",
+    "part_of_speech": "verb",
+    "context": "food",
+    "example": "We eten om zes uur avondeten.",
+    "example_translation": "Ми їмо вечерю о шостій годині."
+  },
+  {
+    "dutch": "het water",
+    "translation": "вода",
+    "part_of_speech": "noun",
+    "context": "daily life",
+    "example": "Mag ik een glas water, alstublieft?",
+    "example_translation": "Можна мені склянку води, будь ласка?"
+  },
+  {
+    "dutch": "kopen",
+    "translation": "купувати",
+    "part_of_speech": "verb",
+    "context": "shopping",
+    "example": "Ik wil een nieuwe jas kopen.",
+    "example_translation": "Я хочу купити нове пальто."
+  },
+  {
+    "dutch": "de stad",
+    "translation": "місто",
+    "part_of_speech": "noun",
+    "context": "geography",
+    "example": "De stad is heel druk op zaterdag.",
+    "example_translation": "Місто дуже людне в суботу."
+  },
+  {
+    "dutch": "werken",
+    "translation": "працювати",
+    "part_of_speech": "verb",
+    "context": "work",
+    "example": "Zij werkt van maandag tot vrijdag.",
+    "example_translation": "Вона працює з понеділка по п'ятницю."
+  }
+]

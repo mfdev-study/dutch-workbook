@@ -1,0 +1,162 @@
+[
+  {
+    "dutch": "de week",
+    "translation": "тиждень",
+    "part_of_speech": "noun",
+    "context": "time",
+    "example": "Er zitten zeven dagen in een week.",
+    "example_translation": "У тижні сім днів."
+  },
+  {
+    "dutch": "het jaar",
+    "translation": "рік",
+    "part_of_speech": "noun",
+    "context": "time",
+    "example": "Volgend jaar ga ik naar school.",
+    "example_translation": "Наступного року я піду до школи."
+  },
+  {
+    "dutch": "eten",
+    "translation": "їсти",
+    "part_of_speech": "verb",
+    "context": "food",
+    "example": "Wij eten elke dag om zes uur.",
+    "example_translation": "Ми їмо щодня о шостій годині."
+  },
+  {
+    "dutch": "drinken",
+    "translation": "пити",
+    "part_of_speech": "verb",
+    "context": "food",
+    "example": "Mag ik een glas water drinken?",
+    "example_translation": "Можна мені випити склянку води?"
+  },
+  {
+    "dutch": "groot",
+    "translation": "великий",
+    "part_of_speech": "adjective",
+    "context": "description",
+    "example": "Dat is een groot huis.",
+    "example_translation": "Це великий будинок."
+  },
+  {
+    "dutch": "klein",
+    "translation": "маленький",
+    "part_of_speech": "adjective",
+    "context": "description",
+    "example": "De kat is klein en schattig.",
+    "example_translation": "Кіт маленький і милий."
+  },
+  {
+    "dutch": "lopen",
+    "translation": "йти пішки",
+    "part_of_speech": "verb",
+    "context": "movement",
+    "example": "Ik loop naar het station.",
+    "example_translation": "Я йду пішки до вокзалу."
+  },
+  {
+    "dutch": "de fiets",
+    "translation": "велосипед",
+    "part_of_speech": "noun",
+    "context": "transport",
+    "example": "Ik ga met de fiets naar mijn werk.",
+    "example_translation": "Я їду на велосипеді на роботу."
+  },
+  {
+    "dutch": " het weer",
+    "translation": "погода",
+    "part_of_speech": "noun",
+    "context": "nature",
+    "example": "Het weer is vandaag mooi.",
+    "example_translation": "Сьогодні гарна погода."
+  },
+  {
+    "dutch": "regenen",
+    "translation": "дощити",
+    "part_of_speech": "verb",
+    "context": "weather",
+    "example": "Het regent de hele dag.",
+    "example_translation": "Дощить цілий день."
+  },
+  {
+    "dutch": "de prijs",
+    "translation": "ціна",
+    "part_of_speech": "noun",
+    "context": "shopping",
+    "example": "De prijs van dit boek is hoog.",
+    "example_translation": "Ціна цієї книги висока."
+  },
+  {
+    "dutch": "kopen",
+    "translation": "купувати",
+    "part_of_speech": "verb",
+    "context": "shopping",
+    "example": "Ik wil een nieuwe jas kopen.",
+    "example_translation": "Я хочу купити нове пальто."
+  },
+  {
+    "dutch": "mooi",
+    "translation": "гарний",
+    "part_of_speech": "adjective",
+    "context": "description",
+    "example": "Wat een mooie bloemen!",
+    "example_translation": "Які гарні квіти!"
+  },
+  {
+    "dutch": "de vriend",
+    "translation": "друг",
+    "part_of_speech": "noun",
+    "context": "people",
+    "example": "Mijn vriend woont in Amsterdam.",
+    "example_translation": "Мій друг живе в Амстердамі."
+  },
+  {
+    "dutch": "werken",
+    "translation": "працювати",
+    "part_of_speech": "verb",
+    "context": "work",
+    "example": "Zij werkt in een ziekenhuis.",
+    "example_translation": "Вона працює в лікарні."
+  },
+  {
+    "dutch": "het geld",
+    "translation": "гроші",
+    "part_of_speech": "noun",
+    "context": "finance",
+    "example": "Heb je genoeg geld bij je?",
+    "example_translation": "У тебе достатньо грошей із собою?"
+  },
+  {
+    "dutch": "de stad",
+    "translation": "місто",
+    "part_of_speech": "noun",
+    "context": "places",
+    "example": "Rotterdam is een grote stad.",
+    "example_translation": "Роттердам — велике місто."
+  },
+  {
+    "dutch": "het dorp",
+    "translation": "село",
+    "part_of_speech": "noun",
+    "context": "places",
+    "example": "Wij wonen in een klein dorp.",
+    "example_translation": "Ми живемо в маленькому селі."
+  },
+  {
+    "dutch": "vaak",
+    "translation": "часто",
+    "part_of_speech": "adverb",
+    "context": "frequency",
+    "example": "Ik ga vaak naar de markt.",
+    "example_translation": "Я часто ходжу на ринок."
+  },
+  {
+    "dutch": "nooit",
+    "translation": "ніколи",
+    "part_of_speech": "adverb",
+    "context": "frequency",
+    "example": "Ik eet nooit vlees.",
+    "example_translation": "Я ніколи не їм м'яса."
+  }
+]

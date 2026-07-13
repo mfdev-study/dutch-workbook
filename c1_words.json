@@ -1,0 +1,122 @@
+[
+  {
+    "dutch": "de desalniettemin",
+    "translation": "тим не менш",
+    "part_of_speech": "adverb",
+    "context": "formal",
+    "example": "Desalniettemin blijft het een interessant voorstel.",
+    "example_translation": "Тим не менш, це залишається цікавою пропозицією."
+  },
+  {
+    "dutch": "de weerlegging",
+    "translation": "спростування",
+    "part_of_speech": "noun",
+    "context": "debate",
+    "example": "Zijn weerlegging van het argument was overtuigend.",
+    "example_translation": "Його спростування аргументу було переконливим."
+  },
+  {
+    "dutch": "beantwoorden aan",
+    "translation": "відповідати (чомусь)",
+    "part_of_speech": "verb",
+    "context": "expectations",
+    "example": "De resultaten beantwoorden niet aan onze verwachtingen.",
+    "example_translation": "Результати не відповідають нашим очікуванням."
+  },
+  {
+    "dutch": "de wisselwerking",
+    "translation": "взаємодія",
+    "part_of_speech": "noun",
+    "context": "science",
+    "example": "Er is een complexe wisselwerking tussen deze factoren.",
+    "example_translation": "Між цими факторами існує складна взаємодія."
+  },
+  {
+    "dutch": "onontbeerlijk",
+    "translation": "незамінний",
+    "part_of_speech": "adjective",
+    "context": "necessity",
+    "example": "Een goede voorbereiding is onontbeerlijk voor succes.",
+    "example_translation": "Хороша підготовка є незамінною для успіху."
+  },
+  {
+    "dutch": "het dilemma",
+    "translation": "дилема",
+    "part_of_speech": "noun",
+    "context": "ethics",
+    "example": "We staan voor een moreel dilemma.",
+    "example_translation": "Ми стоїмо перед моральною дилемою."
+  },
+  {
+    "dutch": "bijgevolg",
+    "translation": "отже, внаслідок цього",
+    "part_of_speech": "adverb",
+    "context": "logic",
+    "example": "De wet is aangenomen; bijgevolg moeten we ons aanpassen.",
+    "example_translation": "Закон прийнято; отже, ми повинні пристосуватися."
+  },
+  {
+    "dutch": "de ontoereikendheid",
+    "translation": "недостатність",
+    "part_of_speech": "noun",
+    "context": "evaluation",
+    "example": "De ontoereikendheid van de middelen baart zorgen.",
+    "example_translation": "Недостатність ресурсів викликає занепокоєння."
+  },
+  {
+    "dutch": "beknopt",
+    "translation": "стислий, короткий",
+    "part_of_speech": "adjective",
+    "context": "communication",
+    "example": "Het verslag moet beknopt en duidelijk zijn.",
+    "example_translation": "Звіт має бути стислим і зрозумілим."
+  },
+  {
+    "dutch": "ondergeschikt",
+    "translation": "підпорядкований, другорядний",
+    "part_of_speech": "adjective",
+    "context": "hierarchy",
+    "example": "Dat aspect is ondergeschikt aan het hoofddoel.",
+    "example_translation": "Цей аспект є другорядним щодо головної мети."
+  },
+  {
+    "dutch": "de vooringenomenheid",
+    "translation": "упередженість",
+    "part_of_speech": "noun",
+    "context": "psychology",
+    "example": "Vooringenomenheid kan objectieve besluitvorming belemmeren.",
+    "example_translation": "Упередженість може перешкоджати об'єктивному прийняттю рішень."
+  },
+  {
+    "dutch": "uiteenlopen",
+    "translation": "розходитися, відрізнятися",
+    "part_of_speech": "verb",
+    "context": "comparison",
+    "example": "De meningen over dit onderwerp lopen sterk uiteen.",
+    "example_translation": "Думки щодо цього питання сильно розходяться."
+  },
+  {
+    "dutch": "de stellingname",
+    "translation": "позиція, зайняття позиції",
+    "part_of_speech": "noun",
+    "context": "politics",
+    "example": "Zijn stellingname in het debat was duidelijk.",
+    "example_translation": "Його позиція в дебатах була чіткою."
+  },
+  {
+    "dutch": "nauwgezet",
+    "translation": "ретельний, скрупульозний",
+    "part_of_speech": "adjective",
+    "context": "work",
+    "example": "Zij voert haar taken nauwgezet uit.",
+    "example_translation": "Вона ретельно виконує свої завдання."
+  },
+  {
+    "dutch": "de evenwichtsoefening",
+    "translation": "балансування",
+    "part_of_speech": "noun",
+    "context": "strategy",
+    "example": "Het is een delicate evenwichtsoefening tussen vraag en aanbod.",
+    "example_translation": "Це делікатне балансування між попитом і пропозицією."
+  }
+]

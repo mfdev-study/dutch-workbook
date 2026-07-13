@@ -1,0 +1,122 @@
+[
+  {
+    "dutch": "de vergadering",
+    "translation": "збори, нарада",
+    "part_of_speech": "noun",
+    "context": "work",
+    "example": "De vergadering begint om half tien.",
+    "example_translation": "Нарада починається о пів на десяту."
+  },
+  {
+    "dutch": "besluiten",
+    "translation": "вирішувати, ухвалювати рішення",
+    "part_of_speech": "verb",
+    "context": "daily life",
+    "example": "We moeten besluiten waar we gaan eten.",
+    "example_translation": "Ми повинні вирішити, де будемо їсти."
+  },
+  {
+    "dutch": "de ervaring",
+    "translation": "досвід",
+    "part_of_speech": "noun",
+    "context": "personal development",
+    "example": "Ik heb veel ervaring met koken.",
+    "example_translation": "Я маю великий досвід у приготуванні їжі."
+  },
+  {
+    "dutch": "verwachten",
+    "translation": "очікувати",
+    "part_of_speech": "verb",
+    "context": "daily life",
+    "example": "Ik verwacht een brief van de bank.",
+    "example_translation": "Я очікую листа від банку."
+  },
+  {
+    "dutch": "het voorstel",
+    "translation": "пропозиція",
+    "part_of_speech": "noun",
+    "context": "work",
+    "example": "Zijn voorstel werd door iedereen goedgekeurd.",
+    "example_translation": "Його пропозицію схвалили всі."
+  },
+  {
+    "dutch": "waarschijnlijk",
+    "translation": "ймовірно, імовірно",
+    "part_of_speech": "adverb",
+    "context": "daily life",
+    "example": "Het wordt waarschijnlijk morgen beter weer.",
+    "example_translation": "Завтра, ймовірно, буде краща погода."
+  },
+  {
+    "dutch": "de schuld",
+    "translation": "борг; провина",
+    "part_of_speech": "noun",
+    "context": "finance, emotions",
+    "example": "Hij heeft veel schuld door zijn lening.",
+    "example_translation": "У нього великий борг через його кредит."
+  },
+  {
+    "dutch": "genezen",
+    "translation": "виліковувати, одужувати",
+    "part_of_speech": "verb",
+    "context": "health",
+    "example": "De dokter heeft haar volledig genezen.",
+    "example_translation": "Лікар повністю її вилікував."
+  },
+  {
+    "dutch": "de verantwoordelijkheid",
+    "translation": "відповідальність",
+    "part_of_speech": "noun",
+    "context": "work, daily life",
+    "example": "Dit is jouw eigen verantwoordelijkheid.",
+    "example_translation": "Це твоя власна відповідальність."
+  },
+  {
+    "dutch": "teleurstellen",
+    "translation": "розчаровувати",
+    "part_of_speech": "verb",
+    "context": "emotions",
+    "example": "Ik wil je niet teleurstellen.",
+    "example_translation": "Я не хочу тебе розчаровувати."
+  },
+  {
+    "dutch": "het lidmaatschap",
+    "translation": "членство",
+    "part_of_speech": "noun",
+    "context": "organizations",
+    "example": "Mijn lidmaatschap van de club is verlopen.",
+    "example_translation": "Моє членство в клубі закінчилося."
+  },
+  {
+    "dutch": "de vooruitgang",
+    "translation": "прогрес",
+    "part_of_speech": "noun",
+    "context": "personal development",
+    "example": "Je hebt veel vooruitgang geboekt met Nederlands.",
+    "example_translation": "Ти досяг великого прогресу в нідерландській."
+  },
+  {
+    "dutch": "vergelijken",
+    "translation": "порівнювати",
+    "part_of_speech": "verb",
+    "context": "daily life",
+    "example": "Je kunt de prijzen het beste online vergelijken.",
+    "example_translation": "Найкраще порівнювати ціни онлайн."
+  },
+  {
+    "dutch": "de toename",
+    "translation": "збільшення, зростання",
+    "part_of_speech": "noun",
+    "context": "economy, statistics",
+    "example": "Er is een toename van het aantal toeristen.",
+    "example_translation": "Спостерігається збільшення кількості туристів."
+  },
+  {
+    "dutch": "betrokken",
+    "translation": "залучений, причетний",
+    "part_of_speech": "adjective",
+    "context": "work, social",
+    "example": "Hij is erg betrokken bij het project.",
+    "example_translation": "Він дуже залучений у проект."
+  }
+]

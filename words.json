@@ -1,0 +1,42 @@
+[
+  {
+    "dutch": "de supermarkt",
+    "translation": "супермаркет",
+    "part_of_speech": "noun",
+    "context": "daily life, shopping",
+    "example": "Ik ga naar de supermarkt om brood te kopen.",
+    "example_translation": "Я йду в супермаркет купити хліб."
+  },
+  {
+    "dutch": "lopen",
+    "translation": "йти пішки",
+    "part_of_speech": "verb",
+    "context": "daily life, movement",
+    "example": "Wij lopen elke dag naar school.",
+    "example_translation": "Ми ходимо пішки до школи щодня."
+  },
+  {
+    "dutch": "moe",
+    "translation": "втомлений",
+    "part_of_speech": "adjective",
+    "context": "feelings, health",
+    "example": "Na het werk ben ik erg moe.",
+    "example_translation": "Після роботи я дуже втомлений."
+  },
+  {
+    "dutch": "koken",
+    "translation": "готувати їжу",
+    "part_of_speech": "verb",
+    "context": "daily life, food",
+    "example": "Mijn moeder kookt vanavond pasta.",
+    "example_translation": "Моя мама сьогодні ввечері готує пасту."
+  },
+  {
+    "dutch": "het weer",
+    "translation": "погода",
+    "part_of_speech": "noun",
+    "context": "nature, daily life",
+    "example": "Het weer is vandaag zonnig en warm.",
+    "example_translation": "Сьогодні погода сонячна і тепла."
+  }
+]
