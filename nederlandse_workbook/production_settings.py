@@ -32,6 +32,16 @@ DATABASES = {
     }
 }
 
+# CACHE (shared across gunicorn workers via DB so background-task results
+# are visible to whichever worker serves the follow-up request/polls)
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "django_cache",
+        "TIMEOUT": 300,
+    }
+}
+
 # STATIC FILES
 STATIC_ROOT = os.getenv("STATIC_ROOT", os.path.join(BASE_DIR, "staticfiles"))
 STATIC_URL = "/static/"

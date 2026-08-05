@@ -546,14 +546,6 @@ def _generate_words_async(
 ) -> None:
     """Run word generation in a background thread."""
     try:
-        import os
-
-        os.environ["DJANGO_SETTINGS_MODULE"] = "nederlandse_workbook.settings"
-        import django
-
-        django.setup()
-
-        # Thread-safe imports
         from django.core.cache import cache as thread_cache
 
         from words.services.word_generation import (
