@@ -19,8 +19,6 @@
 
         <form method="post" action="{% url 'submit_answer' %}">
             {% csrf_token %}
-            <input type="hidden" name="word_id" value="{{ word.id }}">
-
             <div class="space-y-3">
                 {% for option in options %}
                 <label class="block cursor-pointer">

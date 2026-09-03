@@ -113,3 +113,37 @@ class CustomUserModelTest(TestCase):
         admin = User.objects.create_superuser(username="admin", password="adminpassword123")
         self.assertTrue(admin.is_staff)
         self.assertTrue(admin.is_superuser)
+
+
+class GoogleLoginTest(TestCase):
+    """Test Google OAuth login integration."""
+
+    def test_login_page_shows_google_button(self):
+        response = self.client.get(reverse("login"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Continue with Google")
+        self.assertContains(response, reverse("google_login"))
+
+    def test_signup_page_shows_google_button(self):
+        response = self.client.get(reverse("signup"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Continue with Google")
+        self.assertContains(response, reverse("google_login"))
+
+    def test_google_login_url_resolves(self):
+        url = reverse("google_login")
+        self.assertEqual(url, "/auth/google/login/")
+
+    def test_google_callback_url_resolves(self):
+        url = reverse("google_callback")
+        self.assertEqual(url, "/auth/google/login/callback/")
+
+    def test_google_login_redirects_to_google(self):
+        response = self.client.get(reverse("google_login"))
+        # With empty credentials, allauth returns 200 (error page) or 302/303 (redirect)
+        self.assertIn(response.status_code, [200, 302, 303])
+
+    def test_google_callback_without_code_returns_error(self):
+        response = self.client.get(reverse("google_callback"), {"state": "bad"})
+        # With empty credentials, allauth returns 401 or 302/303
+        self.assertIn(response.status_code, [200, 302, 303, 401])

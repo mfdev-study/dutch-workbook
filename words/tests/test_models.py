@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from words.models import Example, Flashcard, Word, WordList
 
@@ -123,10 +124,60 @@ class WordViewsTest(TestCase):
         self.assertTrue(Word.objects.filter(dutch="auto").exists())
 
     def test_add_flashcard(self):
-        """Test adding a flashcard for a word."""
-        response = self.client.get(reverse("add_flashcard", args=[self.word.id]))
+        """Test adding a flashcard for a word via POST."""
+        response = self.client.post(reverse("add_flashcard", args=[self.word.id]))
         self.assertEqual(response.status_code, 302)  # Redirect
         self.assertTrue(Flashcard.objects.filter(user=self.user, word=self.word).exists())
+
+    def test_add_flashcard_get_rejected(self):
+        """Test that GET does not create a flashcard."""
+        response = self.client.get(reverse("add_flashcard", args=[self.word.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Flashcard.objects.filter(user=self.user, word=self.word).exists())
+
+    def test_toggle_favorite_requires_post(self):
+        """Test that GET does not toggle favorite."""
+        self.client.get(reverse("toggle_favorite", args=[self.word.id]))
+        favorited = WordList.objects.filter(
+            user=self.user, name="Favorites", words=self.word
+        ).exists()
+        self.assertFalse(favorited)
+
+    def test_toggle_favorite_post(self):
+        """Test toggling favorite via POST."""
+        self.client.post(reverse("toggle_favorite", args=[self.word.id]))
+        favorite_list = WordList.objects.get(user=self.user, name="Favorites")
+        self.assertTrue(favorite_list.words.filter(id=self.word.id).exists())
+        self.client.post(reverse("toggle_favorite", args=[self.word.id]))
+        self.assertFalse(favorite_list.words.filter(id=self.word.id).exists())
+
+    def test_rate_card_requires_post(self):
+        """Test that GET does not rate a card."""
+        flashcard = Flashcard.objects.create(
+            user=self.user, word=self.word, box=1, next_review=timezone.now()
+        )
+        self.client.get(reverse("rate_card", args=[flashcard.id, "good"]))
+        flashcard.refresh_from_db()
+        self.assertIsNone(flashcard.last_reviewed)
+
+    def test_rate_card_post(self):
+        """Test rating a card via POST moves it up a box."""
+        flashcard = Flashcard.objects.create(
+            user=self.user, word=self.word, box=1, next_review=timezone.now()
+        )
+        response = self.client.post(reverse("rate_card", args=[flashcard.id, "good"]))
+        self.assertEqual(response.status_code, 302)
+        flashcard.refresh_from_db()
+        self.assertEqual(flashcard.box, 2)
+        self.assertIsNotNone(flashcard.last_reviewed)
+
+    def test_graph_data_limit_validation(self):
+        """Test that invalid limit values don't cause errors."""
+        Flashcard.objects.create(user=self.user, word=self.word, next_review=timezone.now())
+        response = self.client.get(reverse("word_graph_json"), {"limit": "abc"})
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse("word_graph_json"), {"limit": "999999"})
+        self.assertEqual(response.status_code, 200)
 
 
 class ExampleModelTest(TestCase):

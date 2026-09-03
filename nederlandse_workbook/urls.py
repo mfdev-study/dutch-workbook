@@ -13,6 +13,8 @@ urlpatterns = [
     path("health/", health_check, name="health"),
     path("i18n/", include("django.conf.urls.i18n")),
     path("admin/", admin.site.urls),
+    # Outside i18n_patterns so the Google OAuth callback URI is stable
+    path("auth/", include("allauth.urls")),
 ]
 
 urlpatterns += i18n_patterns(

@@ -9,6 +9,7 @@ class Word(models.Model):
 
     class Source(models.TextChoices):
         ENGLISH = "EN", "English-Dutch"
+        RUSSIAN = "RU", "Russian-Dutch"
         UKRAINIAN = "UK", "Ukrainian-Dutch"
 
     dutch = models.CharField(max_length=200, db_index=True)

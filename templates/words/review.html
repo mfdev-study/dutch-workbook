@@ -38,22 +38,34 @@
 
             <!-- Rating Buttons -->
             <div class="flex flex-wrap justify-center gap-3">
-                <a href="{% url 'rate_card' card.id 'again' %}"
-                   class="px-6 py-3 text-lg bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-medium">
-                    Again (1 day)
-                </a>
-                <a href="{% url 'rate_card' card.id 'hard' %}"
-                   class="px-6 py-3 text-lg bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition font-medium">
-                    Hard ({{ hard_interval }} days)
-                </a>
-                <a href="{% url 'rate_card' card.id 'good' %}"
-                   class="px-6 py-3 text-lg bg-green-500 text-white rounded-lg hover:bg-green-600 transition font-medium">
-                    Good ({{ good_interval }} days)
-                </a>
-                <a href="{% url 'rate_card' card.id 'easy' %}"
-                   class="px-6 py-3 text-lg bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition font-medium">
-                    Easy ({{ easy_interval }} days)
-                </a>
+                <form method="post" action="{% url 'rate_card' card.id 'again' %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                       class="px-6 py-3 text-lg bg-red-500 text-white rounded-lg hover:bg-red-600 transition font-medium">
+                        Again (1 day)
+                    </button>
+                </form>
+                <form method="post" action="{% url 'rate_card' card.id 'hard' %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                       class="px-6 py-3 text-lg bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition font-medium">
+                        Hard ({{ hard_interval }} days)
+                    </button>
+                </form>
+                <form method="post" action="{% url 'rate_card' card.id 'good' %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                       class="px-6 py-3 text-lg bg-green-500 text-white rounded-lg hover:bg-green-600 transition font-medium">
+                        Good ({{ good_interval }} days)
+                    </button>
+                </form>
+                <form method="post" action="{% url 'rate_card' card.id 'easy' %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                       class="px-6 py-3 text-lg bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition font-medium">
+                        Easy ({{ easy_interval }} days)
+                    </button>
+                </form>
             </div>
 
             <!-- Instructions -->
@@ -70,17 +82,23 @@
                 <div class="flex flex-wrap gap-2">
                     {% for rw in related_words %}
                     <div class="group relative">
-                        <a href="{% url 'add_flashcard' rw.word.id %}"
-                           class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium
-                                  {% if not rw.has_flashcard %}
-                                  bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200
-                                  {% else %}
-                                  bg-green-50 text-green-700 border border-green-200
-                                  {% endif %}
-                                  transition cursor-pointer">
+                        {% if not rw.has_flashcard %}
+                        <form method="post" action="{% url 'add_flashcard' rw.word.id %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit"
+                               class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium
+                                      bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200
+                                      transition cursor-pointer">
+                                {{ rw.word.dutch }}
+                                <span class="text-xs">+</span>
+                            </button>
+                        </form>
+                        {% else %}
+                        <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium
+                                     bg-green-50 text-green-700 border border-green-200">
                             {{ rw.word.dutch }}
-                            {% if not rw.has_flashcard %}<span class="text-xs">+</span>{% endif %}
-                        </a>
+                        </span>
+                        {% endif %}
                         <span class="absolute -top-2 -right-2 bg-gray-800 text-white text-xs px-1.5 py-0.5 rounded-full whitespace-nowrap opacity-0 group-hover:opacity-100 transition">
                             {{ rw.label }}
                         </span>

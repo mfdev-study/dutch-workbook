@@ -47,6 +47,9 @@ logs/*.log
 openrouter_module/.venv/
 openrouter_module/.env
 
+# Google OAuth credentials
+client_secret_*.json
+
 # Backup files
 *.bak
 *.backup

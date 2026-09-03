@@ -11,6 +11,7 @@ dependencies = [
     "textual>=7.3.0",
     "beautifulsoup4>=4.14.3",
     "openai>=1.0.0",
+    "django-allauth[socialaccount]>=65.19.2",
 ]
 
 [tool.uv]

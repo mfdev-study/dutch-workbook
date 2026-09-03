@@ -53,9 +53,12 @@ def add_word(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         dutch = request.POST.get("dutch", "").strip()
         translation = request.POST.get("translation", "").strip()
-        source = request.POST.get("source", "EN")
+        source = request.POST.get("source", Word.Source.ENGLISH)
         context = request.POST.get("context", "").strip()
         example = request.POST.get("example", "").strip()
+
+        if source not in Word.Source.values:
+            source = Word.Source.ENGLISH
 
         if dutch and translation:
             word, created = Word.objects.get_or_create(
@@ -152,6 +155,9 @@ def word_detail(request: HttpRequest, word_id: int) -> HttpResponse:
 @login_required
 def add_flashcard(request: HttpRequest, word_id: int) -> HttpResponse:
     """Add a word to the user's flashcards."""
+    if request.method != "POST":
+        return redirect("word_detail", word_id=word_id)
+
     word = get_object_or_404(Word, id=word_id)
 
     _, created = Flashcard.objects.get_or_create(
@@ -172,6 +178,9 @@ def add_flashcard(request: HttpRequest, word_id: int) -> HttpResponse:
 @login_required
 def remove_flashcard(request: HttpRequest, word_id: int) -> HttpResponse:
     """Remove a word from the user's flashcards."""
+    if request.method != "POST":
+        return redirect("word_detail", word_id=word_id)
+
     word = get_object_or_404(Word, id=word_id)
     Flashcard.objects.filter(user=request.user, word=word).delete()
     return redirect("word_detail", word_id=word_id)
@@ -180,6 +189,9 @@ def remove_flashcard(request: HttpRequest, word_id: int) -> HttpResponse:
 @login_required
 def toggle_favorite(request: HttpRequest, word_id: int) -> HttpResponse:
     """Toggle the favorite status of a word."""
+    if request.method != "POST":
+        return redirect("word_detail", word_id=word_id)
+
     word = get_object_or_404(Word, id=word_id)
     favorite_list = _get_favorite_list(request.user)
 
@@ -212,11 +224,6 @@ def flashcards_review(request: HttpRequest) -> HttpResponse:
     next_box_good = min(box + 1, 5)
     next_box_easy = min(box + 2, 5)
 
-    today = timezone.now().date()
-    daily, _ = DailyActivity.objects.get_or_create(user=request.user, date=today)
-    daily.words_reviewed += 1
-    daily.save()
-
     related_words = current_card.word.related_words()
     user_word_ids = set(
         Flashcard.objects.filter(user=request.user).values_list("word_id", flat=True)
@@ -240,6 +247,12 @@ def flashcards_review(request: HttpRequest) -> HttpResponse:
 @login_required
 def rate_card(request: HttpRequest, card_id: int, rating: str) -> HttpResponse:
     """Rate a flashcard after review (spaced repetition)."""
+    if request.method != "POST":
+        return redirect("flashcards")
+
+    if rating not in ("again", "hard", "good", "easy"):
+        return redirect("flashcards")
+
     card = get_object_or_404(Flashcard, id=card_id, user=request.user)
 
     intervals: dict[int, int] = {1: 1, 2: 3, 3: 7, 4: 14, 5: 30}
@@ -257,11 +270,13 @@ def rate_card(request: HttpRequest, card_id: int, rating: str) -> HttpResponse:
         card.box = min(card.box + 2, Flashcard.Box.BOX_5.value)
         card.next_review = timezone.now() + timedelta(days=intervals.get(card.box, 1))
 
-    else:
-        return redirect("flashcards")
-
     card.last_reviewed = timezone.now()
     card.save()
+
+    today = timezone.now().date()
+    daily, _ = DailyActivity.objects.get_or_create(user=request.user, date=today)
+    daily.words_reviewed += 1
+    daily.save()
 
     return redirect("flashcards")
 
@@ -342,7 +357,11 @@ def word_graph_json(request: HttpRequest) -> JsonResponse:
     if not flashcard_word_ids:
         return JsonResponse({"nodes": [], "edges": []})
 
-    limit = int(request.GET.get("limit", 200))
+    try:
+        limit = int(request.GET.get("limit", 200))
+    except (TypeError, ValueError):
+        limit = 200
+    limit = max(1, min(limit, 1000))
     word_ids = flashcard_word_ids[:limit]
     word_id_set = set(word_ids)
 
@@ -487,9 +506,17 @@ def generate_words_view(request: HttpRequest) -> HttpResponse:
             count = int(request.POST.get("count", 5))
         except (ValueError, TypeError):
             count = 5
+        count = max(1, min(count, 20))
+
         level = request.POST.get("level", "A2")
+        if level not in ("A1", "A2", "B1", "B2", "C1"):
+            level = "A2"
+
         theme = request.POST.get("theme", "").strip() or None
-        source = request.POST.get("source", "EN")
+
+        source = request.POST.get("source", Word.Source.ENGLISH)
+        if source not in Word.Source.values:
+            source = Word.Source.ENGLISH
 
         cache.set(result_key, {"status": "generating"}, timeout=300)
 

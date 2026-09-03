@@ -37,10 +37,13 @@
                                 {{ item.word.dutch }}
                             </a>
                             {% if not item.has_flashcard %}
-                            <a href="{% url 'add_flashcard' item.word.id %}"
-                               class="text-xs bg-blue-500 text-white px-2 py-0.5 rounded hover:bg-blue-600 transition">
-                                + Add
-                            </a>
+                            <form method="post" action="{% url 'add_flashcard' item.word.id %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit"
+                                   class="text-xs bg-blue-500 text-white px-2 py-0.5 rounded hover:bg-blue-600 transition">
+                                    + Add
+                                </button>
+                            </form>
                             {% else %}
                             <span class="text-xs text-green-600">Learned</span>
                             {% endif %}
