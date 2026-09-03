@@ -96,43 +96,38 @@ jobs:
             fi
 
             cd "$APP_DIR" || exit 1
+            git config --global --add safe.directory "$APP_DIR"
 
-            # Make sure the app user owns the repo after a root-level push.
-            # (No-op if the deploy/ssh user is already dutchapp.)
+            # Run the app workload directly as the SSH user (root in practice).
+            # We deliberately avoid `sudo -u dutchapp`: manage.py loads the app's
+            # .env itself (see production_settings._load_env_file), and anything we
+            # create is re-chowned to $APP_USER at the end. Running as the SSH user
+            # is far more robust than shelling out to sudo from a CI session.
+
+            echo "Syncing dependencies..."
+            uv sync
+
+            echo "Running migrations..."
+            uv run python manage.py migrate --settings nederlandse_workbook.production_settings
+
+            echo "Compiling translation messages..."
+            uv run python manage.py compilemessages --settings nederlandse_workbook.production_settings || \
+              echo "WARNING: compilemessages failed; translations may be stale"
+
+            echo "Collecting static files..."
+            uv run python manage.py collectstatic --noinput --settings nederlandse_workbook.production_settings
+
+            # Hand ownership of anything created just now back to the app user so
+            # the gunicorn service (User=dutchapp) can still write to the tree.
             if [ "$(id -un)" != "$APP_USER" ]; then
               echo "Restoring ownership to $APP_USER..."
               chown -R "$APP_USER:$APP_USER" "$APP_DIR" .git
             fi
 
-            git config --global --add safe.directory "$APP_DIR"
-
-            # Management commands load the app's .env inside Django
-            # (see production_settings._load_env_file), so no sourcing needed here.
-            run_as_app() {
-              if [ "$(id -un)" = "$APP_USER" ]; then
-                bash -c "$1"
-              else
-                sudo -u "$APP_USER" bash -c "$1"
-              fi
-            }
-
-            echo "Syncing dependencies..."
-            run_as_app "cd '$APP_DIR' && uv sync"
-
-            echo "Running migrations..."
-            run_as_app "cd '$APP_DIR' && uv run python manage.py migrate --settings nederlandse_workbook.production_settings"
-
-            echo "Compiling translation messages..."
-            run_as_app "cd '$APP_DIR' && uv run python manage.py compilemessages --settings nederlandse_workbook.production_settings" || \
-              echo "WARNING: compilemessages failed; translations may be stale"
-
-            echo "Collecting static files..."
-            run_as_app "cd '$APP_DIR' && uv run python manage.py collectstatic --noinput --settings nederlandse_workbook.production_settings"
-
             if [ -f /etc/systemd/system/dutchworkbook.service ]; then
               echo "Restarting application..."
-              sudo systemctl restart dutchworkbook || systemctl restart dutchworkbook
-              sudo systemctl status dutchworkbook --no-pager || systemctl status dutchworkbook --no-pager
+              systemctl restart dutchworkbook
+              systemctl status dutchworkbook --no-pager
             else
               echo "WARNING: dutchworkbook.service not found. Run VPS setup first."
             fi
