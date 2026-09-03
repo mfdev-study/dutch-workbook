@@ -251,23 +251,23 @@ sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
 The GitHub Actions workflow (`.github/workflows/ci-cd.yml`) does the following:
 
 ### On Pull Requests and Pushes to main/develop:
-1. **Test Job**:
-   - Sets up Python environment
-   - Installs dependencies with `uv`
-   - Runs Django migrations
-   - Compiles translation files
-   - Runs all tests
-   - Runs linting with `ruff`
+1. **Test Job** (Python 3.11 and 3.12):
+   - Sets up Python and installs dependencies with `uv`
+   - Runs `ruff check` (linting)
+   - Runs `ruff format --check` (formatting)
+   - Runs `makemigrations --check --dry-run` (checks for missing migrations)
+   - Runs the Django test suite
 
 2. **Deploy Job** (only on push to main):
-   - Connects to VPS via SSH
-   - Creates backup of current deployment
-   - Pulls latest changes from git
-   - Updates dependencies
-   - Compiles translations
+   - Pushes the code directly to the VPS via `git push` over SSH into `/opt/dutchworkbook`
+   - Restores repo ownership to the app user
+   - Syncs dependencies with `uv sync`
    - Runs migrations
+   - Compiles translation messages (`compilemessages`)
    - Collects static files
    - Restarts the gunicorn service
+
+The deploy user (from the `HETZNER_USER` secret) needs SSH access to the VPS and permission to push into `/opt/dutchworkbook` and restart the `dutchworkbook` systemd service. The `dutchapp` user does not need to run `sudo` — the workflow only switches to `dutchapp` for the app workload.
 
 ## Step 4: Manual Deployment
 

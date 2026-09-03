@@ -2,62 +2,59 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.11, 3.12]
+        python-version: ["3.11", "3.12"]
 
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y gettext || true
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@v3
+      - name: Cache uv dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-${{ matrix.python-version }}-uv-${{ hashFiles('pyproject.toml', 'uv.lock') }}
 
-    - name: Install dependencies
-      run: |
-        uv sync
+      - name: Install dependencies
+        run: uv sync --dev
 
-    - name: Run linting with ruff
-      run: |
-        uv run ruff check .
+      - name: Run ruff linter
+        run: uv run ruff check .
 
-    - name: Check formatting with ruff
-      run: |
-        uv run ruff format --check .
+      - name: Check ruff formatting
+        run: uv run ruff format --check .
 
-    - name: Run migrations
-      env:
-        DJANGO_SETTINGS_MODULE: nederlandse_workbook.settings
-        SECRET_KEY: test-secret-key-for-ci
-        DEBUG: "True"
-        ALLOWED_HOSTS: localhost,127.0.0.1,testserver
-      run: |
-        uv run python manage.py migrate
+      - name: Check for missing migrations
+        env:
+          DJANGO_SETTINGS_MODULE: nederlandse_workbook.settings
+          SECRET_KEY: test-secret-key-for-ci
+          DEBUG: "True"
+          ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+        run: uv run python manage.py makemigrations --check --dry-run
 
-    - name: Run tests
-      env:
-        DJANGO_SETTINGS_MODULE: nederlandse_workbook.settings
-        SECRET_KEY: test-secret-key-for-ci
-        DEBUG: "True"
-        ALLOWED_HOSTS: localhost,127.0.0.1,testserver
-      run: |
-        uv run python manage.py test --verbosity=2
+      - name: Run tests
+        env:
+          DJANGO_SETTINGS_MODULE: nederlandse_workbook.settings
+          SECRET_KEY: test-secret-key-for-ci
+          DEBUG: "True"
+          ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+        run: uv run python manage.py test --verbosity=2
 
   deploy:
     needs: test
@@ -65,64 +62,80 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Deploy to Hetzner VPS
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.HETZNER_HOST }}
-        username: ${{ secrets.HETZNER_USER }}
-        key: ${{ secrets.HETZNER_SSH_KEY }}
-        port: ${{ secrets.HETZNER_PORT || 22 }}
-        script: |
-          APP_DIR="/opt/dutchworkbook"
-          APP_USER="dutchapp"
+      - name: Push code to VPS (git push over SSH)
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          git remote add vps "ssh://$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PORT/opt/dutchworkbook"
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/id_deploy -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+            git push vps main:main
+        env:
+          DEPLOY_KEY: ${{ secrets.HETZNER_SSH_KEY }}
+          DEPLOY_USER: ${{ secrets.HETZNER_USER }}
+          DEPLOY_HOST: ${{ secrets.HETZNER_HOST }}
+          DEPLOY_PORT: ${{ secrets.HETZNER_PORT || 22 }}
 
-          # Check if first deployment
-          if [ ! -d "$APP_DIR" ]; then
-            echo "ERROR: First deployment needed. Run setup-vps.sh manually."
-            echo "SSH into server and run: bash setup-vps.sh"
-            exit 1
-          fi
+      - name: Restore ownership, sync deps, migrate, compile messages, collect static, restart
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HETZNER_HOST }}
+          username: ${{ secrets.HETZNER_USER }}
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          port: ${{ secrets.HETZNER_PORT || 22 }}
+          script: |
+            APP_DIR="/opt/dutchworkbook"
+            APP_USER="dutchapp"
+            export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 
-          cd "$APP_DIR"
+            if [ ! -d "$APP_DIR" ]; then
+              echo "ERROR: $APP_DIR does not exist. Run VPS setup first."
+              exit 1
+            fi
 
-          # Fix git ownership if needed
-          echo "Fixing git ownership..."
-          sudo -u "$APP_USER" git config --global --add safe.directory "$APP_DIR"
+            cd "$APP_DIR" || exit 1
 
-          # Backup current state
-          echo "Creating backup..."
-          sudo -u "$APP_USER" cp -r . ../dutchworkbook-backup-$(date +%Y%m%d-%H%M%S) 2>/dev/null || true
+            # Make sure the app user owns the repo after a root-level push.
+            # (No-op if the deploy/ssh user is already dutchapp.)
+            if [ "$(id -un)" != "$APP_USER" ]; then
+              echo "Restoring ownership to $APP_USER..."
+              chown -R "$APP_USER:$APP_USER" "$APP_DIR" .git
+            fi
 
-          # Pull latest changes
-          echo "Pulling latest changes..."
-          sudo -u "$APP_USER" git fetch origin
-          sudo -u "$APP_USER" git reset --hard origin/main
+            git config --global --add safe.directory "$APP_DIR"
 
-          # Activate virtual environment and install/update dependencies
-          echo "Updating dependencies..."
-          sudo -u "$APP_USER" bash -c "export PATH=\"$HOME/.local/bin:$HOME/.cargo/bin:$PATH\" && cd $APP_DIR && uv sync"
+            run_as_app() {
+              if [ "$(id -un)" = "$APP_USER" ]; then
+                bash -c "$1"
+              else
+                sudo -u "$APP_USER" bash -c "$1"
+              fi
+            }
 
-          # Run migrations
-          echo "Running migrations..."
-          sudo -u "$APP_USER" bash -c "export PATH=\"$HOME/.local/bin:$HOME/.cargo/bin:$PATH\" && cd $APP_DIR && uv run python manage.py migrate --settings nederlandse_workbook.production_settings"
+            echo "Syncing dependencies..."
+            run_as_app "cd '$APP_DIR' && uv sync"
 
-          # Collect static files
-          echo "Collecting static files..."
-          sudo -u "$APP_USER" bash -c "export PATH=\"$HOME/.local/bin:$HOME/.cargo/bin:$PATH\" && cd $APP_DIR && uv run python manage.py collectstatic --noinput --settings nederlandse_workbook.production_settings"
+            echo "Running migrations..."
+            run_as_app "cd '$APP_DIR' && uv run python manage.py migrate --settings nederlandse_workbook.production_settings"
 
-          # Check if service exists before restarting
-          if [ -f /etc/systemd/system/dutchworkbook.service ]; then
-            # Restart gunicorn service
-            echo "Restarting application..."
-            sudo systemctl restart dutchworkbook
-            
-            # Check service status
-            echo "Checking service status..."
-            sudo systemctl status dutchworkbook --no-pager
-          else
-            echo "WARNING: dutchworkbook.service not found. Run setup-vps.sh first."
-          fi
+            echo "Compiling translation messages..."
+            run_as_app "cd '$APP_DIR' && uv run python manage.py compilemessages --settings nederlandse_workbook.production_settings" || \
+              echo "WARNING: compilemessages failed; translations may be stale"
 
-          echo "Deployment completed successfully!"
+            echo "Collecting static files..."
+            run_as_app "cd '$APP_DIR' && uv run python manage.py collectstatic --noinput --settings nederlandse_workbook.production_settings"
+
+            if [ -f /etc/systemd/system/dutchworkbook.service ]; then
+              echo "Restarting application..."
+              sudo systemctl restart dutchworkbook || systemctl restart dutchworkbook
+              sudo systemctl status dutchworkbook --no-pager || systemctl status dutchworkbook --no-pager
+            else
+              echo "WARNING: dutchworkbook.service not found. Run VPS setup first."
+            fi
+
+            echo "Deployment completed successfully!"

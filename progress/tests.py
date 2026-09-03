@@ -88,4 +88,3 @@ class UpdateStreakTest(TestCase):
         update_streak(self.user)
         progress = UserProgress.objects.get(user=self.user)
         self.assertEqual(progress.current_streak, 0)
-
