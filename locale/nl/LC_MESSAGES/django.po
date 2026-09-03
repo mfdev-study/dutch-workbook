@@ -163,9 +163,6 @@ msgstr "Gebruikersnaam"
 msgid "Password"
 msgstr "Wachtwoord"
 
-msgid "Login"
-msgstr "Inloggen"
-
 msgid "Don't have an account?"
 msgstr "Heb je nog geen account?"
 
@@ -183,9 +180,6 @@ msgstr "E-mail (optioneel)"
 
 msgid "Confirm Password"
 msgstr "Bevestig wachtwoord"
-
-msgid "Sign Up"
-msgstr "Registreren"
 
 msgid "Already have an account?"
 msgstr "Heb je al een account?"

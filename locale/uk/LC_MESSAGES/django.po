@@ -163,9 +163,6 @@ msgstr "Ім'я користувача"
 msgid "Password"
 msgstr "Пароль"
 
-msgid "Login"
-msgstr "Увійти"
-
 msgid "Don't have an account?"
 msgstr "Немає аккаунта?"
 
@@ -183,9 +180,6 @@ msgstr "Email (необов'язково)"
 
 msgid "Confirm Password"
 msgstr "Підтвердіть пароль"
-
-msgid "Sign Up"
-msgstr "Реєстрація"
 
 msgid "Already have an account?"
 msgstr "Вже є аккаунт?"
