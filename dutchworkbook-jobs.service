@@ -1,0 +1,13 @@
+[Unit]
+Description=Dutch Workbook generation job processor
+After=network.target
+
+[Service]
+Type=oneshot
+User=dutchapp
+Group=dutchapp
+WorkingDirectory=/opt/dutchworkbook
+EnvironmentFile=/opt/dutchworkbook/.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=DJANGO_SETTINGS_MODULE=nederlandse_workbook.production_settings
+ExecStart=/opt/dutchworkbook/.venv/bin/python manage.py process_generation_jobs --max-jobs 1

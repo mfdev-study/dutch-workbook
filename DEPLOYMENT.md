@@ -180,6 +180,31 @@ sudo systemctl enable dutchworkbook
 sudo systemctl start dutchworkbook
 ```
 
+#### 2.5.1 Generation Job Processor (systemd Timer)
+
+AI word generation is queued as `WordGenerationJob` rows and processed by a
+management command (`process_generation_jobs`), not a background thread. This
+makes generation durable across deploys/restarts. A systemd timer runs the
+processor every 15 seconds. The unit files live in the repo root
+(`dutchworkbook-jobs.service` / `dutchworkbook-jobs.timer`) and are installed
+by `setup-vps.sh`:
+
+```bash
+sudo cp /opt/dutchworkbook/dutchworkbook-jobs.service /etc/systemd/system/
+sudo cp /opt/dutchworkbook/dutchworkbook-jobs.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now dutchworkbook-jobs.timer
+```
+
+Verify it is active and check recent runs:
+
+```bash
+sudo systemctl status dutchworkbook-jobs.timer
+sudo systemctl list-timers dutchworkbook-jobs.timer
+# Logs of individual runs:
+journalctl -u dutchworkbook-jobs.service -n 50 --no-pager
+```
+
 ### 2.6 Configure Nginx
 
 Create `/etc/nginx/sites-available/dutchworkbook`:

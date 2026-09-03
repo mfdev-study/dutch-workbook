@@ -84,6 +84,7 @@ jobs:
           username: ${{ secrets.HETZNER_USER }}
           key: ${{ secrets.HETZNER_SSH_KEY }}
           port: ${{ secrets.HETZNER_PORT || 22 }}
+          script_stop: true
           script: |
             APP_DIR="/opt/dutchworkbook"
             APP_USER="dutchapp"
@@ -105,6 +106,8 @@ jobs:
 
             git config --global --add safe.directory "$APP_DIR"
 
+            # Management commands load the app's .env inside Django
+            # (see production_settings._load_env_file), so no sourcing needed here.
             run_as_app() {
               if [ "$(id -un)" = "$APP_USER" ]; then
                 bash -c "$1"

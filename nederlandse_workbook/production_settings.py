@@ -3,6 +3,33 @@ import os
 from .settings import *  # noqa: F401, F403
 from .settings import BASE_DIR
 
+
+def _load_env_file(path):
+    """Load a simple KEY=VALUE env file into os.environ.
+
+    Values are read literally (systemd EnvironmentFile semantics), so special
+    characters in secrets are preserved — unlike shell `source`. Existing
+    environment variables win; the file never overrides them. This lets
+    manage.py commands work from any shell, not just via systemd's
+    EnvironmentFile.
+    """
+    try:
+        with open(path, encoding="utf-8") as fh:
+            for raw in fh:
+                line = raw.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, _, value = line.partition("=")
+                key = key.strip()
+                if key and key not in os.environ:
+                    os.environ[key] = value.strip()
+    except OSError:
+        # No env file (e.g. CI, dev) — rely on the process environment.
+        pass
+
+
+_load_env_file(os.path.join(BASE_DIR, ".env"))
+
 # SECURITY SETTINGS
 DEBUG = False
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")

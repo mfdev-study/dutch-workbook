@@ -102,9 +102,16 @@ sudo -u "$APP_USER" bash -c "export PATH=\"$HOME/.local/bin:$HOME/.cargo/bin:$PA
 
 # Install systemd service
 echo "Installing systemd service..."
-cp "$APP_DIR/dutchworkbook.service" /etc/systemd/system/dutchworkbook.service"
+cp "$APP_DIR/dutchworkbook.service" /etc/systemd/system/dutchworkbook.service
 systemctl daemon-reload
 systemctl enable dutchworkbook.service
+
+# Install generation job processor (systemd timer)
+echo "Installing generation job processor timer..."
+cp "$APP_DIR/dutchworkbook-jobs.service" /etc/systemd/system/dutchworkbook-jobs.service
+cp "$APP_DIR/dutchworkbook-jobs.timer" /etc/systemd/system/dutchworkbook-jobs.timer
+systemctl daemon-reload
+systemctl enable --now dutchworkbook-jobs.timer
 
 echo ""
 echo "=== Setup Complete ==="

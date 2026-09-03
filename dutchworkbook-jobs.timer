@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Dutch Workbook generation job processor periodically
+
+[Timer]
+OnBootSec=30
+OnUnitActiveSec=15
+AccuracySec=5
+
+[Install]
+WantedBy=timers.target
