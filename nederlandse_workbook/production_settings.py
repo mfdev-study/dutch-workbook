@@ -21,17 +21,32 @@ X_FRAME_OPTIONS = "DENY"
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
-# DATABASE (SQLite)
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.getenv("DB_PATH", os.path.join(BASE_DIR, "db.sqlite3")),
-        "OPTIONS": {
-            "init_command": "PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;",
-            "transaction_mode": "IMMEDIATE",
-        },
+# Database
+# SQLite is the default (matches the current production setup). Set DB_ENGINE
+# to "django.db.backends.postgresql" (plus the DB_* vars below) to use PostgreSQL.
+DB_ENGINE = os.getenv("DB_ENGINE", "django.db.backends.sqlite3")
+if DB_ENGINE == "django.db.backends.postgresql":
+    DATABASES = {
+        "default": {
+            "ENGINE": DB_ENGINE,
+            "NAME": os.getenv("DB_NAME", "dutchworkbook"),
+            "USER": os.getenv("DB_USER", "dutchapp"),
+            "PASSWORD": os.getenv("DB_PASSWORD", ""),
+            "HOST": os.getenv("DB_HOST", "localhost"),
+            "PORT": os.getenv("DB_PORT", "5432"),
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.getenv("DB_PATH", os.path.join(BASE_DIR, "db.sqlite3")),
+            "OPTIONS": {
+                "init_command": "PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;",
+                "transaction_mode": "IMMEDIATE",
+            },
+        }
+    }
 
 # CACHE (shared across gunicorn workers via DB so background-task results
 # are visible to whichever worker serves the follow-up request/polls)

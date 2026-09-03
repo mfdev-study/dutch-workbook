@@ -15,8 +15,8 @@ A Django-based web application for learning Dutch vocabulary using flashcards, q
 
 ## Technology Stack
 
-- **Backend**: Django 5.x (Python)
-- **Database**: SQLite (development), PostgreSQL (production)
+- **Backend**: Django 6.x (Python)
+- **Database**: SQLite (default in dev and prod); PostgreSQL supported via `DB_ENGINE`
 - **Frontend**: Tailwind CSS, Alpine.js
 - **Internationalization**: Django i18n with gettext
 - **Deployment**: Hetzner VPS with Gunicorn + Nginx
@@ -24,7 +24,7 @@ A Django-based web application for learning Dutch vocabulary using flashcards, q
 
 ## Prerequisites
 
-- Python 3.11+ 
+- Python 3.12+ 
 - [uv](https://github.com/astral-sh/uv) (Python package manager)
 - Git
 - gettext (for translations)
@@ -86,7 +86,10 @@ DB_PASSWORD=your-db-password
 
 ### Production Settings
 
-For production deployment, create `nederlandse_workbook/production_settings.py`:
+For production deployment, create `nederlandse_workbook/production_settings.py`. The
+database engine is selected by the `DB_ENGINE` env var: it defaults to SQLite, but set
+`DB_ENGINE=django.db.backends.postgresql` (with the `DB_NAME`, `DB_USER`, `DB_PASSWORD`,
+`DB_HOST`, `DB_PORT` env vars) to run PostgreSQL:
 
 ```python
 import os

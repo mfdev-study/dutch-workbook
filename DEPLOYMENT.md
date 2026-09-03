@@ -10,7 +10,8 @@ This guide explains how to set up CI/CD for automatic deployment to a Hetzner VP
   - Application deployed at `/opt/dutchworkbook`
   - Systemd service `dutchworkbook` configured
   - Nginx installed and configured
-  - PostgreSQL database set up
+  - PostgreSQL database set up **(optional)** - the app defaults to SQLite; to use
+    PostgreSQL instead, provision a database and set `DB_ENGINE`/`DB_*` env vars
   - Git repository cloned at `/opt/dutchworkbook`
 
 ## Step 1: Configure GitHub Secrets
@@ -109,14 +110,23 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
 # DATABASE
+# The committed production_settings.py selects the engine via the DB_ENGINE env
+# var (defaults to SQLite). For PostgreSQL, set the DB_* env vars instead of
+# editing this file, e.g.:
+#   DB_ENGINE=django.db.backends.postgresql
+#   DB_NAME=dutchworkbook
+#   DB_USER=dutchapp
+#   DB_PASSWORD=your-secure-password
+#   DB_HOST=localhost
+#   DB_PORT=5432
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'dutchworkbook',
-        'USER': 'dutchapp',
-        'PASSWORD': 'your-secure-password',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': os.getenv('DB_NAME', 'dutchworkbook'),
+        'USER': os.getenv('DB_USER', 'dutchapp'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
@@ -251,7 +261,7 @@ sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
 The GitHub Actions workflow (`.github/workflows/ci-cd.yml`) does the following:
 
 ### On Pull Requests and Pushes to main/develop:
-1. **Test Job** (Python 3.11 and 3.12):
+1. **Test Job** (Python 3.12):
    - Sets up Python and installs dependencies with `uv`
    - Runs `ruff check` (linting)
    - Runs `ruff format --check` (formatting)
@@ -335,10 +345,16 @@ sudo systemctl restart dutchworkbook
    sudo dpkg-reconfigure -plow unattended-upgrades
    ```
 
-4. **Database Backups**: Set up automated backups
+4. **Database Backups**: Set up automated backups. The app currently runs on SQLite
+   (default), so back up the database file. If you migrate to PostgreSQL, switch this
+   cron to `pg_dump` instead:
    ```bash
    # Add to crontab
-   0 2 * * * pg_dump -h localhost -U dutchapp dutchworkbook > /opt/dutchworkbook/backups/db_$(date +\%Y\%m\%d).sql
+   # SQLite (current):
+   0 2 * * * cp /opt/dutchworkbook/db.sqlite3 /opt/dutchworkbook/backups/db_$(date +\%Y\%m\%d).sqlite3 && find /opt/dutchworkbook/backups -name 'db_*.sqlite3' -mtime +30 -delete
+
+   # PostgreSQL (after migrating):
+   # 0 2 * * * pg_dump -h localhost -U dutchapp dutchworkbook > /opt/dutchworkbook/backups/db_$(date +\%Y\%m\%d).sql
    ```
 
 ## Monitoring

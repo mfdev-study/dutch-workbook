@@ -75,7 +75,15 @@ tar:
 	@echo "Archive created: /tmp/dutch-workbook-deploy.tar.gz"
 
 # Database backup
+# Backs up SQLite by default. Pass DB_NAME to back up PostgreSQL instead
+# (e.g. `make backup DB_ENGINE=postgres`).
 backup:
 	@echo "Creating database backup..."
-	pg_dump -h localhost -U dutchapp dutchworkbook > backups/db_backup_$(shell date +%Y%m%d_%H%M%S).sql
+	@if [ "$(DB_ENGINE)" = "postgres" ]; then \
+		mkdir -p backups && \
+		pg_dump -h localhost -U dutchapp dutchworkbook > backups/db_backup_$(shell date +%Y%m%d_%H%M%S).sql; \
+	else \
+		mkdir -p backups && \
+		cp db.sqlite3 backups/db_backup_$(shell date +%Y%m%d_%H%M%S).sqlite3; \
+	fi
 	@echo "Backup complete!"
