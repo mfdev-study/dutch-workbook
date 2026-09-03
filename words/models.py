@@ -189,3 +189,36 @@ class Example(models.Model):
 
     def __str__(self):
         return f"Example for {self.word.dutch}: {self.text[:50]}..."
+
+
+class WordGenerationJob(models.Model):
+    """Persistent queue entry for async AI word generation."""
+
+    class Status(models.TextChoices):
+        PENDING = "PENDING", "Pending"
+        RUNNING = "RUNNING", "Running"
+        SUCCESS = "SUCCESS", "Success"
+        FAILED = "FAILED", "Failed"
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
+    count = models.PositiveIntegerField(default=5)
+    level = models.CharField(max_length=2, default="A2")
+    theme = models.CharField(max_length=200, blank=True, default="")
+    source = models.CharField(max_length=2, choices=Word.Source.choices)
+    status = models.CharField(
+        max_length=10, choices=Status.choices, default=Status.PENDING, db_index=True
+    )
+    result = models.JSONField(default=dict, blank=True)
+    error = models.TextField(blank=True, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["status", "created_at"], name="idx_job_status_created"),
+        ]
+
+    def __str__(self):
+        return f"Job {self.pk} ({self.user.username}) - {self.status}"

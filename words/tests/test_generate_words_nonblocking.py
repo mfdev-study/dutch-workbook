@@ -8,7 +8,7 @@ from django.core.cache import cache
 from django.test import TestCase
 from django.urls import reverse
 
-from words.models import Word
+from words.models import Word, WordGenerationJob
 
 
 class GenerateWordsNonBlockingTest(TestCase):
@@ -191,3 +191,71 @@ class GenerateWordsNonBlockingTest(TestCase):
             self.assertIn("generating", content)
             # Check for spinner (animate-spin class)
             self.assertIn("animate-spin", content)
+
+    @patch("words.views.settings")
+    def test_post_creates_pending_job(self, mock_settings):
+        """POST should create a PENDING WordGenerationJob instead of a thread."""
+        mock_settings.OPENCODE_ENABLED = True
+        mock_settings.GENERATION_COOLDOWN_SECONDS = 30
+
+        response = self.client.post(
+            reverse("generate_words"),
+            {"count": "3", "level": "B1", "theme": "food", "source": "RU"},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        job = WordGenerationJob.objects.get(user=self.user)
+        self.assertEqual(job.status, WordGenerationJob.Status.PENDING)
+        self.assertEqual(job.count, 3)
+        self.assertEqual(job.level, "B1")
+        self.assertEqual(job.theme, "food")
+        self.assertEqual(job.source, "RU")
+
+    @patch("words.views.settings")
+    def test_cooldown_rejects_rapid_repeat_post(self, mock_settings):
+        """A second POST within the cooldown window should return 429."""
+        mock_settings.OPENCODE_ENABLED = True
+        mock_settings.GENERATION_COOLDOWN_SECONDS = 30
+
+        self.client.post(
+            reverse("generate_words"),
+            {"count": "3", "level": "A2", "source": "EN"},
+        )
+
+        response = self.client.post(
+            reverse("generate_words"),
+            {"count": "3", "level": "A2", "source": "EN"},
+        )
+        self.assertEqual(response.status_code, 429)
+        self.assertEqual(WordGenerationJob.objects.count(), 1)
+
+    @patch("words.management.commands.process_generation_jobs.WordGenerationService")
+    def test_process_command_runs_job(self, mock_service_class):
+        """process_generation_jobs should run a PENDING job and cache the result."""
+        mock_service = mock_service_class.return_value
+        created_words = [
+            Word.objects.create(
+                dutch="huis", translation="house", source="EN", part_of_speech="noun"
+            )
+        ]
+        mock_service.generate_words.return_value = ("test-model", created_words)
+        mock_service.save_words.return_value = (created_words, [])
+
+        job = WordGenerationJob.objects.create(
+            user=self.user,
+            count=1,
+            level="A2",
+            theme="",
+            source="EN",
+        )
+
+        from django.core.management import call_command
+
+        call_command("process_generation_jobs")
+
+        job.refresh_from_db()
+        self.assertEqual(job.status, WordGenerationJob.Status.SUCCESS)
+        self.assertEqual(job.result["model_used"], "test-model")
+
+        result_key = f"gen_result_{self.user.id}"
+        self.assertIn("word_ids", cache.get(result_key))

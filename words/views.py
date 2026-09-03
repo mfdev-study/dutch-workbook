@@ -1,7 +1,5 @@
 """Views for the words (vocabulary) app."""
 
-import logging
-import threading
 from datetime import timedelta
 from typing import Any
 
@@ -16,13 +14,18 @@ from django.utils import timezone
 
 from progress.models import DailyActivity, UserProgress, update_streak
 
-from .models import Example, Flashcard, Word, WordList, WordRelation
+from .models import (
+    Example,
+    Flashcard,
+    Word,
+    WordGenerationJob,
+    WordList,
+    WordRelation,
+)
 from .services.word_generation import (  # noqa: F401  # Used by tests via mock
     WordGenerationRequest,
     WordGenerationService,
 )
-
-logger = logging.getLogger(__name__)
 
 
 def _get_favorite_list(user) -> WordList:
@@ -504,6 +507,29 @@ def generate_words_view(request: HttpRequest) -> HttpResponse:
             context["error"] = "OpenCode is not enabled."
             return render(request, "words/generate_words.html", context)
 
+        # Rate limit: enforce a per-user cooldown between generation requests
+        # and cap concurrent pending generations for the user.
+        cooldown_key = f"gen_cooldown_{request.user.id}"
+        retry_after = cache.get(cooldown_key)
+        if retry_after is not None:
+            remaining = retry_after - int(timezone.now().timestamp())
+            context["error"] = "Please wait a moment before starting another generation."
+            response = render(request, "words/generate_words.html", context)
+            response["Retry-After"] = str(max(remaining, 0))
+            response.status_code = 429
+            return response
+        pending = cache.get(result_key)
+        if (
+            pending is not None
+            and isinstance(pending, dict)
+            and "word_ids" not in pending
+            and "error" not in pending
+        ):
+            context["error"] = "A generation is already in progress."
+            response = render(request, "words/generate_words.html", context)
+            response.status_code = 429
+            return response
+
         try:
             count = int(request.POST.get("count", 5))
         except (ValueError, TypeError):
@@ -514,27 +540,26 @@ def generate_words_view(request: HttpRequest) -> HttpResponse:
         if level not in ("A1", "A2", "B1", "B2", "C1"):
             level = "A2"
 
-        theme = request.POST.get("theme", "").strip() or None
+        theme = request.POST.get("theme", "").strip() or ""
 
         source = request.POST.get("source", Word.Source.ENGLISH)
         if source not in Word.Source.values:
             source = Word.Source.ENGLISH
 
         cache.set(result_key, {"status": "generating"}, timeout=300)
-
-        thread = threading.Thread(
-            target=_generate_words_async,
-            args=(
-                request.user.id,
-                count,
-                level,
-                theme,
-                source,
-                result_key,
-            ),
-            daemon=True,
+        cache.set(
+            cooldown_key,
+            int(timezone.now().timestamp()) + settings.GENERATION_COOLDOWN_SECONDS,
+            timeout=settings.GENERATION_COOLDOWN_SECONDS + 5,
         )
-        thread.start()
+
+        WordGenerationJob.objects.create(
+            user=request.user,
+            count=count,
+            level=level,
+            theme=theme,
+            source=source,
+        )
 
         return redirect("generate_words")
 
@@ -563,47 +588,3 @@ def _handle_generation_poll(result_key: str) -> JsonResponse:
             )
         return JsonResponse({"status": "pending"})
     return JsonResponse({"status": "pending"})
-
-
-def _generate_words_async(
-    user_id: int,
-    count: int,
-    level: str,
-    theme: str | None,
-    source: str,
-    result_key: str,
-) -> None:
-    """Run word generation in a background thread."""
-    try:
-        from django.core.cache import cache as thread_cache
-
-        from words.services.word_generation import (
-            WordGenerationRequest,
-            WordGenerationService,
-        )
-
-        service = WordGenerationService()
-        request_data = WordGenerationRequest(
-            count=count,
-            level=level,
-            theme=theme,
-            source=source,
-        )
-        used_model, generated_words = service.generate_words(request_data)
-
-        if not generated_words:
-            thread_cache.set(result_key, {"error": "Could not parse AI response."}, timeout=300)
-            return
-
-        created, skipped = service.save_words(generated_words, source)
-        result_data = {
-            "word_ids": [w.id for w in created],
-            "words_skipped": len(skipped),
-            "model_used": used_model,
-        }
-        thread_cache.set(result_key, result_data, timeout=300)
-    except Exception as e:
-        logger.exception("Error in background word generation")
-        from django.core.cache import cache as thread_cache
-
-        thread_cache.set(result_key, {"error": str(e)}, timeout=300)

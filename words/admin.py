@@ -1,6 +1,13 @@
 from django.contrib import admin
 
-from .models import Example, Flashcard, Word, WordList, WordRelation
+from .models import (
+    Example,
+    Flashcard,
+    Word,
+    WordGenerationJob,
+    WordList,
+    WordRelation,
+)
 
 
 @admin.register(Word)
@@ -35,3 +42,10 @@ class WordRelationAdmin(admin.ModelAdmin):
     list_display = ["word_from", "relation_type", "word_to", "created_at"]
     list_filter = ["relation_type"]
     search_fields = ["word_from__dutch", "word_to__dutch"]
+
+
+@admin.register(WordGenerationJob)
+class WordGenerationJobAdmin(admin.ModelAdmin):
+    list_display = ["id", "user", "status", "count", "level", "theme", "created_at", "finished_at"]
+    list_filter = ["status", "level", "source"]
+    search_fields = ["user__username"]

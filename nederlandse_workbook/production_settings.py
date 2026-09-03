@@ -6,7 +6,10 @@ from .settings import BASE_DIR
 # SECURITY SETTINGS
 DEBUG = False
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
+# SECURITY: SECRET_KEY must be provided via the environment. There is
+# intentionally no fallback — a known/default key would let anyone forge
+# sessions and run code. Crash loudly rather than run insecure.
+SECRET_KEY = os.environ["SECRET_KEY"]
 
 # SSL/HTTPS Settings
 SECURE_SSL_REDIRECT = True
