@@ -14,7 +14,7 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from progress.models import DailyActivity, UserProgress
+from progress.models import DailyActivity, UserProgress, update_streak
 
 from .models import Example, Flashcard, Word, WordList, WordRelation
 from .services.word_generation import (  # noqa: F401  # Used by tests via mock
@@ -45,6 +45,7 @@ def _record_word_learned(user) -> None:
     daily, _ = DailyActivity.objects.get_or_create(user=user, date=today)
     daily.new_words += 1
     daily.save()
+    update_streak(user)
 
 
 @login_required
@@ -277,6 +278,7 @@ def rate_card(request: HttpRequest, card_id: int, rating: str) -> HttpResponse:
     daily, _ = DailyActivity.objects.get_or_create(user=request.user, date=today)
     daily.words_reviewed += 1
     daily.save()
+    update_streak(request.user)
 
     return redirect("flashcards")
 

@@ -9,7 +9,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from progress.models import DailyActivity, UserProgress
+from progress.models import DailyActivity, UserProgress, update_streak
 from words.models import Flashcard, Word, WordRelation
 
 from .models import QuizAnswer, QuizSession
@@ -221,6 +221,7 @@ def quiz_results(request: HttpRequest) -> HttpResponse:
     daily.correct_answers += answers.filter(is_correct=True).count()
     daily.total_answers += answers.count()
     daily.save()
+    update_streak(request.user)
 
     # Clean up session keys
     for key in ["quiz_word_ids", "quiz_current", "quiz_score", "quiz_session_id"]:

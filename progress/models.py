@@ -1,5 +1,8 @@
+from datetime import timedelta
+
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -17,6 +20,42 @@ class UserProgress(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.words_learned} words"
+
+
+def update_streak(user) -> None:
+    """Recalculate current_streak, longest_streak, and last_activity from DailyActivity."""
+    progress, _ = UserProgress.objects.get_or_create(user=user)
+    today = timezone.now().date()
+
+    active_dates = set(
+        DailyActivity.objects.filter(
+            user=user,
+            date__lte=today,
+        )
+        .exclude(words_reviewed=0, quizzes_completed=0, new_words=0)
+        .values_list("date", flat=True)
+    )
+
+    if not active_dates:
+        progress.current_streak = 0
+        progress.last_activity = None
+        progress.save(update_fields=["current_streak", "longest_streak", "last_activity"])
+        return
+
+    progress.last_activity = max(active_dates)
+
+    # Count consecutive active days ending today (or yesterday if today is inactive)
+    streak = 0
+    date = today
+    while date in active_dates:
+        streak += 1
+        date -= timedelta(days=1)
+    progress.current_streak = streak
+
+    if streak > progress.longest_streak:
+        progress.longest_streak = streak
+
+    progress.save(update_fields=["current_streak", "longest_streak", "last_activity"])
 
 
 class DailyActivity(models.Model):
