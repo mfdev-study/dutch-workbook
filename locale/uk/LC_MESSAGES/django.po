@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Dutch Workbook 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-28 12:00+0000\n"
+"POT-Creation-Date: 2026-09-05 14:39+0000\n"
 "PO-Revision-Date: 2026-04-28 12:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -13,173 +13,560 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
+#: templates/base.html:8 templates/registration/login.html:4
+#: templates/registration/password_reset_complete.html:4
+#: templates/registration/password_reset_confirm.html:4
+#: templates/registration/password_reset_done.html:4
+#: templates/registration/password_reset_form.html:4
+#: templates/registration/signup.html:4
+#: templates/socialaccount/authentication_error.html:5
+#: templates/socialaccount/login.html:5
+#: templates/socialaccount/login_cancelled.html:5
+#: templates/socialaccount/signup.html:5 templates/words/browse.html:4
+#: templates/words/dashboard.html:4
 msgid "Dutch Learning Workbook"
 msgstr "Нідерландський навчальний зошит"
 
+#: templates/base.html:22
 msgid "Dutch Workbook"
 msgstr "Нідерландський зошит"
 
+#: templates/base.html:29 templates/base.html:73
+#: templates/words/dashboard.html:4
 msgid "Dashboard"
 msgstr "Панель керування"
 
+#: templates/base.html:30 templates/base.html:74
 msgid "Add Word"
 msgstr "Додати слово"
 
+#: templates/base.html:35 templates/base.html:79
 msgid "AI Generate"
 msgstr "Генерація ШІ"
 
+#: templates/base.html:37 templates/base.html:81
 msgid "Browse"
 msgstr "Огляд"
 
-msgid "Categories"
-msgstr "Категорії"
-
+#: templates/base.html:38 templates/base.html:82
 msgid "Flashcards"
 msgstr "Флеш-картки"
 
+#: templates/base.html:39 templates/base.html:83
 msgid "Quiz"
 msgstr "Вікторина"
 
+#: templates/base.html:40 templates/base.html:84
+msgid "Network"
+msgstr ""
+
+#: templates/base.html:41 templates/base.html:85
 msgid "Progress"
 msgstr "Прогрес"
 
+#: templates/base.html:46 templates/base.html:90
 msgid "Logout"
 msgstr "Вийти"
 
+#: templates/base.html:50 templates/base.html:94
+#: templates/registration/login.html:4 templates/registration/login.html:34
+#: templates/registration/signup.html:64
 msgid "Login"
 msgstr "Увійти"
 
+#: templates/base.html:51 templates/base.html:95
+#: templates/registration/signup.html:4 templates/registration/signup.html:55
+#: templates/socialaccount/signup.html:5
+#: templates/socialaccount/signup.html:10
+#: templates/socialaccount/signup.html:40
 msgid "Sign Up"
 msgstr "Реєстрація"
 
+#: templates/base.html:147
 msgid "Dutch Learning Workbook - Learn Dutch with flashcards and quizzes"
-msgstr "Нідерландський навчальний зошит - Вивчайте нідерландську з флеш-картками та вікторинами"
+msgstr ""
+"Нідерландський навчальний зошит - Вивчайте нідерландську з флеш-картками та "
+"вікторинами"
 
-msgid "Welcome back, %(username)s!"
-msgstr "З поверненням, %(username)s!"
+#: templates/dutch/de_het_answer.html:3 templates/dutch/de_het_question.html:3
+#, python-format
+msgid "Question %(question_num)s / %(total)s"
+msgstr "Питання %(question_num)s / %(total)s"
 
-msgid "Continue your Dutch learning journey."
-msgstr "Продовжуйте свою подорож вивчення нідерландської."
+#: templates/dutch/de_het_answer.html:13
+msgid "Correct!"
+msgstr "Правильно!"
 
-msgid "Cards Due Today"
-msgstr "Карток на сьогодні"
+#: templates/dutch/de_het_answer.html:20
+msgid "Not quite"
+msgstr "Не зовсім"
 
-msgid "Words Learned"
-msgstr "Вивчено слів"
+#: templates/dutch/de_het_answer.html:21
+msgid "Correct answer:"
+msgstr "Правильна відповідь:"
 
-msgid "Favorites"
-msgstr "Обране"
+#: templates/dutch/de_het_answer.html:27
+msgid "View results"
+msgstr "Переглянути результати"
 
-msgid "Day Streak"
-msgstr "Днів підряд"
+#: templates/dutch/de_het_answer.html:29
+msgid "Next question"
+msgstr "Наступне питання"
 
-msgid "Quick Actions"
-msgstr "Швидкі дії"
+#: templates/dutch/de_het_empty.html:4 templates/dutch/de_het_quiz.html:4
+msgid "Dutch Articles Quiz - Dutch Learning Workbook"
+msgstr "Вікторина: нідерландські артиклі — Робочий зошит з нідерландської"
 
-msgid "Add New Word"
-msgstr "Додати нове слово"
+#: templates/dutch/de_het_empty.html:10
+#: templates/dutch/de_het_empty_partial.html:4
+msgid "No questions yet"
+msgstr "Питань ще немає"
 
-msgid "Review Flashcards"
-msgstr "Повторити флеш-картки"
+#: templates/dutch/de_het_empty.html:11
+#: templates/dutch/de_het_empty_partial.html:5
+msgid "No active de/het questions are available. Please check back later."
+msgstr "Активних питань про de/het поки немає. Завітайте пізніше."
 
-msgid "Take a Quiz"
-msgstr "Пройти вікторину"
+#: templates/dutch/de_het_empty.html:12
+#: templates/dutch/de_het_empty_partial.html:6
+msgid "Back to quizzes"
+msgstr "Назад до вікторин"
 
-msgid "Browse Word Bank"
-msgstr "Переглянути словник"
+#: templates/dutch/de_het_question.html:4
+msgid "Score:"
+msgstr "Рахунок:"
 
-msgid "Today's Activity"
-msgstr "Активність за сьогодні"
+#: templates/dutch/de_het_quiz.html:9
+msgid "Dutch Articles"
+msgstr "Нідерландські артиклі"
 
-msgid "Words Reviewed"
-msgstr "Слів повторено"
+#: templates/dutch/de_het_quiz.html:10
+msgid "Choose <strong>de</strong> or <strong>het</strong> for each word."
+msgstr ""
+"Оберіть <strong>de</strong> або <strong>het</strong> для кожного слова."
 
-msgid "Quizzes Completed"
-msgstr "Вікторин пройдено"
+#: templates/dutch/de_het_result.html:4
+msgid "Quiz Result - Dutch Learning Workbook"
+msgstr "Результат вікторини — Робочий зошит з нідерландської"
 
-msgid "New Words Added"
-msgstr "Нових слів додано"
+#: templates/dutch/de_het_result_partial.html:3
+msgid "Quiz complete!"
+msgstr "Вікторину завершено!"
 
-msgid "Getting Started"
-msgstr "Початок роботи"
+#: templates/dutch/de_het_result_partial.html:6
+msgid "Good job!"
+msgstr "Чудова робота!"
 
-msgid "1. Browse the word bank and add words to your flashcards"
-msgstr "1. Перегляньте словник і додайте слова у свої флеш-картки"
+#: templates/dutch/de_het_result_partial.html:10
+msgid "Remember:"
+msgstr "Запам'ятайте:"
 
-msgid "2. Review your flashcards daily using spaced repetition"
-msgstr "2. Повторюйте флеш-картки щодня, використовуючи інтервальні повторення"
+#: templates/dutch/de_het_result_partial.html:12
+msgid "Plural nouns"
+msgstr "Іменники у множині"
 
-msgid "3. Take quizzes to test your knowledge"
-msgstr "3. Проходьте вікторини, щоб перевірити свої знання"
+#: templates/dutch/de_het_result_partial.html:13
+msgid "People & professions"
+msgstr "Люди та професії"
 
-msgid "4. Track your progress and maintain your streak!"
-msgstr "4. Відстежуйте свій прогрес і зберігайте серію!"
+#: templates/dutch/de_het_result_partial.html:14
+msgid "Diminutives ending in -je"
+msgstr "Зменшувальні слова, що закінчуються на -je"
 
-msgid "Start Learning"
-msgstr "Почати навчання"
+#: templates/dutch/de_het_result_partial.html:15
+msgid "Nouns ending in -ing"
+msgstr "Іменники, що закінчуються на -ing"
 
-msgid "Search words..."
-msgstr "Пошук слів..."
+#: templates/dutch/de_het_result_partial.html:16
+msgid "Nouns ending in -heid"
+msgstr "Іменники, що закінчуються на -heid"
 
-msgid "All Sources"
-msgstr "Всі джерела"
+#: templates/dutch/de_het_result_partial.html:20
+msgid "Review your mistakes:"
+msgstr "Перегляньте свої помилки:"
 
-msgid "Ukrainian"
-msgstr "Українська"
+#: templates/dutch/de_het_result_partial.html:24
+#, python-format
+msgid ""
+"You answered <strong>%(chosen)s</strong> for "
+"<strong>%(question_word)s</strong> &rarr; correct: "
+"<strong>%(correct_phrase)s %(question_word)s</strong>."
+msgstr ""
+"Ви відповіли <strong>%(chosen)s</strong> на "
+"<strong>%(question_word)s</strong> &rarr; правильно: "
+"<strong>%(correct_phrase)s %(question_word)s</strong>."
 
-msgid "English"
-msgstr "Англійська"
+#: templates/dutch/de_het_result_partial.html:30
+msgid "Perfect score! All answers correct."
+msgstr "Ідеальний результат! Усі відповіді правильні."
 
-msgid "Dutch"
-msgstr "Нідерландська"
+#: templates/dutch/de_het_result_partial.html:34
+msgid "Try again"
+msgstr "Спробувати ще раз"
 
-msgid "Translation"
-msgstr "Переклад"
+#: templates/partials/google_login_button.html:8
+msgid "or"
+msgstr ""
 
-msgid "Source"
-msgstr "Джерело"
+#: templates/partials/google_login_button.html:20
+msgid "Continue with Google"
+msgstr ""
 
-msgid "Actions"
-msgstr "Дії"
+#: templates/quiz/home.html:50
+msgid "Practice choosing the correct Dutch article (de or het)."
+msgstr "Потренуйтеся обирати правильний нідерландський артикль (de або het)."
 
-msgid "View"
-msgstr "Перегляд"
-
-msgid "No words found."
-msgstr "Слів не знайдено."
-
-msgid "Showing first 100 results"
-msgstr "Показано перші 100 результатів"
-
+#: templates/registration/login.html:9
 msgid "Welcome Back"
 msgstr "З поверненням"
 
+#: templates/registration/login.html:16
 msgid "Your username and password didn't match. Please try again."
 msgstr "Ім'я користувача або пароль не підходять. Спробуйте ще раз."
 
+#: templates/registration/login.html:21 templates/registration/signup.html:21
 msgid "Username"
 msgstr "Ім'я користувача"
 
+#: templates/registration/login.html:27 templates/registration/signup.html:36
 msgid "Password"
 msgstr "Пароль"
 
+#: templates/registration/login.html:38
+#, fuzzy
+#| msgid "Confirm Password"
+msgid "Forgot password?"
+msgstr "Підтвердіть пароль"
+
+#: templates/registration/login.html:46
 msgid "Don't have an account?"
 msgstr "Немає аккаунта?"
 
+#: templates/registration/login.html:47
 msgid "Sign up"
 msgstr "Реєстрація"
 
-msgid "Create Account"
-msgstr "Створити аккаунт"
+#: templates/registration/password_reset_complete.html:4
+#: templates/registration/password_reset_complete.html:10
+msgid "Password Reset Complete"
+msgstr ""
 
-msgid "Please correct the errors below."
-msgstr "Виправте помилки нижче."
+#: templates/registration/password_reset_complete.html:11
+msgid "Your password has been set. You can now log in with your new password."
+msgstr ""
 
-msgid "Email (optional)"
-msgstr "Email (необов'язково)"
+#: templates/registration/password_reset_complete.html:14
+msgid "Log In"
+msgstr ""
 
+#: templates/registration/password_reset_confirm.html:4
+#: templates/registration/password_reset_confirm.html:9
+#, fuzzy
+#| msgid "Password"
+msgid "Set New Password"
+msgstr "Пароль"
+
+#: templates/registration/password_reset_confirm.html:23
+#, fuzzy
+#| msgid "Password"
+msgid "New Password"
+msgstr "Пароль"
+
+#: templates/registration/password_reset_confirm.html:27
+msgid "Your password can't be too similar to your other personal information."
+msgstr ""
+
+#: templates/registration/password_reset_confirm.html:28
+msgid "Your password must contain at least 8 characters."
+msgstr ""
+
+#: templates/registration/password_reset_confirm.html:29
+msgid "Your password can't be a commonly used password."
+msgstr ""
+
+#: templates/registration/password_reset_confirm.html:30
+msgid "Your password can't be entirely numeric."
+msgstr ""
+
+#: templates/registration/password_reset_confirm.html:35
+#: templates/registration/signup.html:45
 msgid "Confirm Password"
 msgstr "Підтвердіть пароль"
 
+#: templates/registration/password_reset_confirm.html:42
+#, fuzzy
+#| msgid "Password"
+msgid "Set Password"
+msgstr "Пароль"
+
+#: templates/registration/password_reset_done.html:4
+msgid "Email Sent"
+msgstr ""
+
+#: templates/registration/password_reset_done.html:10
+msgid "Check Your Email"
+msgstr ""
+
+#: templates/registration/password_reset_done.html:11
+msgid ""
+"We've sent you instructions for resetting your password. You should receive "
+"it shortly."
+msgstr ""
+
+#: templates/registration/password_reset_done.html:12
+#: templates/registration/password_reset_form.html:35
+#: templates/socialaccount/authentication_error.html:15
+msgid "Back to Login"
+msgstr ""
+
+#: templates/registration/password_reset_form.html:4
+#, fuzzy
+#| msgid "Password"
+msgid "Password Reset"
+msgstr "Пароль"
+
+#: templates/registration/password_reset_form.html:9
+#, fuzzy
+#| msgid "Password"
+msgid "Reset Password"
+msgstr "Пароль"
+
+#: templates/registration/password_reset_form.html:10
+msgid ""
+"Enter your email address and we'll send you instructions to reset your "
+"password."
+msgstr ""
+
+#: templates/registration/password_reset_form.html:22
+msgid "Email"
+msgstr ""
+
+#: templates/registration/password_reset_form.html:29
+msgid "Send Reset Link"
+msgstr ""
+
+#: templates/registration/signup.html:9
+msgid "Create Account"
+msgstr "Створити аккаунт"
+
+#: templates/registration/signup.html:16
+#: templates/socialaccount/signup.html:23
+msgid "Please correct the errors below."
+msgstr "Виправте помилки нижче."
+
+#: templates/registration/signup.html:30
+msgid "Email (optional)"
+msgstr "Email (необов'язково)"
+
+#: templates/registration/signup.html:63
 msgid "Already have an account?"
 msgstr "Вже є аккаунт?"
+
+#: templates/socialaccount/authentication_error.html:5
+#: templates/socialaccount/authentication_error.html:10
+msgid "Third-Party Login Failure"
+msgstr ""
+
+#: templates/socialaccount/authentication_error.html:12
+msgid ""
+"An error occurred while attempting to login via your third-party account."
+msgstr ""
+
+#: templates/socialaccount/login.html:5
+#, fuzzy
+#| msgid "Sign Up"
+msgid "Sign In"
+msgstr "Реєстрація"
+
+#: templates/socialaccount/login.html:12
+#, python-format
+msgid "Connect %(provider)s"
+msgstr ""
+
+#: templates/socialaccount/login.html:14
+#, python-format
+msgid "Sign In Via %(provider)s"
+msgstr ""
+
+#: templates/socialaccount/login.html:20
+#, python-format
+msgid "You are about to connect a new third-party account from %(provider)s."
+msgstr ""
+
+#: templates/socialaccount/login.html:22
+#, python-format
+msgid ""
+"You are about to sign in using a third-party account from %(provider)s."
+msgstr ""
+
+#: templates/socialaccount/login.html:38
+msgid "Continue with"
+msgstr ""
+
+#: templates/socialaccount/login_cancelled.html:5
+#: templates/socialaccount/login_cancelled.html:10
+msgid "Login Cancelled"
+msgstr ""
+
+#: templates/socialaccount/login_cancelled.html:13
+#, python-format
+msgid ""
+"You decided to cancel logging in to our site using one of your existing "
+"accounts. If this was a mistake, please proceed to <a href=\"%(login_url)s\""
+" class=\"text-dutch-orange hover:text-orange-600 font-medium\">sign in</a>."
+msgstr ""
+
+#: templates/socialaccount/signup.html:12
+#, python-format
+msgid ""
+"\n"
+"                You are about to use your %(provider_name)s account to login to %(site_name)s. As a final step, please complete the following form:\n"
+"            "
+msgstr ""
+
+#: templates/words/browse.html:4
+#, fuzzy
+#| msgid "Browse Word Bank"
+msgid "Browse Words"
+msgstr "Переглянути словник"
+
+#: templates/words/browse.html:9 templates/words/dashboard.html:61
+msgid "Browse Word Bank"
+msgstr "Переглянути словник"
+
+#: templates/words/browse.html:13
+msgid "Search words..."
+msgstr "Пошук слів..."
+
+#: templates/words/browse.html:17
+msgid "All Sources"
+msgstr "Всі джерела"
+
+#: templates/words/browse.html:18
+msgid "Ukrainian"
+msgstr "Українська"
+
+#: templates/words/browse.html:19
+msgid "English"
+msgstr "Англійська"
+
+#: templates/words/browse.html:22
+msgid "Search"
+msgstr ""
+
+#: templates/words/browse.html:33
+msgid "Dutch"
+msgstr "Нідерландська"
+
+#: templates/words/browse.html:34
+msgid "Translation"
+msgstr "Переклад"
+
+#: templates/words/browse.html:35
+msgid "Source"
+msgstr "Джерело"
+
+#: templates/words/browse.html:36
+msgid "Actions"
+msgstr "Дії"
+
+#: templates/words/browse.html:54 templates/words/browse.html:85
+msgid "View"
+msgstr "Перегляд"
+
+#: templates/words/browse.html:60 templates/words/browse.html:91
+msgid "No words found."
+msgstr "Слів не знайдено."
+
+#: templates/words/browse.html:118
+#, python-format
+msgid "Showing %(start)s–%(end)s of %(total)s"
+msgstr ""
+
+#: templates/words/dashboard.html:9
+#, python-format
+msgid "Welcome back, %(username)s!"
+msgstr "З поверненням, %(username)s!"
+
+#: templates/words/dashboard.html:10
+msgid "Continue your Dutch learning journey."
+msgstr "Продовжуйте свою подорож вивчення нідерландської."
+
+#: templates/words/dashboard.html:16
+msgid "Cards Due Today"
+msgstr "Карток на сьогодні"
+
+#: templates/words/dashboard.html:21
+msgid "Words Learned"
+msgstr "Вивчено слів"
+
+#: templates/words/dashboard.html:26
+msgid "Favorites"
+msgstr "Обране"
+
+#: templates/words/dashboard.html:31
+msgid "Day Streak"
+msgstr "Днів підряд"
+
+#: templates/words/dashboard.html:37
+msgid "Quick Actions"
+msgstr "Швидкі дії"
+
+#: templates/words/dashboard.html:43
+msgid "Add New Word"
+msgstr "Додати нове слово"
+
+#: templates/words/dashboard.html:49
+msgid "Review Flashcards"
+msgstr "Повторити флеш-картки"
+
+#: templates/words/dashboard.html:55
+msgid "Take a Quiz"
+msgstr "Пройти вікторину"
+
+#: templates/words/dashboard.html:67
+msgid "Today's Activity"
+msgstr "Активність за сьогодні"
+
+#: templates/words/dashboard.html:70
+msgid "Words Reviewed"
+msgstr "Слів повторено"
+
+#: templates/words/dashboard.html:74
+msgid "Quizzes Completed"
+msgstr "Вікторин пройдено"
+
+#: templates/words/dashboard.html:78
+msgid "New Words Added"
+msgstr "Нових слів додано"
+
+#: templates/words/dashboard.html:86
+msgid "Getting Started"
+msgstr "Початок роботи"
+
+#: templates/words/dashboard.html:88
+msgid "1. Browse the word bank and add words to your flashcards"
+msgstr "1. Перегляньте словник і додайте слова у свої флеш-картки"
+
+#: templates/words/dashboard.html:89
+msgid "2. Review your flashcards daily using spaced repetition"
+msgstr ""
+"2. Повторюйте флеш-картки щодня, використовуючи інтервальні повторення"
+
+#: templates/words/dashboard.html:90
+msgid "3. Take quizzes to test your knowledge"
+msgstr "3. Проходьте вікторини, щоб перевірити свої знання"
+
+#: templates/words/dashboard.html:91
+msgid "4. Track your progress and maintain your streak!"
+msgstr "4. Відстежуйте свій прогрес і зберігайте серію!"
+
+#: templates/words/dashboard.html:94
+msgid "Start Learning"
+msgstr "Почати навчання"
+
+#~ msgid "Categories"
+#~ msgstr "Категорії"
+
+#~ msgid "Showing first 100 results"
+#~ msgstr "Показано перші 100 результатів"

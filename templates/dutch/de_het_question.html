@@ -1,6 +1,7 @@
+{% load i18n %}
 <div class="flex justify-between items-center mb-6">
-    <span class="text-gray-500">Question {{ question_num }} / {{ total }}</span>
-    <span class="text-gray-500">Score: {{ score }}</span>
+    <span class="text-gray-500">{% blocktrans %}Question {{ question_num }} / {{ total }}{% endblocktrans %}</span>
+    <span class="text-gray-500">{% trans "Score:" %} {{ score }}</span>
 </div>
 
 <div class="w-full bg-gray-200 rounded-full h-2 mb-8">

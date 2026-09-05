@@ -4,9 +4,10 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import translation
 
-from .models import DutchArticleQuestion
-from .views import QUIZ_SIZE, SESSION_KEY
+from dutch.models import DutchArticleQuestion
+from dutch.views import QUIZ_SIZE, SESSION_KEY
 
 User = get_user_model()
 
@@ -314,3 +315,45 @@ class DutchArticleSecurityTest(TestCase):
         self._start()
         response = self.client.get(reverse("dutch:answer"))
         self.assertEqual(response.status_code, 405)
+
+
+class DutchArticleLocalizationTest(TestCase):
+    """The de/het quiz UI is translated for supported locales."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(username="testuser", password="testpass123")
+        self.client.login(username="testuser", password="testpass123")
+        _question(word="huis", translation="house")
+
+    def _page(self):
+        return self.client.get(reverse("dutch:quiz")).content.decode()
+
+    def test_ukrainian_translations_applied(self):
+        with translation.override("uk"):
+            doc = self._page()
+        self.assertIn("Нідерландські артиклі", doc)
+        self.assertIn("Питання", doc)
+        self.assertIn("Рахунок:", doc)
+        self.assertNotIn("Dutch Articles", doc)
+        self.assertNotIn("Score:", doc)
+
+    def test_russian_translations_applied(self):
+        with translation.override("ru"):
+            doc = self._page()
+        self.assertIn("Нидерландские артикли", doc)
+        self.assertIn("Вопрос", doc)
+        self.assertIn("Счёт:", doc)
+
+    def test_dutch_translations_applied(self):
+        with translation.override("nl"):
+            doc = self._page()
+        self.assertIn("Nederlandse lidwoorden", doc)
+        self.assertIn("Vraag", doc)
+        self.assertIn("Score:", doc)
+
+    def test_english_fallback_when_locale_unsupported(self):
+        url = reverse("dutch:quiz")
+        with translation.override("fr"):
+            doc = self.client.get(url).content.decode()
+        self.assertIn("Dutch Articles", doc)
+        self.assertIn("Score:", doc)
