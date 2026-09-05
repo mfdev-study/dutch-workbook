@@ -33,7 +33,6 @@ Thumbs.db
 
 # Python
 *.egg-info/
-dist/
 build/
 *.egg
 .pytest_cache/
