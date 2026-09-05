@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Dutch Articles Quiz - Dutch Learning Workbook{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">Dutch Articles</h1>
+        <p class="text-gray-600 mb-6">Choose <strong>de</strong> or <strong>het</strong> for each word.</p>
+        <div id="quiz-content">
+            {% include "dutch/de_het_question.html" %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "accounts",
     "words",
     "quiz",
+    "dutch",
     "progress",
 ]
 

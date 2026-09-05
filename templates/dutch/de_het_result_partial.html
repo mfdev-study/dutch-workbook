@@ -1,0 +1,34 @@
+<div class="text-center">
+    <h1 class="text-3xl font-bold text-gray-900 mb-4">Quiz complete!</h1>
+    <p class="text-6xl font-extrabold text-dutch-orange">{{ score }} / {{ total }}</p>
+    <p class="text-2xl font-semibold text-gray-700 mt-4">{{ percentage }}%</p>
+    <p class="text-gray-600 mt-2">Good job!</p>
+</div>
+
+<div class="text-left mt-8">
+    <h2 class="text-lg font-semibold text-gray-900 mb-2">Remember:</h2>
+    <ul class="list-disc pl-5 text-gray-700 space-y-1 text-sm">
+        <li>Plural nouns &#8594; de</li>
+        <li>People &amp; professions &#8594; de</li>
+        <li>Diminutives ending in -je &#8594; het</li>
+        <li>Nouns ending in -ing &#8594; de</li>
+        <li>Nouns ending in -heid &#8594; de</li>
+    </ul>
+
+    {% if mistakes %}
+    <h2 class="text-lg font-semibold text-gray-900 mt-6 mb-2">Review your mistakes:</h2>
+    <ul class="space-y-2">
+        {% for m in mistakes %}
+        <li class="text-sm text-gray-700">
+            You answered <strong>{{ m.chosen }}</strong> for <strong>{{ m.question.word }}</strong>
+            &rarr; correct: <strong>{{ m.question.correct_article }} {{ m.question.word }}</strong>.
+            <span class="text-gray-500">{{ m.question.explanation }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-sm text-green-700 mt-6">Perfect score! All answers correct.</p>
+    {% endif %}
+</div>
+
+<button hx-get="{% url 'dutch:reset' %}" hx-target="#quiz-content" hx-swap="innerHTML" class="w-full mt-8 bg-dutch-orange text-white py-3 px-4 rounded-md hover:bg-orange-600 transition font-medium">Try again</button>

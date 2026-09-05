@@ -8,6 +8,7 @@
     <title>{% block title %}{% trans "Dutch Learning Workbook" %}{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'dist/tailwind.css' %}">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.17.1/dist/cdn.min.js" integrity="sha384-x6MR287ZDHWauvRTQIBc3b1F++s/03J/rBHbpRGwBoYbrqIN+3wRx4EXbU1u9NGO" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js" integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha384-t1nt8BQoYMLFN5p42tRAtuAAFQaCQODekUVeKKZrEnEyp4H2R0RHFz0KWpmj7i8g" crossorigin="anonymous">
     {% block extra_head %}{% endblock %}
 </head>
@@ -114,6 +115,17 @@
         document.addEventListener('click', (e) => {
             if (!menuBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
                 mobileMenu.classList.add('hidden');
+            }
+        });
+    </script>
+
+    <script>
+        // Send the CSRF token with HTMX requests (Django requires X-CSRFToken).
+        document.addEventListener('htmx:configRequest', (e) => {
+            const cookie = document.cookie.split('; ').find(row => row.startsWith('csrftoken='));
+            if (cookie) {
+                const token = cookie.split('=')[1];
+                e.detail.headers['X-CSRFToken'] = token;
             }
         });
     </script>

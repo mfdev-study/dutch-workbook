@@ -21,6 +21,7 @@ urlpatterns += i18n_patterns(
     path("accounts/", include("accounts.urls")),
     path("words/", include("words.urls")),
     path("quiz/", include("quiz.urls")),
+    path("dutch/", include("dutch.urls")),
     path("progress/", include("progress.urls")),
     path("", RedirectView.as_view(pattern_name="dashboard", permanent=False)),
 )
