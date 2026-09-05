@@ -10,17 +10,20 @@
 
         {% if word_count > 0 %}
         <div class="space-y-4">
-            <a href="{% url 'start_quiz' 'MC' %}" class="block p-6 border border-gray-200 rounded-lg hover:border-dutch-orange hover:shadow-md transition">
+            <a href="{% url 'start_quiz' 'MC' %}" class="block p-6 border-2 border-gray-200 rounded-lg hover:border-dutch-orange hover:bg-orange-50 hover:shadow-md transition group">
                 <div class="flex items-center">
                     <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
                         <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </div>
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-900">Multiple Choice</h3>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold text-gray-900 group-hover:text-dutch-orange-deep">Multiple Choice</h3>
                         <p class="text-gray-600">Test your knowledge by selecting the correct translation from 4 options.</p>
                     </div>
+                    <svg class="w-5 h-5 text-gray-300 group-hover:text-dutch-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
                 </div>
             </a>
 
@@ -38,17 +41,18 @@
                 </div>
             </div>
 
-            <a href="{% url 'dutch:quiz' %}" class="block p-6 border border-gray-200 rounded-lg hover:border-dutch-orange hover:shadow-md transition">
+            <a href="{% url 'dutch:quiz' %}" class="block p-6 border-2 border-dutch-orange bg-orange-50/40 rounded-lg hover:bg-orange-50 hover:shadow-md transition group">
                 <div class="flex items-center">
                     <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
                         <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
                         </svg>
                     </div>
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-900">de / het</h3>
-                        <p class="text-gray-600">{% trans "Practice choosing the correct Dutch article (de or het)." %}</p>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold text-dutch-orange-deep">de / het</h3>
+                        <p class="text-gray-700">{% trans "Practice choosing the correct Dutch article (de or het)." %}</p>
                     </div>
+                    <span class="bg-dutch-orange text-slate-900 text-sm font-semibold px-3 py-1.5 rounded-md shadow-sm">{% trans "Start" %}</span>
                 </div>
             </a>
         </div>
@@ -63,7 +67,7 @@
             <div class="text-6xl mb-4">📚</div>
             <h2 class="text-xl font-semibold text-gray-900 mb-2">No flashcards yet</h2>
             <p class="text-gray-600 mb-6">Add words to your flashcards first to take a quiz.</p>
-            <a href="{% url 'browse' %}" class="inline-block bg-dutch-orange text-white px-6 py-2 rounded-md hover:bg-orange-600 transition font-medium">
+            <a href="{% url 'browse' %}" class="inline-block bg-dutch-orange text-slate-900 px-6 py-2.5 rounded-md hover:bg-orange-600 shadow-md active:scale-[0.98] transition font-semibold">
                 Browse Words
             </a>
         </div>

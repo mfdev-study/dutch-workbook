@@ -97,7 +97,7 @@
             {% else %}
             <form method="post" action="{% url 'add_flashcard' word.id %}" class="inline">
                 {% csrf_token %}
-                <button type="submit" class="inline-flex items-center px-3 py-1.5 rounded-full text-sm bg-dutch-orange text-white hover:bg-orange-600 transition">
+                <button type="submit" class="inline-flex items-center px-3 py-1.5 rounded-full text-sm bg-dutch-orange text-slate-900 hover:bg-orange-600 transition">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>

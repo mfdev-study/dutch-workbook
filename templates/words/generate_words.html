@@ -99,7 +99,7 @@
                         </p>
                         {% endif %}
                     </div>
-                    <a href="{% url 'word_detail' word.id %}" class="inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-dutch-orange hover:bg-orange-600 transition sm:ml-4 whitespace-nowrap">
+                    <a href="{% url 'word_detail' word.id %}" class="inline-flex items-center justify-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-slate-900 bg-dutch-orange hover:bg-orange-600 transition sm:ml-4 whitespace-nowrap">
                         View
                     </a>
                 </div>
@@ -108,7 +108,7 @@
         </div>
 
         <div class="mt-4 sm:mt-6 flex flex-col sm:flex-row gap-3">
-            <a href="{% url 'generate_words' %}" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-dutch-orange hover:bg-orange-600 transition">
+            <a href="{% url 'generate_words' %}" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-slate-900 bg-dutch-orange hover:bg-orange-600 transition">
                 Generate More
             </a>
             <a href="{% url 'dashboard' %}" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition">
@@ -276,7 +276,7 @@
                 <button
                     type="submit"
                     {% if not opencode_enabled %}disabled{% endif %}
-                    class="flex-1 bg-dutch-orange text-white py-3 px-4 rounded-lg hover:bg-orange-600 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    class="flex-1 bg-dutch-orange text-slate-900 py-3 px-4 rounded-lg hover:bg-orange-600 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>

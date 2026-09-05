@@ -27,7 +27,7 @@
 </div>
 
 {% if question_num >= total %}
-<button hx-get="{% url 'dutch:quiz' %}" hx-target="#quiz-content" hx-swap="innerHTML" hx-disabled-elt="this" class="relative w-full bg-dutch-orange text-slate-900 py-3 px-4 rounded-md hover:bg-orange-600 transition font-medium">{% trans "View results" %}
+<button hx-get="{% url 'dutch:quiz' %}" hx-target="#quiz-content" hx-swap="innerHTML" hx-disabled-elt="this" class="relative w-full bg-dutch-orange text-slate-900 py-3 px-4 rounded-md hover:bg-orange-600 transition font-semibold shadow-md active:scale-[0.98]">{% trans "View results" %}
     <span class="htmx-indicator absolute inset-0 flex items-center justify-center" aria-hidden="true">
         <svg class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -36,7 +36,7 @@
     </span>
 </button>
 {% else %}
-<button hx-get="{% url 'dutch:quiz' %}" hx-target="#quiz-content" hx-swap="innerHTML" hx-disabled-elt="this" class="relative w-full bg-dutch-orange text-slate-900 py-3 px-4 rounded-md hover:bg-orange-600 transition font-medium">{% trans "Next question" %}
+<button hx-get="{% url 'dutch:quiz' %}" hx-target="#quiz-content" hx-swap="innerHTML" hx-disabled-elt="this" class="relative w-full bg-dutch-orange text-slate-900 py-3 px-4 rounded-md hover:bg-orange-600 transition font-semibold shadow-md active:scale-[0.98]">{% trans "Next question" %}
     <span class="htmx-indicator absolute inset-0 flex items-center justify-center" aria-hidden="true">
         <svg class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

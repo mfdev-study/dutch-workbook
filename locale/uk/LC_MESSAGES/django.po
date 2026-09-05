@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Dutch Workbook 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-05 15:09+0000\n"
+"POT-Creation-Date: 2026-09-05 18:44+0000\n"
 "PO-Revision-Date: 2026-04-28 12:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -229,9 +229,13 @@ msgstr ""
 msgid "Continue with Google"
 msgstr ""
 
-#: templates/quiz/home.html:50
+#: templates/quiz/home.html:53
 msgid "Practice choosing the correct Dutch article (de or het)."
 msgstr "Потренуйтеся обирати правильний нідерландський артикль (de або het)."
+
+#: templates/quiz/home.html:55
+msgid "Start"
+msgstr "Почати"
 
 #: templates/registration/login.html:9
 msgid "Welcome Back"

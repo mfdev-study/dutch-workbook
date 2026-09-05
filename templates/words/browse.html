@@ -18,7 +18,7 @@
                 <option value="UK" {% if source == 'UK' %}selected{% endif %}>{% trans "Ukrainian" %}</option>
                 <option value="EN" {% if source == 'EN' %}selected{% endif %}>{% trans "English" %}</option>
             </select>
-            <button type="submit" class="bg-dutch-orange text-white px-6 py-2 rounded-md hover:bg-orange-600 transition font-medium whitespace-nowrap">
+            <button type="submit" class="bg-dutch-orange text-slate-900 px-6 py-2 rounded-md hover:bg-orange-600 transition font-medium whitespace-nowrap">
                 {% trans "Search" %}
             </button>
         </form>
@@ -102,7 +102,7 @@
 
             {% for num in page_obj.paginator.page_range %}
                 {% if num == page_obj.number %}
-                <span class="px-3 py-1 border rounded text-sm bg-dutch-orange text-white">{{ num }}</span>
+                <span class="px-3 py-1 border rounded text-sm bg-dutch-orange text-slate-900">{{ num }}</span>
                 {% elif num > page_obj.number|add:-3 and num < page_obj.number|add:3 %}
                 <a href="?{% if query %}q={{ query }}&{% endif %}{% if source %}source={{ source }}&{% endif %}page={{ num }}" class="px-3 py-1 border rounded text-sm hover:bg-gray-100">{{ num }}</a>
                 {% endif %}
