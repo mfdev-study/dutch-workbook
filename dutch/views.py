@@ -151,6 +151,7 @@ def answer(request: HttpRequest) -> HttpResponse:
         "is_correct": is_correct,
         "question_num": current + 1,
         "total": len(question_ids),
+        "score": state["score"],
     }
     return render(request, "dutch/de_het_answer.html", context)
 

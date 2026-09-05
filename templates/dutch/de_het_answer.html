@@ -1,12 +1,14 @@
 {% load i18n %}
 <div class="flex justify-between items-center mb-6">
-    <span class="text-gray-500">{% blocktrans %}Question {{ question_num }} / {{ total }}{% endblocktrans %}</span>
+    <span class="text-gray-500 tabular-nums" role="status">{% blocktrans %}Question {{ question_num }} / {{ total }}{% endblocktrans %}</span>
+    <span class="text-gray-500 tabular-nums" role="status">{% trans "Score:" %} {{ score }}</span>
 </div>
 
 <div class="w-full bg-gray-200 rounded-full h-2 mb-8">
     <div class="bg-dutch-orange h-2 rounded-full" style="width: {% widthratio question_num total 100 %}%"></div>
 </div>
 
+<div role="status">
 {% if is_correct %}
 <div class="text-center py-6 rounded-lg bg-green-50 border border-green-200 mb-6">
     <span class="text-2xl">&#10003;</span>
@@ -18,13 +20,28 @@
 <div class="text-center py-6 rounded-lg bg-red-50 border border-red-200 mb-6">
     <span class="text-2xl">&#10007;</span>
     <p class="text-red-700 font-semibold mt-2">{% trans "Not quite" %}</p>
-    <p class="text-2xl font-bold text-gray-900 mt-2">{% trans "Correct answer:" %} {{ question.correct_article }} {{ question.word }}</p>
+    <p class="text-2xl font-bold text-gray-900 mt-2">{% blocktrans with chosen=chosen correct_phrase=question.correct_article|stringformat:"s" question_word=question.word %}You chose <strong>{{ chosen }}</strong>. Correct answer: <strong>{{ correct_phrase }} {{ question_word }}</strong>.{% endblocktrans %}</p>
     <p class="text-gray-600 mt-2">{{ question.explanation }}</p>
 </div>
 {% endif %}
+</div>
 
 {% if question_num >= total %}
-<button hx-get="{% url 'dutch:quiz' %}" hx-target="#quiz-content" hx-swap="innerHTML" class="w-full bg-dutch-orange text-white py-3 px-4 rounded-md hover:bg-orange-600 transition font-medium">{% trans "View results" %}</button>
+<button hx-get="{% url 'dutch:quiz' %}" hx-target="#quiz-content" hx-swap="innerHTML" hx-disabled-elt="this" class="relative w-full bg-dutch-orange text-slate-900 py-3 px-4 rounded-md hover:bg-orange-600 transition font-medium">{% trans "View results" %}
+    <span class="htmx-indicator absolute inset-0 flex items-center justify-center" aria-hidden="true">
+        <svg class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
+    </span>
+</button>
 {% else %}
-<button hx-get="{% url 'dutch:quiz' %}" hx-target="#quiz-content" hx-swap="innerHTML" class="w-full bg-dutch-orange text-white py-3 px-4 rounded-md hover:bg-orange-600 transition font-medium">{% trans "Next question" %}</button>
+<button hx-get="{% url 'dutch:quiz' %}" hx-target="#quiz-content" hx-swap="innerHTML" hx-disabled-elt="this" class="relative w-full bg-dutch-orange text-slate-900 py-3 px-4 rounded-md hover:bg-orange-600 transition font-medium">{% trans "Next question" %}
+    <span class="htmx-indicator absolute inset-0 flex items-center justify-center" aria-hidden="true">
+        <svg class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
+    </span>
+</button>
 {% endif %}

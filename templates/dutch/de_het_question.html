@@ -1,7 +1,7 @@
 {% load i18n %}
 <div class="flex justify-between items-center mb-6">
-    <span class="text-gray-500">{% blocktrans %}Question {{ question_num }} / {{ total }}{% endblocktrans %}</span>
-    <span class="text-gray-500">{% trans "Score:" %} {{ score }}</span>
+    <span class="text-gray-500 tabular-nums" role="status">{% blocktrans %}Question {{ question_num }} / {{ total }}{% endblocktrans %}</span>
+    <span class="text-gray-500 tabular-nums" role="status">{% trans "Score:" %} {{ score }}</span>
 </div>
 
 <div class="w-full bg-gray-200 rounded-full h-2 mb-8">
@@ -19,17 +19,35 @@
         hx-target="#quiz-content"
         hx-swap="innerHTML"
         hx-vals='{"question_id": {{ question.id }}}'
+        hx-disabled-elt="this"
         name="answer"
         value="de"
-        class="py-4 text-xl font-semibold rounded-lg border-2 border-gray-300 text-gray-700 hover:border-dutch-orange hover:bg-orange-50 transition"
-    >de</button>
+        class="relative py-4 text-xl font-semibold rounded-lg border-2 border-gray-300 text-gray-700 hover:border-dutch-orange hover:bg-orange-50 transition"
+    >
+        <span class="htmx-indicator absolute inset-0 flex items-center justify-center" aria-hidden="true">
+            <svg class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+        </span>
+        de
+    </button>
     <button
         hx-post="{% url 'dutch:answer' %}"
         hx-target="#quiz-content"
         hx-swap="innerHTML"
         hx-vals='{"question_id": {{ question.id }}}'
+        hx-disabled-elt="this"
         name="answer"
         value="het"
-        class="py-4 text-xl font-semibold rounded-lg border-2 border-gray-300 text-gray-700 hover:border-dutch-orange hover:bg-orange-50 transition"
-    >het</button>
+        class="relative py-4 text-xl font-semibold rounded-lg border-2 border-gray-300 text-gray-700 hover:border-dutch-orange hover:bg-orange-50 transition"
+    >
+        <span class="htmx-indicator absolute inset-0 flex items-center justify-center" aria-hidden="true">
+            <svg class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+        </span>
+        het
+    </button>
 </div>

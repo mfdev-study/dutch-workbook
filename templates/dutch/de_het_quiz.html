@@ -6,7 +6,10 @@
 {% block content %}
 <div class="max-w-2xl mx-auto">
     <div class="bg-white rounded-lg shadow-md p-8">
-        <h1 class="text-2xl font-bold text-gray-900 mb-2">{% trans "Dutch Articles" %}</h1>
+        <div class="flex justify-between items-start mb-2">
+            <h1 class="text-2xl font-bold text-gray-900">{% trans "Dutch Articles" %}</h1>
+            <a href="{% url 'quiz_home' %}" class="text-sm text-gray-500 hover:text-gray-700">{% trans "Quit quiz" %}</a>
+        </div>
         <p class="text-gray-600 mb-6">{% blocktrans %}Choose <strong>de</strong> or <strong>het</strong> for each word.{% endblocktrans %}</p>
         <div id="quiz-content">
             {% include "dutch/de_het_question.html" %}

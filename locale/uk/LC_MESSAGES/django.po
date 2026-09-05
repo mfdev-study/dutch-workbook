@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Dutch Workbook 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-05 14:39+0000\n"
+"POT-Creation-Date: 2026-09-05 15:09+0000\n"
 "PO-Revision-Date: 2026-04-28 12:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -27,54 +27,58 @@ msgstr ""
 msgid "Dutch Learning Workbook"
 msgstr "Нідерландський навчальний зошит"
 
-#: templates/base.html:22
+#: templates/base.html:16
+msgid "Skip to content"
+msgstr "Перейти до вмісту"
+
+#: templates/base.html:23
 msgid "Dutch Workbook"
 msgstr "Нідерландський зошит"
 
-#: templates/base.html:29 templates/base.html:73
+#: templates/base.html:30 templates/base.html:74
 #: templates/words/dashboard.html:4
 msgid "Dashboard"
 msgstr "Панель керування"
 
-#: templates/base.html:30 templates/base.html:74
+#: templates/base.html:31 templates/base.html:75
 msgid "Add Word"
 msgstr "Додати слово"
 
-#: templates/base.html:35 templates/base.html:79
+#: templates/base.html:36 templates/base.html:80
 msgid "AI Generate"
 msgstr "Генерація ШІ"
 
-#: templates/base.html:37 templates/base.html:81
+#: templates/base.html:38 templates/base.html:82
 msgid "Browse"
 msgstr "Огляд"
 
-#: templates/base.html:38 templates/base.html:82
+#: templates/base.html:39 templates/base.html:83
 msgid "Flashcards"
 msgstr "Флеш-картки"
 
-#: templates/base.html:39 templates/base.html:83
+#: templates/base.html:40 templates/base.html:84
 msgid "Quiz"
 msgstr "Вікторина"
 
-#: templates/base.html:40 templates/base.html:84
+#: templates/base.html:41 templates/base.html:85
 msgid "Network"
 msgstr ""
 
-#: templates/base.html:41 templates/base.html:85
+#: templates/base.html:42 templates/base.html:86
 msgid "Progress"
 msgstr "Прогрес"
 
-#: templates/base.html:46 templates/base.html:90
+#: templates/base.html:47 templates/base.html:91
 msgid "Logout"
 msgstr "Вийти"
 
-#: templates/base.html:50 templates/base.html:94
+#: templates/base.html:51 templates/base.html:95
 #: templates/registration/login.html:4 templates/registration/login.html:34
 #: templates/registration/signup.html:64
 msgid "Login"
 msgstr "Увійти"
 
-#: templates/base.html:51 templates/base.html:95
+#: templates/base.html:52 templates/base.html:96
 #: templates/registration/signup.html:4 templates/registration/signup.html:55
 #: templates/socialaccount/signup.html:5
 #: templates/socialaccount/signup.html:10
@@ -82,7 +86,11 @@ msgstr "Увійти"
 msgid "Sign Up"
 msgstr "Реєстрація"
 
-#: templates/base.html:147
+#: templates/base.html:61
+msgid "Menu"
+msgstr "Меню"
+
+#: templates/base.html:170
 msgid "Dutch Learning Workbook - Learn Dutch with flashcards and quizzes"
 msgstr ""
 "Нідерландський навчальний зошит - Вивчайте нідерландську з флеш-картками та "
@@ -93,23 +101,32 @@ msgstr ""
 msgid "Question %(question_num)s / %(total)s"
 msgstr "Питання %(question_num)s / %(total)s"
 
-#: templates/dutch/de_het_answer.html:13
+#: templates/dutch/de_het_answer.html:4 templates/dutch/de_het_question.html:4
+msgid "Score:"
+msgstr "Рахунок:"
+
+#: templates/dutch/de_het_answer.html:15
 msgid "Correct!"
 msgstr "Правильно!"
 
-#: templates/dutch/de_het_answer.html:20
+#: templates/dutch/de_het_answer.html:22
 msgid "Not quite"
 msgstr "Не зовсім"
 
-#: templates/dutch/de_het_answer.html:21
-msgid "Correct answer:"
-msgstr "Правильна відповідь:"
+#: templates/dutch/de_het_answer.html:23
+#, python-format
+msgid ""
+"You chose <strong>%(chosen)s</strong>. Correct answer: "
+"<strong>%(correct_phrase)s %(question_word)s</strong>."
+msgstr ""
+"Ви обрали <strong>%(chosen)s</strong>. Правильна відповідь: "
+"<strong>%(correct_phrase)s %(question_word)s</strong>."
 
-#: templates/dutch/de_het_answer.html:27
+#: templates/dutch/de_het_answer.html:30
 msgid "View results"
 msgstr "Переглянути результати"
 
-#: templates/dutch/de_het_answer.html:29
+#: templates/dutch/de_het_answer.html:39
 msgid "Next question"
 msgstr "Наступне питання"
 
@@ -132,15 +149,15 @@ msgstr "Активних питань про de/het поки немає. Зав�
 msgid "Back to quizzes"
 msgstr "Назад до вікторин"
 
-#: templates/dutch/de_het_question.html:4
-msgid "Score:"
-msgstr "Рахунок:"
-
-#: templates/dutch/de_het_quiz.html:9
+#: templates/dutch/de_het_quiz.html:10
 msgid "Dutch Articles"
 msgstr "Нідерландські артиклі"
 
-#: templates/dutch/de_het_quiz.html:10
+#: templates/dutch/de_het_quiz.html:11
+msgid "Quit quiz"
+msgstr "Вийти з вікторини"
+
+#: templates/dutch/de_het_quiz.html:13
 msgid "Choose <strong>de</strong> or <strong>het</strong> for each word."
 msgstr ""
 "Оберіть <strong>de</strong> або <strong>het</strong> для кожного слова."
@@ -564,6 +581,9 @@ msgstr "4. Відстежуйте свій прогрес і зберігайт�
 #: templates/words/dashboard.html:94
 msgid "Start Learning"
 msgstr "Почати навчання"
+
+#~ msgid "Correct answer:"
+#~ msgstr "Правильна відповідь:"
 
 #~ msgid "Categories"
 #~ msgstr "Категорії"
