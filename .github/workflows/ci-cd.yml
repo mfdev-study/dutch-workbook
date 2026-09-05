@@ -44,6 +44,9 @@ jobs:
           ALLOWED_HOSTS: localhost,127.0.0.1,testserver
         run: uv run python manage.py makemigrations --check --dry-run
 
+      - name: Install gettext
+        run: sudo apt-get update && sudo apt-get install -y gettext
+
       - name: Compile translation messages
         run: uv run python manage.py compilemessages
 
