@@ -139,3 +139,35 @@ jobs:
             fi
 
             echo "Deployment completed successfully!"
+
+  notify:
+    needs: [test, deploy]
+    if: github.event_name == 'push' && always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Telegram notification
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TEST_RESULT: ${{ needs.test.result }}
+          DEPLOY_RESULT: ${{ needs.deploy.result }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "Telegram secrets not configured; skipping notification"
+            exit 0
+          fi
+
+          if [ "$TEST_RESULT" = "success" ] && [ "$DEPLOY_RESULT" != "failure" ]; then
+            STATUS="✅ green"
+          else
+            STATUS="❌ failed"
+          fi
+
+          MSG="${STATUS} ${GITHUB_REPOSITORY} ${GITHUB_SHA:0:7}"
+          MSG="${MSG} (test: ${TEST_RESULT}, deploy: ${DEPLOY_RESULT})"
+          MSG="${MSG} — ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+
+          curl -sS -f -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=${MSG}"
