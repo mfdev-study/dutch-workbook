@@ -1,0 +1,10 @@
+[Unit]
+Description=Back up Dutch Workbook SQLite database to Dropbox
+After=network.target
+
+[Service]
+Type=oneshot
+User=dutchapp
+Group=dutchapp
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/dropbox-backup-tui/.venv/bin/python /opt/dropbox-backup-tui/scripts/backup_dutchworkbook.py
