@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Dutch Workbook 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-05 18:44+0000\n"
+"POT-Creation-Date: 2026-09-11 14:43+0000\n"
 "PO-Revision-Date: 2026-04-28 12:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -255,8 +255,6 @@ msgid "Password"
 msgstr "Пароль"
 
 #: templates/registration/login.html:38
-#, fuzzy
-#| msgid "Confirm Password"
 msgid "Forgot password?"
 msgstr "Подтвердите пароль"
 
@@ -283,14 +281,10 @@ msgstr ""
 
 #: templates/registration/password_reset_confirm.html:4
 #: templates/registration/password_reset_confirm.html:9
-#, fuzzy
-#| msgid "Password"
 msgid "Set New Password"
 msgstr "Пароль"
 
 #: templates/registration/password_reset_confirm.html:23
-#, fuzzy
-#| msgid "Password"
 msgid "New Password"
 msgstr "Пароль"
 
@@ -316,8 +310,6 @@ msgid "Confirm Password"
 msgstr "Подтвердите пароль"
 
 #: templates/registration/password_reset_confirm.html:42
-#, fuzzy
-#| msgid "Password"
 msgid "Set Password"
 msgstr "Пароль"
 
@@ -342,14 +334,10 @@ msgid "Back to Login"
 msgstr ""
 
 #: templates/registration/password_reset_form.html:4
-#, fuzzy
-#| msgid "Password"
 msgid "Password Reset"
 msgstr "Пароль"
 
 #: templates/registration/password_reset_form.html:9
-#, fuzzy
-#| msgid "Password"
 msgid "Reset Password"
 msgstr "Пароль"
 
@@ -395,8 +383,6 @@ msgid ""
 msgstr ""
 
 #: templates/socialaccount/login.html:5
-#, fuzzy
-#| msgid "Sign Up"
 msgid "Sign In"
 msgstr "Регистрация"
 
@@ -447,8 +433,6 @@ msgid ""
 msgstr ""
 
 #: templates/words/browse.html:4
-#, fuzzy
-#| msgid "Browse Word Bank"
 msgid "Browse Words"
 msgstr "Просмотреть словарь"
 
@@ -456,51 +440,51 @@ msgstr "Просмотреть словарь"
 msgid "Browse Word Bank"
 msgstr "Просмотреть словарь"
 
-#: templates/words/browse.html:13
+#: templates/words/browse.html:13 templates/words/browse.html:20
 msgid "Search words..."
 msgstr "Поиск слов..."
 
-#: templates/words/browse.html:17
+#: templates/words/browse.html:34
 msgid "All Sources"
 msgstr "Все источники"
 
-#: templates/words/browse.html:18
+#: templates/words/browse.html:35
 msgid "Ukrainian"
 msgstr "Украинский"
 
-#: templates/words/browse.html:19
+#: templates/words/browse.html:36
 msgid "English"
 msgstr "Английский"
 
-#: templates/words/browse.html:22
+#: templates/words/browse.html:39
 msgid "Search"
 msgstr ""
 
-#: templates/words/browse.html:33
+#: templates/words/browse.html:91
 msgid "Dutch"
 msgstr "Голландский"
 
-#: templates/words/browse.html:34
+#: templates/words/browse.html:92
 msgid "Translation"
 msgstr "Перевод"
 
-#: templates/words/browse.html:35
+#: templates/words/browse.html:93
 msgid "Source"
 msgstr "Источник"
 
-#: templates/words/browse.html:36
+#: templates/words/browse.html:94
 msgid "Actions"
 msgstr "Действия"
 
-#: templates/words/browse.html:54 templates/words/browse.html:85
+#: templates/words/browse.html:112 templates/words/browse.html:143
 msgid "View"
 msgstr "Просмотр"
 
-#: templates/words/browse.html:60 templates/words/browse.html:91
+#: templates/words/browse.html:118 templates/words/browse.html:149
 msgid "No words found."
 msgstr "Слова не найдены."
 
-#: templates/words/browse.html:118
+#: templates/words/browse.html:176
 #, python-format
 msgid "Showing %(start)s–%(end)s of %(total)s"
 msgstr ""
@@ -585,6 +569,18 @@ msgstr "4. Отслеживайте свой прогресс и сохраня�
 #: templates/words/dashboard.html:94
 msgid "Start Learning"
 msgstr "Начать обучение"
+
+#: templates/words/partials/word_suggest.html:5
+#, python-format
+msgid "%(counter)s suggestion"
+msgid_plural "%(counter)s suggestions"
+msgstr[0] "%(counter)s предложение"
+msgstr[1] "%(counter)s предложения"
+msgstr[2] "%(counter)s предложений"
+
+#: templates/words/partials/word_suggest.html:16
+msgid "No matching words."
+msgstr "Нет подходящих слов."
 
 #~ msgid "Correct answer:"
 #~ msgstr "Правильный ответ:"

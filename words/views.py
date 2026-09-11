@@ -10,6 +10,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q, QuerySet
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 
 from progress.models import DailyActivity, UserProgress, update_streak
@@ -137,6 +138,50 @@ def browse_words(request: HttpRequest) -> HttpResponse:
         "favorites_ids": favorites_ids,
     }
     return render(request, "words/browse.html", context)
+
+
+MAX_SUGGESTIONS = 8
+
+
+@login_required
+def word_suggest(request: HttpRequest) -> HttpResponse:
+    """Suggest words as the user types (HTMX partial, ranked by relevance)."""
+    term = request.GET.get("q", "").strip()
+    source = request.GET.get("source", "").strip()
+
+    if not request.headers.get("HX-Request"):
+        url = reverse("browse")
+        if term:
+            url = f"{url}?q={term}"
+        return redirect(url)
+
+    suggestions: list[Word] = []
+    if term:
+        qs = Word.objects.filter(Q(dutch__icontains=term) | Q(translation__icontains=term))
+        if source:
+            qs = qs.filter(source=source)
+        candidates = list(qs[:30])
+
+        def rank(word: Word) -> tuple[int, int, str]:
+            dutch_prefix = word.dutch.lower().startswith(term.lower())
+            dutch_exact = word.dutch.lower() == term.lower()
+            translation_prefix = word.translation.lower().startswith(term.lower())
+            translation_exact = word.translation.lower() == term.lower()
+            prefix_score = 0
+            if dutch_prefix or translation_prefix:
+                prefix_score = 1
+            exact_score = 0
+            if dutch_exact or translation_exact:
+                exact_score = 1
+            return (exact_score, prefix_score, word.dutch.lower())
+
+        suggestions = sorted(candidates, key=rank, reverse=True)[:MAX_SUGGESTIONS]
+
+    return render(
+        request,
+        "words/partials/word_suggest.html",
+        {"term": term, "suggestions": suggestions},
+    )
 
 
 @login_required

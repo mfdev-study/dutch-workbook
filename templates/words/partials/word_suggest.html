@@ -1,0 +1,21 @@
+{% load i18n %}
+{% if term %}
+<div id="suggestions-dropdown" class="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg" role="listbox">
+    <p class="sr-only" role="status">
+        {% blocktrans count counter=suggestions|length %}{{ counter }} suggestion{% plural %}{{ counter }} suggestions{% endblocktrans %}
+    </p>
+    {% if suggestions %}
+        {% for word in suggestions %}
+        <a href="{% url 'word_detail' word.id %}" role="option" aria-selected="false"
+            class="flex items-center justify-between px-4 py-2 hover:bg-orange-50 text-gray-800">
+            <span class="font-medium">{{ word.dutch }}</span>
+            <span class="text-sm text-gray-500">{{ word.translation }}</span>
+        </a>
+        {% endfor %}
+    {% else %}
+        <p class="px-4 py-3 text-sm text-gray-500">{% trans "No matching words." %}</p>
+    {% endif %}
+</div>
+{% else %}
+<div id="suggestions-dropdown" hidden></div>
+{% endif %}

@@ -9,11 +9,28 @@
         <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-4">{% trans "Browse Word Bank" %}</h1>
 
         <form method="get" class="flex flex-col sm:flex-row gap-3">
-            <div class="flex-1 min-w-[200px]">
-                <input type="text" name="q" value="{{ query }}" placeholder="{% trans "Search words..." %}"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dutch-orange focus:border-transparent">
+            <div class="flex-1 min-w-[200px] relative">
+                <input type="text" name="q" id="search-input" value="{{ query }}" placeholder="{% trans "Search words..." %}" autocomplete="off"
+                    hx-get="{% url 'word_suggest' %}"
+                    hx-trigger="input changed delay:300ms"
+                    hx-target="#suggestions-dropdown"
+                    hx-swap="outerHTML"
+                    hx-include="#id_source"
+                    hx-indicator="#search-spinner"
+                    aria-label="{% trans "Search words..." %}"
+                    aria-expanded="false"
+                    aria-controls="suggestions-dropdown"
+                    aria-autocomplete="list"
+                    class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dutch-orange focus:border-transparent">
+                <span id="search-spinner" class="htmx-indicator absolute right-3 top-1/2 -translate-y-1/2" aria-hidden="true">
+                    <svg class="w-5 h-5 animate-spin text-gray-400" viewBox="0 0 24 24" fill="none">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                </span>
+                <div id="suggestions-dropdown" hidden></div>
             </div>
-            <select name="source" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dutch-orange">
+            <select name="source" id="id_source" class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dutch-orange">
                 <option value="">{% trans "All Sources" %}</option>
                 <option value="UK" {% if source == 'UK' %}selected{% endif %}>{% trans "Ukrainian" %}</option>
                 <option value="EN" {% if source == 'EN' %}selected{% endif %}>{% trans "English" %}</option>
@@ -23,6 +40,47 @@
             </button>
         </form>
     </div>
+
+    <script>
+        (function () {
+            const input = document.getElementById('search-input');
+
+            function dropdown() {
+                return document.getElementById('suggestions-dropdown');
+            }
+
+            function syncAria() {
+                const dd = dropdown();
+                if (!dd) return;
+                const visible = !dd.hidden && dd.childElementCount > 0;
+                input.setAttribute('aria-expanded', visible ? 'true' : 'false');
+            }
+
+            document.addEventListener('htmx:afterSwap', function (event) {
+                if (event.detail.target && event.detail.target.id === 'suggestions-dropdown') {
+                    syncAria();
+                }
+            });
+
+            document.addEventListener('click', function (event) {
+                const dd = dropdown();
+                if (!dd || dd.contains(event.target) || event.target === input) return;
+                if (dd.hidden) return;
+                dd.hidden = true;
+                dd.innerHTML = '';
+                syncAria();
+            });
+
+            document.addEventListener('keydown', function (event) {
+                const dd = dropdown();
+                if (!dd || dd.hidden || event.key !== 'Escape') return;
+                dd.hidden = true;
+                dd.innerHTML = '';
+                syncAria();
+                input.focus();
+            });
+        })();
+    </script>
 
     <div class="bg-white rounded-lg shadow-md p-4 sm:p-6">
         <!-- Desktop Table -->

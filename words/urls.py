@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path("", views.dashboard, name="dashboard"),
     path("browse/", views.browse_words, name="browse"),
+    path("browse/suggest/", views.word_suggest, name="word_suggest"),
     path("add/", views.add_word, name="add_word"),
     path("word/<int:word_id>/", views.word_detail, name="word_detail"),
     path("word/<int:word_id>/add-flashcard/", views.add_flashcard, name="add_flashcard"),
