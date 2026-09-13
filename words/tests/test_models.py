@@ -171,14 +171,6 @@ class WordViewsTest(TestCase):
         self.assertEqual(flashcard.box, 2)
         self.assertIsNotNone(flashcard.last_reviewed)
 
-    def test_graph_data_limit_validation(self):
-        """Test that invalid limit values don't cause errors."""
-        Flashcard.objects.create(user=self.user, word=self.word, next_review=timezone.now())
-        response = self.client.get(reverse("word_graph_json"), {"limit": "abc"})
-        self.assertEqual(response.status_code, 200)
-        response = self.client.get(reverse("word_graph_json"), {"limit": "999999"})
-        self.assertEqual(response.status_code, 200)
-
 
 class ExampleModelTest(TestCase):
     """Test Example model."""

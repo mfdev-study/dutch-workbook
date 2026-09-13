@@ -49,10 +49,6 @@ msgid "AI Generate"
 msgstr "AI Genereren"
 
 #: templates/base.html:38 templates/base.html:82
-msgid "Browse"
-msgstr "Bladeren"
-
-#: templates/base.html:39 templates/base.html:83
 msgid "Flashcards"
 msgstr "Flashcards"
 
@@ -61,10 +57,6 @@ msgid "Quiz"
 msgstr "Quiz"
 
 #: templates/base.html:41 templates/base.html:85
-msgid "Network"
-msgstr ""
-
-#: templates/base.html:42 templates/base.html:86
 msgid "Progress"
 msgstr "Voortgang"
 

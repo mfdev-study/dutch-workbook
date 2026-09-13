@@ -35,10 +35,9 @@
                             </svg>
                             {% trans "AI Generate" %}
                         </a>
-                        <a href="{% url 'browse' %}" class="px-3 py-2 text-sm font-medium rounded-md transition {% if request.resolved_match.url_name == 'browse' %}bg-orange-100 text-dutch-orange-deep{% else %}text-gray-700 hover:bg-orange-50 hover:text-dutch-orange-deep{% endif %}">{% trans "Browse" %}</a>
+                        <a href="{% url 'browse' %}" class="px-3 py-2 text-sm font-medium rounded-md transition {% if request.resolved_match.url_name == 'browse' %}bg-orange-100 text-dutch-orange-deep{% else %}text-gray-700 hover:bg-orange-50 hover:text-dutch-orange-deep{% endif %}">{% trans "Browse Words" %}</a>
                         <a href="{% url 'flashcards' %}" class="px-3 py-2 text-sm font-medium rounded-md transition {% if request.resolved_match.url_name == 'flashcards' or request.resolved_match.url_name == 'rate_card' %}bg-orange-100 text-dutch-orange-deep{% else %}text-gray-700 hover:bg-orange-50 hover:text-dutch-orange-deep{% endif %}">{% trans "Flashcards" %}</a>
                         <a href="{% url 'quiz_home' %}" class="px-3 py-2 text-sm font-medium rounded-md transition {% if request.resolved_match.url_name == 'quiz_home' or request.resolved_match.url_name == 'quiz_question' or request.resolved_match.url_name == 'quiz_results' or request.resolved_match.url_name == 'quiz_history' or request.resolved_match.url_name == 'quiz' or request.resolved_match.url_name == 'answer' %}bg-orange-100 text-dutch-orange-deep{% else %}text-gray-700 hover:bg-orange-50 hover:text-dutch-orange-deep{% endif %}">{% trans "Quiz" %}</a>
-                        <a href="{% url 'word_graph' %}" class="px-3 py-2 text-sm font-medium rounded-md transition {% if request.resolved_match.url_name == 'word_graph' %}bg-orange-100 text-dutch-orange-deep{% else %}text-gray-700 hover:bg-orange-50 hover:text-dutch-orange-deep{% endif %}">{% trans "Network" %}</a>
                         <a href="{% url 'progress' %}" class="px-3 py-2 text-sm font-medium rounded-md transition {% if request.resolved_match.url_name == 'progress' %}bg-orange-100 text-dutch-orange-deep{% else %}text-gray-700 hover:bg-orange-50 hover:text-dutch-orange-deep{% endif %}">{% trans "Progress" %}</a>
                         <div class="ml-4 flex items-center border-l border-gray-200 pl-4">
                             <span class="text-sm text-gray-500 mr-2">{{ user.username }}</span>
@@ -79,10 +78,9 @@
                         </svg>
                         {% trans "AI Generate" %}
                     </a>
-                    <a href="{% url 'browse' %}" class="block px-3 py-2 rounded-md {% if request.resolved_match.url_name == 'browse' %}bg-orange-100 text-dutch-orange-deep font-medium{% else %}text-gray-700 hover:bg-gray-100{% endif %}">{% trans "Browse" %}</a>
+                    <a href="{% url 'browse' %}" class="block px-3 py-2 rounded-md {% if request.resolved_match.url_name == 'browse' %}bg-orange-100 text-dutch-orange-deep font-medium{% else %}text-gray-700 hover:bg-gray-100{% endif %}">{% trans "Browse Words" %}</a>
                     <a href="{% url 'flashcards' %}" class="block px-3 py-2 rounded-md {% if request.resolved_match.url_name == 'flashcards' or request.resolved_match.url_name == 'rate_card' %}bg-orange-100 text-dutch-orange-deep font-medium{% else %}text-gray-700 hover:bg-gray-100{% endif %}">{% trans "Flashcards" %}</a>
                     <a href="{% url 'quiz_home' %}" class="block px-3 py-2 rounded-md {% if request.resolved_match.url_name == 'quiz_home' or request.resolved_match.url_name == 'quiz_question' or request.resolved_match.url_name == 'quiz_results' or request.resolved_match.url_name == 'quiz_history' or request.resolved_match.url_name == 'quiz' or request.resolved_match.url_name == 'answer' %}bg-orange-100 text-dutch-orange-deep font-medium{% else %}text-gray-700 hover:bg-gray-100{% endif %}">{% trans "Quiz" %}</a>
-                    <a href="{% url 'word_graph' %}" class="block px-3 py-2 rounded-md {% if request.resolved_match.url_name == 'word_graph' %}bg-orange-100 text-dutch-orange-deep font-medium{% else %}text-gray-700 hover:bg-gray-100{% endif %}">{% trans "Network" %}</a>
                     <a href="{% url 'progress' %}" class="block px-3 py-2 rounded-md {% if request.resolved_match.url_name == 'progress' %}bg-orange-100 text-dutch-orange-deep font-medium{% else %}text-gray-700 hover:bg-gray-100{% endif %}">{% trans "Progress" %}</a>
                     <div class="border-t border-gray-200 pt-2 mt-2">
                         <span class="block px-3 py-2 text-sm text-gray-500">{{ user.username }}</span>
