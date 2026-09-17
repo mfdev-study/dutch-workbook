@@ -14,7 +14,7 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
     <a href="#content" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:left-4 focus:top-4 focus:bg-white focus:px-4 focus:py-2 focus:rounded-md focus:shadow focus:text-gray-900">{% trans "Skip to content" %}</a>
-    <nav class="bg-white shadow border-b border-gray-200">
+    <nav class="bg-white shadow">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
@@ -48,7 +48,7 @@
                         </div>
                     {% else %}
                         <a href="{% url 'login' %}" class="border border-gray-300 text-gray-700 hover:bg-gray-50 bg-white px-4 py-2 rounded-md text-sm font-medium transition">{% trans "Login" %}</a>
-                        <a href="{% url 'signup' %}" class="bg-dutch-orange text-slate-900 px-4 py-2 rounded-md text-sm font-semibold hover:bg-orange-600 shadow-sm active:scale-[0.98] transition">{% trans "Sign Up" %}</a>
+                        <a href="{% url 'signup' %}" class="bg-dutch-orange text-slate-900 px-4 py-2 rounded-md text-sm font-semibold hover:bg-orange-600 shadow-sm active:scale-[0.96] transition">{% trans "Sign Up" %}</a>
                     {% endif %}
 
                     <!-- Language Switcher -->
