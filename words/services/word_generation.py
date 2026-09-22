@@ -72,9 +72,9 @@ class WordGenerationService:
         for word_data in words:
             word, created = Word.objects.get_or_create(
                 dutch=word_data.dutch.strip(),
-                translation=word_data.translation.strip(),
                 source=source,
                 defaults={
+                    "translation": word_data.translation.strip(),
                     "part_of_speech": word_data.part_of_speech,
                     "context": word_data.context,
                     "example": word_data.example,

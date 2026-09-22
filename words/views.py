@@ -67,9 +67,9 @@ def add_word(request: HttpRequest) -> HttpResponse:
         if dutch and translation:
             word, created = Word.objects.get_or_create(
                 dutch=dutch,
-                translation=translation,
                 source=source,
                 defaults={
+                    "translation": translation,
                     "context": context,
                     "example": example,
                 },

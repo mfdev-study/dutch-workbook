@@ -50,8 +50,8 @@ class Command(BaseCommand):
                     for dutch, translation in word_pairs:
                         word, created = Word.objects.get_or_create(
                             dutch=dutch.strip(),
-                            translation=translation.strip(),
                             source=source,
+                            defaults={"translation": translation.strip()},
                         )
                         if created:
                             words_imported += 1

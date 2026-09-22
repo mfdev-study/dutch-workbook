@@ -32,9 +32,19 @@ class WordModelTest(TestCase):
         self.assertEqual(str(self.word), "hond - dog")
 
     def test_unique_constraint(self):
-        """Test unique constraint on dutch+translation+source."""
+        """Test unique constraint on dutch+source."""
         with self.assertRaises(IntegrityError):
-            Word.objects.create(dutch="hond", translation="dog", source="EN")
+            Word.objects.create(dutch="hond", translation="perro", source="EN")
+
+    def test_same_dutch_different_translation_rejected(self):
+        """Same dutch+source can't duplicate, even with different translation."""
+        with self.assertRaises(IntegrityError):
+            Word.objects.create(dutch="hond", translation="doggo", source="EN")
+
+    def test_same_dutch_different_source_allowed(self):
+        """Same dutch under different courses is allowed."""
+        word = Word.objects.create(dutch="hond", translation="собака", source="RU")
+        self.assertEqual(word.source, "RU")
 
 
 class WordListViewTest(TestCase):

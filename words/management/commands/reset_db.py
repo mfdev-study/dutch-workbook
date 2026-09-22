@@ -150,9 +150,9 @@ class Command(BaseCommand):
         for dutch, translation, source, context, example in sample_words:
             word, created = Word.objects.get_or_create(
                 dutch=dutch,
-                translation=translation,
                 source=source,
                 defaults={
+                    "translation": translation,
                     "context": context,
                     "example": example,
                 },

@@ -27,8 +27,8 @@ class Word(models.Model):
         ordering = ["dutch"]
         constraints = [
             models.UniqueConstraint(
-                fields=["dutch", "translation", "source"],
-                name="unique_word_translation_source",
+                fields=["dutch", "source"],
+                name="unique_word_dutch_source",
             ),
         ]
 
